@@ -150,11 +150,7 @@
             },
         };
 
-        if (RAZORPAY_KEY_ID === 'rzp_live_SkGxektNh5gQfY') {
-            alert('⚠️ Razorpay is not configured yet.\n\nPlease replace YOUR_RAZORPAY_KEY_ID with your actual Razorpay Key ID in the code.\n\nGet your Key ID at: https://dashboard.razorpay.com');
-            return;
-        }
-
+        
         try {
             const rzp = new Razorpay(options);
             rzp.on('payment.failed', function(response) {
