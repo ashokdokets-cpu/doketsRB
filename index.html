@@ -123,11 +123,13 @@
             description: selectedPlan.description,
             image: 'https://doketsrb.com/favicon.svg',
             handler: function(response) {
-                // Payment successful
-                showPaymentSuccess(response.razorpay_payment_id, plan);
-                // Here you would typically verify the payment on your backend
-                // and activate the user's account
-            },
+    showPaymentSuccess(
+        response.razorpay_payment_id,
+        response.razorpay_order_id,
+        response.razorpay_signature,
+        plan
+    );
+},
             prefill: {
                 name: App.resumeData.personal.fullName || '',
                 email: App.resumeData.personal.email || '',
@@ -166,11 +168,31 @@
         }
     }
 
-    function showPaymentSuccess(paymentId, plan) {
-        alert('✅ Payment Successful!\n\nPayment ID: ' + paymentId + '\nPlan: ' + plan + '\n\nYour account is being activated. Welcome to ResumeAI Pro!');
-        // In production, verify payment on backend and redirect to dashboard
-        navigate('dashboard');
-    }
+    function showPaymentSuccess(paymentId, orderId, signature, plan) {
+    fetch('/api/verify-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            razorpay_payment_id: paymentId,
+            razorpay_order_id: orderId,
+            razorpay_signature: signature,
+            plan: plan
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('✅ Payment Verified!\n\nYour ' + plan + ' plan is now active.\nWelcome to ResumeAI Pro!');
+            navigate('dashboard');
+        } else {
+            alert('❌ Payment verification failed. Please contact support.\n\nError: ' + data.error);
+        }
+    })
+    .catch(error => {
+        alert('❌ Could not verify payment. Your payment may still have been processed. Please contact support.');
+        console.error('Verification error:', error);
+    });
+}
 
     // ============================================
     // APPLICATION STATE
