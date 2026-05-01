@@ -1,19 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ResumeAI Pro — AI Resume Builder with Job Targeting</title>
-    <meta name="description" content="Build ATS-optimized resumes with AI-powered job targeting. Match your skills to any job description, auto-generate tailored content, and export job-ready PDFs. Trusted by professionals worldwide.">
-    <meta name="keywords" content="AI resume builder, ATS resume, job targeting, resume optimization, CV builder, PDF export">
-    <meta property="og:title" content="ResumeAI Pro — AI-Powered Resume Builder">
-    <meta property="og:description" content="Build ATS-optimized resumes with AI job targeting. Export as PDF instantly.">
-    <meta property="og:type" content="website">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="robots" content="index, follow">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
-
-    <!-- Tailwind CSS from CDN -->
+    <title>ResumeAI Pro — AI Resume Builder</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -21,1049 +11,132 @@
                 extend: {
                     colors: {
                         brand: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a' },
-                        accent: { 500: '#8b5cf6', 600: '#7c3aed' },
                         success: '#10b981', warning: '#f59e0b', danger: '#ef4444',
                     },
                 },
             },
         }
     </script>
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-    <!-- Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
-
-    <!-- PDF Export (loaded on demand) -->
-    <script>
-        // Lazy load PDF libraries only when needed
-        let pdfLibsLoaded = false;
-        async function loadPDFLibs() {
-            if (pdfLibsLoaded) return true;
-            try {
-                await Promise.all([
-                    new Promise((resolve, reject) => {
-                        const script = document.createElement('script');
-                        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-                        script.onload = resolve;
-                        script.onerror = reject;
-                        document.head.appendChild(script);
-                    }),
-                    new Promise((resolve, reject) => {
-                        const script = document.createElement('script');
-                        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-                        script.onload = resolve;
-                        script.onerror = reject;
-                        document.head.appendChild(script);
-                    })
-                ]);
-                pdfLibsLoaded = true;
-                return true;
-            } catch (e) {
-                console.error('Failed to load PDF libraries:', e);
-                return false;
-            }
-        }
-    </script>
-
     <style>
-        *, *::before, *::after { box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-        body { margin: 0; padding: 0; }
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 3px; }
-        .gradient-text {
-            background: linear-gradient(135deg, #2563eb, #7c3aed);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .glass {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(229, 231, 235, 0.6);
-        }
-        .resume-preview { font-family: 'Georgia', 'Times New Roman', serif; line-height: 1.5; }
-        .resume-preview h1 { font-size: 22px; font-weight: bold; color: #1e293b; margin: 0 0 4px 0; }
-        .resume-preview h2 { font-size: 15px; font-weight: bold; border-bottom: 2px solid #2563eb; padding-bottom: 4px; margin: 16px 0 8px 0; color: #2563eb; text-transform: uppercase; letter-spacing: 0.5px; }
-        .resume-preview h3 { font-size: 13px; font-weight: bold; color: #334155; margin: 0 0 2px 0; }
-        .resume-preview p { font-size: 11.5px; color: #475569; margin: 0 0 4px 0; }
-        .resume-preview ul { list-style: disc; padding-left: 20px; margin: 4px 0 8px 0; }
-        .resume-preview li { font-size: 11.5px; color: #475569; margin-bottom: 3px; }
-        .resume-preview .section { margin-bottom: 12px; }
-        .animate-fade-in { animation: fadeIn 0.3s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-        @media print {
-            .no-print { display: none !important; }
-            body { background: white !important; }
-            #resume-preview-area { box-shadow: none !important; border: none !important; padding: 0 !important; }
-        }
-        @media (max-width: 640px) {
-            .resume-preview h1 { font-size: 20px; }
-            .resume-preview h2 { font-size: 14px; }
-        }
+        body { margin: 0; font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-900 font-sans antialiased">
+<body class="bg-gray-50">
 
-    <!-- ============================================ -->
-    <!-- MAIN APPLICATION                             -->
-    <!-- ============================================ -->
-    <div id="app" role="application" aria-label="ResumeAI Pro Application">
-        
-        <!-- Navigation Bar -->
-        <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 glass no-print" role="navigation" aria-label="Main navigation">
-            <div class="max-w-7xl mx-auto px-3 sm:px-4 h-16 flex items-center justify-between">
-                <a href="#dashboard" onclick="navigate('dashboard');return false;" class="flex items-center gap-2 hover:opacity-80 transition-opacity" aria-label="ResumeAI Pro Home">
-                    <div class="w-8 h-8 bg-gradient-to-br from-brand-500 to-accent-500 rounded-lg flex items-center justify-center shadow-sm">
-                        <i data-lucide="target" class="w-4 h-4 text-white"></i>
-                    </div>
-                    <span class="font-heading font-bold text-lg hidden sm:inline">Resume<span class="text-brand-600">AI</span> Pro</span>
-                </a>
-                
-                <div class="hidden lg:flex items-center gap-0.5" role="menubar">
-                    <button onclick="navigate('dashboard')" class="px-3 py-2 text-sm font-medium rounded-lg text-gray-600 hover:text-brand-600 hover:bg-brand-50 transition" role="menuitem">Dashboard</button>
-                    <button onclick="navigate('builder')" class="px-3 py-2 text-sm font-medium rounded-lg text-gray-600 hover:text-brand-600 hover:bg-brand-50 transition" role="menuitem">Builder</button>
-                    <button onclick="navigate('templates')" class="px-3 py-2 text-sm font-medium rounded-lg text-gray-600 hover:text-brand-600 hover:bg-brand-50 transition" role="menuitem">Templates</button>
-                    <button onclick="navigate('pricing')" class="px-3 py-2 text-sm font-medium rounded-lg text-gray-600 hover:text-brand-600 hover:bg-brand-50 transition" role="menuitem">Pricing</button>
+    <!-- NAVIGATION -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <a href="#" class="flex items-center gap-2 font-bold text-xl">
+                <span class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white text-sm">R</span>
+                ResumeAI Pro
+            </a>
+            <div class="flex gap-4">
+                <a href="#features" class="text-sm text-gray-600 hover:text-blue-600">Features</a>
+                <a href="#pricing" class="text-sm text-gray-600 hover:text-blue-600">Pricing</a>
+                <button onclick="alert('Sign up coming soon!')" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700">Sign Up Free</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="pt-28 pb-16 px-4 bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <div class="max-w-4xl mx-auto text-center">
+            <div class="inline-block bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full text-sm font-semibold mb-4">
+                🎯 AI-Powered Job Targeting
+            </div>
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 mb-4 leading-tight">
+                Build <span style="background:linear-gradient(135deg,#2563eb,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">ATS-Optimized</span> Resumes<br>That Get You Hired
+            </h1>
+            <p class="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+                Paste any job description. Our AI matches your skills, identifies gaps, generates tailored content, and exports a job-ready resume in minutes.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button onclick="alert('Builder coming soon!')" class="px-8 py-4 bg-blue-600 text-white rounded-xl font-bold text-lg hover:bg-blue-700 shadow-lg">
+                    Build Your Resume Free →
+                </button>
+                <button onclick="alert('Templates coming soon!')" class="px-8 py-4 bg-white text-gray-700 border-2 border-gray-200 rounded-xl font-semibold text-lg hover:border-blue-300">
+                    Browse Templates
+                </button>
+            </div>
+            <p class="text-sm text-gray-500 mt-6">✅ No credit card required • ✅ Free forever plan • ✅ PDF Export</p>
+        </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section id="features" class="py-20 px-4 bg-white">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-3xl font-extrabold text-center mb-12">Everything You Need</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-white p-8 rounded-2xl border border-gray-200 hover:shadow-xl transition">
+                    <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">🎯</div>
+                    <h3 class="text-xl font-bold mb-2">Job Targeting Engine</h3>
+                    <p class="text-gray-600 text-sm">Paste a JD and our AI instantly matches your skills, identifies gaps, and generates tailored content.</p>
                 </div>
-                
-                <div class="flex items-center gap-2">
-                    <button onclick="navigate('signup')" class="px-3 sm:px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition font-semibold text-xs sm:text-sm shadow-sm">Sign Up Free</button>
-                    <button onclick="toggleMobileNav()" class="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition" aria-label="Toggle mobile menu" aria-expanded="false">
-                        <i data-lucide="menu" class="w-5 h-5 text-gray-600"></i>
-                    </button>
+                <div class="bg-white p-8 rounded-2xl border border-gray-200 hover:shadow-xl transition">
+                    <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4">📊</div>
+                    <h3 class="text-xl font-bold mb-2">ATS Score Analysis</h3>
+                    <p class="text-gray-600 text-sm">Real-time scoring across 5 criteria — contact, summary, experience, education, and skills.</p>
+                </div>
+                <div class="bg-white p-8 rounded-2xl border border-gray-200 hover:shadow-xl transition">
+                    <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4">📄</div>
+                    <h3 class="text-xl font-bold mb-2">PDF Export</h3>
+                    <p class="text-gray-600 text-sm">One-click professional PDF generation. Print-ready and ATS-formatted.</p>
                 </div>
             </div>
-            
-            <!-- Mobile Navigation -->
-            <div id="mobile-nav" class="lg:hidden hidden bg-white border-t border-gray-100 px-3 py-2 space-y-0.5 animate-fade-in" role="menu">
-                <button onclick="navigate('dashboard');closeMobileNav()" class="block w-full text-left px-4 py-3 text-sm font-medium rounded-lg hover:bg-brand-50 hover:text-brand-600 transition" role="menuitem">📊 Dashboard</button>
-                <button onclick="navigate('builder');closeMobileNav()" class="block w-full text-left px-4 py-3 text-sm font-medium rounded-lg hover:bg-brand-50 hover:text-brand-600 transition" role="menuitem">📝 Builder</button>
-                <button onclick="navigate('templates');closeMobileNav()" class="block w-full text-left px-4 py-3 text-sm font-medium rounded-lg hover:bg-brand-50 hover:text-brand-600 transition" role="menuitem">🎨 Templates</button>
-                <button onclick="navigate('pricing');closeMobileNav()" class="block w-full text-left px-4 py-3 text-sm font-medium rounded-lg hover:bg-brand-50 hover:text-brand-600 transition" role="menuitem">💰 Pricing</button>
-            </div>
-        </nav>
+        </div>
+    </section>
 
-        <!-- Main Content Container -->
-        <main id="view-container" class="pt-16 min-h-screen" role="main"></main>
-
-        <!-- Footer -->
-        <footer class="bg-gray-900 text-gray-400 py-8 no-print mt-8" role="contentinfo">
-            <div class="max-w-6xl mx-auto px-4 text-center">
-                <p class="text-sm">&copy; 2026 ResumeAI Pro. AI-powered resume builder for professionals worldwide.</p>
-                <div class="flex justify-center gap-5 mt-2 text-xs">
-                    <a href="#dashboard" onclick="navigate('dashboard');return false;" class="hover:text-white transition-colors">Home</a>
-                    <a href="#builder" onclick="navigate('builder');return false;" class="hover:text-white transition-colors">Builder</a>
-                    <a href="#templates" onclick="navigate('templates');return false;" class="hover:text-white transition-colors">Templates</a>
-                    <a href="#pricing" onclick="navigate('pricing');return false;" class="hover:text-white transition-colors">Pricing</a>
+    <!-- PRICING -->
+    <section id="pricing" class="py-20 px-4 bg-gray-50">
+        <div class="max-w-5xl mx-auto text-center">
+            <h2 class="text-3xl font-extrabold mb-4">Simple Pricing</h2>
+            <p class="text-gray-600 mb-10">Start free, upgrade when you're ready.</p>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-2xl p-8 border-2 border-gray-200">
+                    <h3 class="text-xl font-bold">Free</h3>
+                    <div class="text-4xl font-extrabold my-3">$0</div>
+                    <ul class="space-y-2 text-sm mb-6">
+                        <li>✅ 1 Resume</li>
+                        <li>✅ Basic ATS Check</li>
+                        <li>✅ PDF Export</li>
+                    </ul>
+                    <button class="w-full py-3 bg-gray-100 rounded-xl font-bold">Get Started</button>
+                </div>
+                <div class="bg-white rounded-2xl p-8 border-2 border-blue-600 shadow-xl relative scale-105">
+                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-bold">Most Popular</div>
+                    <h3 class="text-xl font-bold">Pro</h3>
+                    <div class="text-4xl font-extrabold my-3">$19/mo</div>
+                    <ul class="space-y-2 text-sm mb-6">
+                        <li>✅ Unlimited Resumes</li>
+                        <li>✅ AI Job Targeting</li>
+                        <li>✅ Full ATS Analysis</li>
+                        <li>✅ All Templates</li>
+                    </ul>
+                    <button class="w-full py-3 bg-blue-600 text-white rounded-xl font-bold">Start Pro</button>
+                </div>
+                <div class="bg-white rounded-2xl p-8 border-2 border-gray-200">
+                    <h3 class="text-xl font-bold">Enterprise</h3>
+                    <div class="text-4xl font-extrabold my-3">Custom</div>
+                    <ul class="space-y-2 text-sm mb-6">
+                        <li>✅ Everything in Pro</li>
+                        <li>✅ White-Label</li>
+                        <li>✅ API Access</li>
+                    </ul>
+                    <button class="w-full py-3 bg-gray-900 text-white rounded-xl font-bold">Contact Sales</button>
                 </div>
             </div>
-        </footer>
-    </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-gray-900 text-gray-400 py-10 text-center text-sm">
+        <p>© 2026 ResumeAI Pro. All rights reserved.</p>
+    </footer>
 
     <script>
-    // ============================================
-    // APPLICATION STATE (Namespaced to avoid conflicts)
-    // ============================================
-    const App = {
-        currentView: 'dashboard',
-        resumeData: {
-            personal: { fullName: '', email: '', phone: '', location: '', linkedin: '' },
-            summary: '',
-            experience: [],
-            education: [],
-            skills: [],
-        },
-        jobTarget: {
-            title: '', company: '', description: '', parsed: false,
-            requiredSkills: [], keywords: [], tools: [],
-            requiredExperience: 0, educationLevel: '', keyResponsibilities: []
-        },
-        jobMatch: {
-            overallScore: 0,
-            skillMatch: { matched: [], missing: [], score: 0 },
-            keywordCoverage: { present: [], absent: [], score: 0 },
-            experienceMatch: { score: 0, gap: '' },
-            educationMatch: { score: 0 },
-            autoSummary: '', autoBullets: {}, suggestions: []
-        },
-        selectedTemplate: 'modern',
-    };
-
-    // ============================================
-    // STATE MANAGEMENT
-    // ============================================
-    function updateState(changes) {
-        Object.assign(App, changes);
-        saveToStorage();
-        refreshView();
-    }
-
-    function refreshView() {
-        const container = document.getElementById('view-container');
-        if (!container) return;
-        const viewFn = Views[App.currentView];
-        if (viewFn) {
-            container.innerHTML = viewFn();
-            // Initialize Lucide icons after DOM update
-            setTimeout(() => {
-                if (typeof lucide !== 'undefined') {
-                    lucide.createIcons();
-                }
-            }, 50);
-        }
-        // Update active nav state
-        document.querySelectorAll('#navbar button[role="menuitem"]').forEach(btn => {
-            btn.classList.remove('text-brand-600', 'bg-brand-50');
-            if (btn.textContent.toLowerCase().includes(App.currentView) || 
-                (App.currentView === 'dashboard' && btn.textContent === 'Dashboard')) {
-                btn.classList.add('text-brand-600', 'bg-brand-50');
-            }
-        });
-    }
-
-    function saveToStorage() {
-        try {
-            const data = {
-                resumeData: App.resumeData,
-                jobTarget: App.jobTarget,
-                jobMatch: App.jobMatch,
-                selectedTemplate: App.selectedTemplate,
-            };
-            localStorage.setItem('resumeai_pro_data', JSON.stringify(data));
-        } catch (e) {
-            // Silently fail - localStorage might be full or unavailable
-        }
-    }
-
-    function loadFromStorage() {
-        try {
-            const raw = localStorage.getItem('resumeai_pro_data');
-            if (raw) {
-                const data = JSON.parse(raw);
-                if (data.resumeData) App.resumeData = data.resumeData;
-                if (data.jobTarget) App.jobTarget = data.jobTarget;
-                if (data.jobMatch) App.jobMatch = data.jobMatch;
-                if (data.selectedTemplate) App.selectedTemplate = data.selectedTemplate;
-            }
-        } catch (e) {
-            // Corrupt data - use defaults
-        }
-    }
-
-    // ============================================
-    // JOB TARGETING ENGINE
-    // ============================================
-    function parseAndMatch() {
-        const jd = App.jobTarget.description.toLowerCase().trim();
-        if (jd.length < 30) {
-            alert('Please paste a complete job description (at least 30 characters).');
-            return;
-        }
-
-        const jt = { ...App.jobTarget, parsed: true };
-        
-        // Comprehensive skill detection
-        const skillMap = [
-            'python', 'java', 'javascript', 'typescript', 'react', 'angular', 'vue', 'node',
-            'sql', 'nosql', 'mongodb', 'postgresql', 'mysql', 'aws', 'azure', 'gcp', 'docker',
-            'kubernetes', 'terraform', 'ci/cd', 'git', 'rest api', 'graphql', 'microservices',
-            'machine learning', 'artificial intelligence', 'data science', 'data analysis',
-            'excel', 'tableau', 'power bi', 'looker', 'snowflake', 'databricks',
-            'figma', 'sketch', 'adobe', 'photoshop', 'illustrator',
-            'salesforce', 'hubspot', 'marketo', 'google analytics', 'seo', 'sem',
-            'agile', 'scrum', 'kanban', 'jira', 'confluence', 'asana',
-            'c++', 'c#', '.net', 'ruby', 'php', 'laravel', 'django', 'flask',
-            'swift', 'kotlin', 'flutter', 'react native',
-            'leadership', 'communication', 'project management', 'stakeholder management',
-            'strategic planning', 'analytical', 'problem-solving', 'team management',
-            'negotiation', 'mentoring', 'coaching', 'cross-functional',
-        ];
-
-        jt.requiredSkills = [];
-        jt.keywords = [];
-        
-        skillMap.forEach(skill => {
-            const escaped = skill.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            const regex = new RegExp('\\b' + escaped + '\\b', 'gi');
-            const matches = jd.match(regex);
-            if (matches) {
-                const reqSection = jd.search(/required|must have|essential|qualifications/i);
-                if (reqSection > -1 && jd.indexOf(skill) > reqSection) {
-                    jt.requiredSkills.push(skill);
-                } else {
-                    jt.keywords.push(skill);
-                }
-            }
-        });
-
-        // Remove duplicates
-        jt.requiredSkills = [...new Set(jt.requiredSkills)];
-        jt.keywords = [...new Set(jt.keywords)];
-
-        // Tool detection
-        const tools = ['salesforce', 'hubspot', 'jira', 'confluence', 'slack', 'github', 'gitlab', 
-                       'figma', 'tableau', 'power bi', 'looker', 'docker', 'kubernetes', 'aws', 'azure', 'gcp'];
-        jt.tools = [...new Set(tools.filter(t => jd.includes(t)))];
-
-        // Experience extraction
-        const expMatch = jd.match(/(\d+)[\+]?\s*(?:years?|yrs?)\s*(?:of\s*)?(?:relevant\s*)?experience/i);
-        jt.requiredExperience = expMatch ? parseInt(expMatch[1]) : 0;
-
-        // Education level
-        if (/ph\.?d|doctorate|doctoral/i.test(jd)) jt.educationLevel = 'PhD';
-        else if (/master'?s|m\.s\.|m\.a\.|mba|graduate degree/i.test(jd)) jt.educationLevel = 'Masters';
-        else if (/bachelor'?s|b\.s\.|b\.a\.|undergraduate|college degree/i.test(jd)) jt.educationLevel = 'Bachelors';
-
-        // Key responsibilities
-        const bullets = jd.match(/[•\-\*\d+\.]\s*(.{25,}?)(?=[•\-\*\d+\.\n]|$)/g);
-        jt.keyResponsibilities = bullets 
-            ? bullets.map(b => b.replace(/^[•\-\*\d+\.]\s*/, '').trim()).filter(b => b.length > 10).slice(0, 8)
-            : [];
-
-        updateState({ jobTarget: jt });
-
-        // Run match analysis
-        const rd = App.resumeData;
-        const allRequiredItems = [...new Set([...jt.requiredSkills, ...jt.keywords, ...jt.tools])];
-        const candidateText = JSON.stringify(rd).toLowerCase();
-        const candidateSkills = rd.skills.map(s => s.toLowerCase().trim());
-
-        const match = {
-            skillMatch: { matched: [], missing: [], score: 0 },
-            keywordCoverage: { present: [], absent: [], score: 0 },
-            experienceMatch: { score: 0, gap: '' },
-            educationMatch: { score: 0 },
-            overallScore: 0,
-            autoSummary: '',
-            autoBullets: {},
-            suggestions: []
-        };
-
-        // Skill matching
-        allRequiredItems.forEach(item => {
-            const itemLower = item.toLowerCase();
-            if (candidateSkills.some(s => s.includes(itemLower) || itemLower.includes(s)) || 
-                candidateText.includes(itemLower)) {
-                match.skillMatch.matched.push(item);
-            } else {
-                match.skillMatch.missing.push(item);
-            }
-        });
-        match.skillMatch.score = allRequiredItems.length > 0 
-            ? Math.round((match.skillMatch.matched.length / allRequiredItems.length) * 100) 
-            : 100;
-
-        // Keyword coverage
-        const allKW = [...new Set([...jt.keywords, ...jt.tools])];
-        allKW.forEach(kw => {
-            if (candidateText.includes(kw.toLowerCase())) {
-                match.keywordCoverage.present.push(kw);
-            } else {
-                match.keywordCoverage.absent.push(kw);
-            }
-        });
-        match.keywordCoverage.score = allKW.length > 0
-            ? Math.round((match.keywordCoverage.present.length / allKW.length) * 100)
-            : 100;
-
-        // Experience calculation
-        let totalYears = 0;
-        rd.experience.forEach(exp => {
-            const years = (exp.dates || '').match(/(\d{4})/g);
-            if (years && years.length >= 2) {
-                totalYears += Math.max(0, parseInt(years[1]) - parseInt(years[0]));
-            }
-        });
-        
-        if (jt.requiredExperience > 0) {
-            match.experienceMatch.score = totalYears >= jt.requiredExperience ? 90 
-                : totalYears >= jt.requiredExperience * 0.7 ? 65 : 30;
-        } else {
-            match.experienceMatch.score = totalYears > 0 ? 80 : 20;
-        }
-        match.experienceMatch.gap = totalYears > 0 ? `${totalYears}+ years` : 'No experience listed';
-
-        // Education matching
-        const levelValues = { phd: 4, masters: 3, bachelors: 2 };
-        const requiredLevel = levelValues[jt.educationLevel?.toLowerCase()] || 0;
-        const eduText = JSON.stringify(rd.education).toLowerCase();
-        let highestLevel = 0;
-        Object.entries(levelValues).forEach(([level, value]) => {
-            if (eduText.includes(level)) highestLevel = Math.max(highestLevel, value);
-        });
-        match.educationMatch.score = requiredLevel > 0
-            ? (highestLevel >= requiredLevel ? 95 : highestLevel >= requiredLevel - 1 ? 60 : 25)
-            : (rd.education.length > 0 ? 85 : 10);
-
-        // Auto-generate summary
-        if (rd.personal.fullName && jt.title) {
-            const topSkills = match.skillMatch.matched.slice(0, 3).join(', ');
-            const resp = jt.keyResponsibilities[0] || 'driving strategic initiatives';
-            const company = jt.company || 'a forward-thinking organization';
-            match.autoSummary = 
-                `Results-driven ${jt.title} with ${totalYears}+ years of experience in ${topSkills || 'delivering measurable outcomes'}. ` +
-                `Proven track record of ${resp.toLowerCase()}. Seeking to leverage expertise to drive success at ${company}.`;
-        }
-
-        // Auto-generate bullets
-        rd.experience.forEach((exp, i) => {
-            const skill = match.skillMatch.matched[i % Math.max(1, match.skillMatch.matched.length)];
-            const resp = jt.keyResponsibilities[i % Math.max(1, jt.keyResponsibilities.length)];
-            if (skill && resp && !(exp.bullets || '').toLowerCase().includes(skill.toLowerCase())) {
-                match.autoBullets[i] = 
-                    `• Leveraged ${skill} to ${resp.toLowerCase()}, achieving measurable improvements in team performance and operational efficiency`;
-            }
-        });
-
-        // Suggestions
-        if (match.skillMatch.missing.length > 0) {
-            match.suggestions.push(
-                `⚠️ Missing ${match.skillMatch.missing.length} skills: ${match.skillMatch.missing.slice(0, 6).join(', ')}${match.skillMatch.missing.length > 6 ? ' + more' : ''}`
-            );
-        }
-        if (match.keywordCoverage.absent.length > 0) {
-            match.suggestions.push(
-                `🔑 Add these keywords to improve ATS match: ${match.keywordCoverage.absent.slice(0, 5).join(', ')}`
-            );
-        }
-        if (jt.requiredExperience > 0 && totalYears < jt.requiredExperience) {
-            match.suggestions.push(
-                `📅 Experience gap: Job requires ${jt.requiredExperience}+ years, you have ~${totalYears}. Highlight transferable skills and relevant projects.`
-            );
-        }
-
-        // Overall score (weighted average)
-        match.overallScore = Math.round(
-            (match.skillMatch.score * 0.35) +
-            (match.keywordCoverage.score * 0.30) +
-            (match.experienceMatch.score * 0.20) +
-            (match.educationMatch.score * 0.15)
-        );
-
-        updateState({ jobMatch: match });
-    }
-
-    // ============================================
-    // ATS SCORING
-    // ============================================
-    function getATSScore() {
-        const rd = App.resumeData;
-        const scores = {
-            contact: (rd.personal.fullName && rd.personal.email) ? 95 : (rd.personal.fullName ? 60 : 20),
-            summary: rd.summary ? (rd.summary.length > 80 ? 90 : 65) : 10,
-            experience: rd.experience.length >= 2 ? 90 : rd.experience.length === 1 ? 60 : 15,
-            education: rd.education.length > 0 ? 85 : 20,
-            skills: rd.skills.length >= 8 ? 90 : rd.skills.length >= 5 ? 70 : rd.skills.length > 0 ? 45 : 10,
-        };
-        const total = Math.round(Object.values(scores).reduce((a, b) => a + b, 0) / Object.keys(scores).length);
-        return { total, breakdown: scores };
-    }
-
-    function getCompositeScore() {
-        const ats = getATSScore().total;
-        const jm = App.jobMatch.overallScore || 0;
-        return jm > 0 ? Math.round((ats * 0.4) + (jm * 0.6)) : ats;
-    }
-
-    // ============================================
-    // DATA MANAGEMENT HELPERS
-    // ============================================
-    function updatePersonal(field, value) {
-        const rd = { ...App.resumeData };
-        rd.personal = { ...rd.personal, [field]: value };
-        updateState({ resumeData: rd });
-    }
-
-    function updateField(field, value) {
-        const rd = { ...App.resumeData };
-        rd[field] = value;
-        updateState({ resumeData: rd });
-    }
-
-    function addItem(key, template) {
-        const rd = { ...App.resumeData };
-        if (!rd[key]) rd[key] = [];
-        rd[key].push({ ...template });
-        updateState({ resumeData: rd });
-    }
-
-    function removeItem(key, index) {
-        const rd = { ...App.resumeData };
-        if (rd[key]) rd[key].splice(index, 1);
-        updateState({ resumeData: rd });
-    }
-
-    function updateArrayItem(key, index, field, value) {
-        const rd = { ...App.resumeData };
-        if (rd[key] && rd[key][index]) rd[key][index][field] = value;
-        updateState({ resumeData: rd });
-    }
-
-    function addSkill(skill) {
-        const trimmed = skill.trim();
-        if (!trimmed) return;
-        const rd = { ...App.resumeData };
-        if (!rd.skills.includes(trimmed)) {
-            rd.skills.push(trimmed);
-            updateState({ resumeData: rd });
-        }
-    }
-
-    function removeSkill(index) {
-        const rd = { ...App.resumeData };
-        rd.skills.splice(index, 1);
-        updateState({ resumeData: rd });
-    }
-
-    function updateJobTarget(field, value) {
-        const jt = { ...App.jobTarget, [field]: value };
-        updateState({ jobTarget: jt });
-    }
-
-    function applyAllSuggestions() {
-        const rd = { ...App.resumeData };
-        
-        if (App.jobMatch.autoSummary) {
-            rd.summary = App.jobMatch.autoSummary;
-        }
-        
-        Object.entries(App.jobMatch.autoBullets).forEach(([index, bullet]) => {
-            const i = parseInt(index);
-            if (rd.experience[i]) {
-                const existing = rd.experience[i].bullets || '';
-                rd.experience[i].bullets = existing ? existing + '\n' + bullet : bullet;
-            }
-        });
-        
-        const missingItems = [...App.jobMatch.skillMatch.missing, ...App.jobMatch.keywordCoverage.absent];
-        missingItems.forEach(item => {
-            if (!rd.skills.includes(item)) {
-                rd.skills.push(item);
-            }
-        });
-        
-        updateState({ resumeData: rd });
-        parseAndMatch();
-        alert('✅ All suggestions applied! Your resume is now optimized for the target job. You can export it as PDF.');
-    }
-
-    // ============================================
-    // PDF EXPORT
-    // ============================================
-    async function exportPDF() {
-        const preview = document.getElementById('resume-preview-area');
-        if (!preview) {
-            alert('No resume to export. Please fill in your details first.');
-            return;
-        }
-        
-        const loaded = await loadPDFLibs();
-        if (!loaded) {
-            alert('Could not load PDF generator. Please check your internet connection and try again.');
-            return;
-        }
-        
-        try {
-            const canvas = await html2canvas(preview, { 
-                scale: 2, 
-                useCORS: true, 
-                backgroundColor: '#ffffff',
-                logging: false
-            });
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF('p', 'mm', 'letter');
-            const pageWidth = pdf.internal.pageSize.getWidth();
-            const pageHeight = (canvas.height * pageWidth) / canvas.width;
-            pdf.addImage(canvas.toDataURL('image/png', 1.0), 'PNG', 0, 0, pageWidth, pageHeight);
-            
-            const filename = (App.resumeData.personal.fullName || 'resume')
-                .toLowerCase().replace(/\s+/g, '-') + '-job-ready.pdf';
-            pdf.save(filename);
-        } catch (e) {
-            console.error('PDF export failed:', e);
-            alert('PDF export failed. Please try again or use browser print (Ctrl+P).');
-        }
-    }
-
-    // ============================================
-    // RESUME PREVIEW RENDERER
-    // ============================================
-    function renderResumePreview() {
-        const rd = App.resumeData;
-        const hasContent = rd.personal.fullName || rd.experience.length > 0 || rd.education.length > 0 || rd.skills.length > 0;
-        
-        if (!hasContent) {
-            return `<div class="flex flex-col items-center justify-center h-64 text-gray-400">
-                <i data-lucide="file-text" class="w-16 h-16 mb-4 text-gray-300"></i>
-                <p class="text-base font-medium">Your resume preview appears here</p>
-                <p class="text-sm mt-1">Fill in your details in the editor to see a live preview</p>
-            </div>`;
-        }
-
-        let html = '';
-        const accent = {
-            modern: '#2563eb', classic: '#1e293b', creative: '#e11d48', 
-            executive: '#d97706', professional: '#0f172a', minimalist: '#64748b',
-            academic: '#1e40af', europass: '#2563eb'
-        }[App.selectedTemplate] || '#2563eb';
-
-        // Header
-        html += `<div style="border-bottom: 3px solid ${accent}; padding-bottom: 10px; margin-bottom: 16px;">`;
-        html += `<h1 style="font-size: 24px; color: #1e293b; margin: 0;">${rd.personal.fullName || 'Your Name'}</h1>`;
-        const contactItems = [];
-        if (rd.personal.email) contactItems.push(`<span>📧 ${rd.personal.email}</span>`);
-        if (rd.personal.phone) contactItems.push(`<span>📱 ${rd.personal.phone}</span>`);
-        if (rd.personal.location) contactItems.push(`<span>📍 ${rd.personal.location}</span>`);
-        if (rd.personal.linkedin) contactItems.push(`<span>🔗 ${rd.personal.linkedin}</span>`);
-        if (contactItems.length > 0) {
-            html += `<div style="font-size: 10px; color: #64748b; display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px;">${contactItems.join('')}</div>`;
-        }
-        html += `</div>`;
-
-        // Summary
-        if (rd.summary) {
-            html += `<div class="section"><h2 style="color: ${accent}; border-bottom-color: ${accent};">Professional Summary</h2>`;
-            html += `<p>${rd.summary}</p></div>`;
-        }
-
-        // Experience
-        if (rd.experience.length > 0) {
-            html += `<div class="section"><h2 style="color: ${accent}; border-bottom-color: ${accent};">Professional Experience</h2>`;
-            rd.experience.forEach(exp => {
-                html += `<div style="margin-bottom: 12px;">`;
-                html += `<div style="display: flex; justify-content: space-between; align-items: baseline;">`;
-                html += `<h3 style="margin: 0;">${exp.title || 'Position Title'}</h3>`;
-                html += `<span style="font-size: 10px; color: #94a3b8; white-space: nowrap;">${exp.dates || ''}</span>`;
-                html += `</div>`;
-                if (exp.company) html += `<p style="margin: 2px 0; font-style: italic;">${exp.company}</p>`;
-                if (exp.bullets) {
-                    const bulletList = exp.bullets.split('\n').filter(b => b.trim());
-                    if (bulletList.length > 0) {
-                        html += `<ul>${bulletList.map(b => `<li>${b.replace(/^[•\-]\s*/, '')}</li>`).join('')}</ul>`;
-                    }
-                }
-                html += `</div>`;
-            });
-            html += `</div>`;
-        }
-
-        // Education
-        if (rd.education.length > 0) {
-            html += `<div class="section"><h2 style="color: ${accent}; border-bottom-color: ${accent};">Education</h2>`;
-            rd.education.forEach(edu => {
-                html += `<div style="margin-bottom: 6px;">`;
-                html += `<h3 style="margin: 0;">${edu.degree || 'Degree'}</h3>`;
-                const eduDetails = [edu.school, edu.year].filter(Boolean).join(' • ');
-                if (eduDetails) html += `<p style="margin: 2px 0;">${eduDetails}</p>`;
-                html += `</div>`;
-            });
-            html += `</div>`;
-        }
-
-        // Skills
-        if (rd.skills.length > 0) {
-            html += `<div class="section"><h2 style="color: ${accent}; border-bottom-color: ${accent};">Skills & Expertise</h2>`;
-            html += `<p>${rd.skills.join(' • ')}</p></div>`;
-        }
-
-        return html;
-    }
-
-    // ============================================
-    // VIEW TEMPLATES
-    // ============================================
-    const Views = {};
-
-    Views.dashboard = function() {
-        const composite = getCompositeScore();
-        const ats = getATSScore();
-        const jt = App.jobTarget;
-        const match = App.jobMatch;
-        const rd = App.resumeData;
-
-        return `
-        <div class="max-w-6xl mx-auto px-4 py-6 animate-fade-in">
-            <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
-                <h1 class="text-2xl sm:text-3xl font-heading font-extrabold text-gray-900">Dashboard</h1>
-                <div class="flex gap-2 flex-wrap">
-                    <button onclick="navigate('builder')" class="px-4 py-2.5 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition font-semibold text-sm flex items-center gap-1.5 shadow-sm">
-                        <i data-lucide="edit" class="w-4 h-4"></i> Edit Resume
-                    </button>
-                    <button onclick="exportPDF()" class="px-4 py-2.5 bg-success text-white rounded-lg hover:bg-green-600 transition font-semibold text-sm flex items-center gap-1.5 shadow-sm">
-                        <i data-lucide="download" class="w-4 h-4"></i> Export PDF
-                    </button>
-                    <button onclick="window.print()" class="px-4 py-2.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition font-semibold text-sm flex items-center gap-1.5 shadow-sm">
-                        <i data-lucide="printer" class="w-4 h-4"></i> Print
-                    </button>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-                ${[
-                    { label: 'Composite Score', value: composite + '%', color: composite >= 75 ? 'green' : composite >= 50 ? 'amber' : 'red' },
-                    { label: 'ATS Quality', value: ats.total + '%', color: 'blue' },
-                    { label: 'Job Match', value: (match.overallScore || '--') + '%', color: 'purple' },
-                    { label: 'Skills Listed', value: rd.skills.length, color: 'amber' }
-                ].map(s => `
-                    <div class="bg-white rounded-xl p-4 border border-gray-200 shadow-sm text-center">
-                        <div class="text-2xl sm:text-3xl font-extrabold text-${s.color}-600">${s.value}</div>
-                        <div class="text-xs text-gray-500 mt-1">${s.label}</div>
-                    </div>
-                `).join('')}
-            </div>
-
-            <div class="grid lg:grid-cols-3 gap-6">
-                <div class="lg:col-span-1 space-y-4">
-                    <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
-                        <h3 class="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                            <i data-lucide="target" class="w-5 h-5 text-purple-600"></i> Target a Job
-                        </h3>
-                        <input type="text" value="${jt.title}" onchange="updateJobTarget('title', this.value)" placeholder="Job Title (e.g., Senior Product Manager)" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm mb-2 focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none">
-                        <input type="text" value="${jt.company}" onchange="updateJobTarget('company', this.value)" placeholder="Company (optional)" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm mb-2 focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none">
-                        <textarea rows="5" onchange="updateJobTarget('description', this.value)" placeholder="Paste the full job description here to analyze skills, keywords, and requirements..." class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm resize-none mb-3 focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none">${jt.description}</textarea>
-                        <button onclick="parseAndMatch()" class="w-full py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-bold text-sm flex items-center justify-center gap-1.5">
-                            <i data-lucide="search" class="w-4 h-4"></i> Analyze & Match
-                        </button>
-                        ${jt.parsed ? `
-                        <button onclick="applyAllSuggestions()" class="w-full mt-2 py-2.5 bg-success text-white rounded-lg hover:bg-green-600 transition font-semibold text-sm flex items-center justify-center gap-1.5">
-                            <i data-lucide="check-circle" class="w-4 h-4"></i> Apply All Suggestions to Resume
-                        </button>` : ''}
-                    </div>
-
-                    ${jt.parsed ? `
-                    <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
-                        <h3 class="font-bold text-gray-900 mb-3">Job Requirements Parsed</h3>
-                        <div class="space-y-1.5 text-xs">
-                            ${jt.requiredSkills.length > 0 ? `<p><span class="font-semibold text-danger">Required Skills:</span> ${jt.requiredSkills.join(', ')}</p>` : ''}
-                            ${jt.keywords.length > 0 ? `<p class="mt-2"><span class="font-semibold text-brand-600">Keywords:</span> ${jt.keywords.slice(0, 12).join(', ')}${jt.keywords.length > 12 ? ' + more' : ''}</p>` : ''}
-                            ${jt.tools.length > 0 ? `<p class="mt-2"><span class="font-semibold text-cyan-600">Tools:</span> ${jt.tools.join(', ')}</p>` : ''}
-                            ${jt.requiredExperience > 0 ? `<p class="mt-2"><span class="font-semibold">Experience Required:</span> ${jt.requiredExperience}+ years</p>` : ''}
-                            ${jt.educationLevel ? `<p class="mt-2"><span class="font-semibold">Education:</span> ${jt.educationLevel}</p>` : ''}
-                        </div>
-                    </div>` : ''}
-
-                    ${match.suggestions.length > 0 ? `
-                    <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
-                        <h3 class="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                            <i data-lucide="lightbulb" class="w-4 h-4 text-amber-500"></i> Action Items
-                        </h3>
-                        ${match.suggestions.map(s => `<p class="text-xs text-gray-700 bg-amber-50 p-2.5 rounded-lg mb-2 last:mb-0">${s}</p>`).join('')}
-                    </div>` : ''}
-                </div>
-
-                <div class="lg:col-span-2">
-                    <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-5 sm:p-8 min-h-[500px]">
-                        <div id="resume-preview-area" class="resume-preview">
-                            ${renderResumePreview()}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>`;
-    };
-
-    Views.builder = function() {
-        const rd = App.resumeData;
-        return `
-        <div class="max-w-7xl mx-auto px-4 py-6 animate-fade-in">
-            <div class="flex flex-wrap items-center justify-between gap-3 mb-6 no-print">
-                <h1 class="text-2xl sm:text-3xl font-heading font-extrabold text-gray-900">Resume Builder</h1>
-                <div class="flex gap-2 flex-wrap">
-                    <button onclick="navigate('dashboard')" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition font-semibold text-sm">← Dashboard</button>
-                    <button onclick="exportPDF()" class="px-4 py-2 bg-success text-white rounded-lg hover:bg-green-600 transition font-semibold text-sm flex items-center gap-1.5">
-                        <i data-lucide="download" class="w-4 h-4"></i> Export PDF
-                    </button>
-                </div>
-            </div>
-            <div class="grid lg:grid-cols-5 gap-6">
-                <div class="lg:col-span-2 space-y-3 no-print" style="max-height: calc(100vh - 200px); overflow-y: auto;">
-                    <!-- Personal Info Card -->
-                    <div class="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
-                        <h3 class="font-bold text-sm text-gray-900 mb-3 flex items-center gap-2">
-                            <i data-lucide="user" class="w-4 h-4 text-brand-600"></i> Personal Information
-                        </h3>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div class="col-span-2">
-                                <input type="text" value="${rd.personal.fullName}" onchange="updatePersonal('fullName', this.value)" placeholder="Full Name *" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none">
-                            </div>
-                            <div><input type="email" value="${rd.personal.email}" onchange="updatePersonal('email', this.value)" placeholder="Email" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none"></div>
-                            <div><input type="text" value="${rd.personal.phone}" onchange="updatePersonal('phone', this.value)" placeholder="Phone" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none"></div>
-                            <div class="col-span-2"><input type="text" value="${rd.personal.location}" onchange="updatePersonal('location', this.value)" placeholder="Location (City, State)" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none"></div>
-                            <div class="col-span-2"><input type="text" value="${rd.personal.linkedin}" onchange="updatePersonal('linkedin', this.value)" placeholder="LinkedIn URL (optional)" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none"></div>
-                        </div>
-                    </div>
-                    
-                    <!-- Summary Card -->
-                    <div class="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
-                        <h3 class="font-bold text-sm text-gray-900 mb-2 flex items-center gap-2">
-                            <i data-lucide="file-text" class="w-4 h-4 text-brand-600"></i> Professional Summary
-                        </h3>
-                        <textarea rows="3" onchange="updateField('summary', this.value)" placeholder="Brief overview of your experience and career goals..." class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm resize-none focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none">${rd.summary}</textarea>
-                        <p class="text-xs text-gray-400 mt-1">${rd.summary.length}/500 characters recommended</p>
-                    </div>
-                    
-                    <!-- Experience Card -->
-                    <div class="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
-                        <div class="flex justify-between items-center mb-3">
-                            <h3 class="font-bold text-sm text-gray-900 flex items-center gap-2">
-                                <i data-lucide="briefcase" class="w-4 h-4 text-brand-600"></i> Work Experience
-                            </h3>
-                            <button onclick="addItem('experience', {title:'', company:'', dates:'', bullets:''}); navigate('builder')" class="text-xs bg-brand-100 text-brand-700 px-3 py-1.5 rounded-lg font-semibold hover:bg-brand-200 transition">+ Add Role</button>
-                        </div>
-                        ${rd.experience.length === 0 ? '<p class="text-sm text-gray-400 text-center py-4">No experience added yet. Click "+ Add Role" to start.</p>' : ''}
-                        ${rd.experience.map((exp, i) => `
-                        <div class="bg-gray-50 rounded-lg p-3 border border-gray-200 mb-2 last:mb-0">
-                            <div class="flex justify-between items-start mb-2">
-                                <input type="text" value="${exp.title}" onchange="updateArrayItem('experience', ${i}, 'title', this.value)" placeholder="Job Title" class="font-semibold text-sm bg-transparent border-none outline-none flex-1 w-full">
-                                <button onclick="removeItem('experience', ${i}); navigate('builder')" class="text-danger hover:text-red-700 flex-shrink-0 ml-2" title="Remove">
-                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                </button>
-                            </div>
-                            <div class="grid grid-cols-2 gap-2 mb-2">
-                                <input type="text" value="${exp.company}" onchange="updateArrayItem('experience', ${i}, 'company', this.value)" placeholder="Company" class="text-xs px-2.5 py-1.5 border border-gray-200 rounded bg-white focus:ring-1 focus:ring-brand-500 outline-none">
-                                <input type="text" value="${exp.dates}" onchange="updateArrayItem('experience', ${i}, 'dates', this.value)" placeholder="Dates (e.g., 2020-2024)" class="text-xs px-2.5 py-1.5 border border-gray-200 rounded bg-white focus:ring-1 focus:ring-brand-500 outline-none">
-                            </div>
-                            <textarea rows="2" onchange="updateArrayItem('experience', ${i}, 'bullets', this.value)" placeholder="• Describe your achievements with metrics..." class="w-full text-xs px-2.5 py-1.5 border border-gray-200 rounded bg-white resize-none focus:ring-1 focus:ring-brand-500 outline-none">${exp.bullets || ''}</textarea>
-                        </div>
-                        `).join('')}
-                    </div>
-                    
-                    <!-- Education Card -->
-                    <div class="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
-                        <div class="flex justify-between items-center mb-3">
-                            <h3 class="font-bold text-sm text-gray-900 flex items-center gap-2">
-                                <i data-lucide="graduation-cap" class="w-4 h-4 text-brand-600"></i> Education
-                            </h3>
-                            <button onclick="addItem('education', {degree:'', school:'', year:''}); navigate('builder')" class="text-xs bg-brand-100 text-brand-700 px-3 py-1.5 rounded-lg font-semibold hover:bg-brand-200 transition">+ Add Education</button>
-                        </div>
-                        ${rd.education.length === 0 ? '<p class="text-sm text-gray-400 text-center py-4">No education added yet.</p>' : ''}
-                        ${rd.education.map((edu, i) => `
-                        <div class="bg-gray-50 rounded-lg p-3 border border-gray-200 mb-2 last:mb-0">
-                            <div class="flex justify-between items-start mb-2">
-                                <input type="text" value="${edu.degree}" onchange="updateArrayItem('education', ${i}, 'degree', this.value)" placeholder="Degree (e.g., B.S. Computer Science)" class="font-semibold text-sm bg-transparent border-none outline-none flex-1 w-full">
-                                <button onclick="removeItem('education', ${i}); navigate('builder')" class="text-danger hover:text-red-700 flex-shrink-0 ml-2" title="Remove">
-                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                </button>
-                            </div>
-                            <input type="text" value="${edu.school}" onchange="updateArrayItem('education', ${i}, 'school', this.value)" placeholder="School / University" class="text-xs px-2.5 py-1.5 border border-gray-200 rounded bg-white w-full mb-1.5 focus:ring-1 focus:ring-brand-500 outline-none">
-                            <input type="text" value="${edu.year}" onchange="updateArrayItem('education', ${i}, 'year', this.value)" placeholder="Graduation Year" class="text-xs px-2.5 py-1.5 border border-gray-200 rounded bg-white w-full focus:ring-1 focus:ring-brand-500 outline-none">
-                        </div>
-                        `).join('')}
-                    </div>
-                    
-                    <!-- Skills Card -->
-                    <div class="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
-                        <h3 class="font-bold text-sm text-gray-900 mb-2 flex items-center gap-2">
-                            <i data-lucide="zap" class="w-4 h-4 text-brand-600"></i> Skills
-                            <span class="text-xs text-gray-400 font-normal">(${rd.skills.length} skills)</span>
-                        </h3>
-                        <div class="flex flex-wrap gap-1.5 mb-3">
-                            ${rd.skills.length === 0 ? '<span class="text-xs text-gray-400">No skills added yet</span>' : ''}
-                            ${rd.skills.map((skill, i) => `
-                            <span class="inline-flex items-center gap-1 bg-brand-50 text-brand-700 px-2.5 py-1 rounded-full text-xs font-medium">
-                                ${skill}
-                                <button onclick="removeSkill(${i}); navigate('builder')" class="hover:text-danger transition-colors">&times;</button>
-                            </span>
-                            `).join('')}
-                        </div>
-                        <div class="flex gap-2">
-                            <input type="text" id="skill-input" placeholder="Type a skill and press Enter" class="flex-1 px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none" onkeydown="if(event.key==='Enter'){addSkill(this.value); this.value=''; navigate('builder');}">
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Preview Panel -->
-                <div class="lg:col-span-3">
-                    <div class="sticky top-20">
-                        <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-5 sm:p-8 min-h-[600px]">
-                            <div id="resume-preview-area" class="resume-preview">
-                                ${renderResumePreview()}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>`;
-    };
-
-    Views.templates = function() {
-        const templates = ['Modern', 'Classic', 'Creative', 'Executive', 'Professional', 'Minimalist', 'Academic', 'Europass'];
-        const colors = ['from-blue-500 to-blue-700', 'from-gray-600 to-gray-800', 'from-rose-400 to-orange-500', 
-                        'from-amber-500 to-amber-700', 'from-slate-600 to-slate-800', 'from-gray-400 to-gray-600',
-                        'from-indigo-600 to-indigo-800', 'from-blue-500 to-purple-600'];
-        
-        return `
-        <div class="max-w-5xl mx-auto px-4 py-8 animate-fade-in">
-            <div class="text-center mb-8">
-                <h1 class="text-2xl sm:text-3xl font-heading font-extrabold text-gray-900 mb-2">Resume Templates</h1>
-                <p class="text-gray-600">Choose a template and customize it with your content. All templates are ATS-friendly.</p>
-            </div>
-            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                ${templates.map((t, i) => `
-                <div onclick="updateState({selectedTemplate: '${t.toLowerCase()}'}); navigate('builder')" class="cursor-pointer bg-white rounded-xl border border-gray-200 p-5 hover:shadow-xl hover:border-brand-300 transition-all duration-200 text-center group">
-                    <div class="h-20 bg-gradient-to-br ${colors[i]} rounded-lg mb-3 flex items-center justify-center">
-                        <div class="bg-white/90 rounded p-2 w-16 h-12 shadow-sm">
-                            <div class="h-1.5 w-10 bg-gray-300 rounded mb-1"></div>
-                            <div class="h-1 w-8 bg-gray-200 rounded mb-1.5"></div>
-                            <div class="h-1 w-10 bg-gray-200 rounded mb-0.5"></div>
-                            <div class="h-1 w-6 bg-gray-200 rounded"></div>
-                        </div>
-                    </div>
-                    <h3 class="font-bold text-sm text-gray-900 group-hover:text-brand-600 transition-colors">${t}</h3>
-                    <p class="text-xs text-gray-500 mt-1">${i < 3 ? 'Popular choice' : 'Professional design'}</p>
-                </div>
-                `).join('')}
-            </div>
-        </div>`;
-    };
-
-    Views.pricing = function() {
-        const plans = [
-            { name: 'Free', price: '$0', period: 'forever', features: ['1 Resume', 'Basic ATS Check', 'PDF Export', 'Community Support'], cta: 'Get Started', popular: false },
-            { name: 'Pro', price: '$19', period: '/month', features: ['Unlimited Resumes', 'AI Job Targeting', 'Full ATS Analysis', 'All Templates', 'Priority Support', 'Custom Domain'], cta: 'Start Pro', popular: true },
-            { name: 'Enterprise', price: 'Custom', period: '', features: ['Everything in Pro', 'White-Label', 'Team Dashboard', 'API Access', 'Bulk Generation', 'Dedicated Support'], cta: 'Contact Sales', popular: false },
-        ];
-        
-        return `
-        <div class="max-w-5xl mx-auto px-4 py-8 animate-fade-in">
-            <div class="text-center mb-10">
-                <h1 class="text-2xl sm:text-3xl font-heading font-extrabold text-gray-900 mb-2">Simple, Transparent Pricing</h1>
-                <p class="text-gray-600">Start free, upgrade when you're ready. No hidden fees.</p>
-            </div>
-            <div class="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-                ${plans.map(plan => `
-                <div class="bg-white rounded-2xl p-7 border-2 ${plan.popular ? 'border-brand-600 shadow-xl relative scale-105' : 'border-gray-200 shadow-sm'}">
-                    ${plan.popular ? '<div class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-brand-600 text-white px-4 py-1 rounded-full text-xs font-bold">Most Popular</div>' : ''}
-                    <h3 class="text-xl font-bold text-gray-900 mb-1">${plan.name}</h3>
-                    <div class="mb-5">
-                        <span class="text-4xl font-extrabold text-gray-900">${plan.price}</span>
-                        <span class="text-gray-500 text-sm">${plan.period}</span>
-                    </div>
-                    <ul class="space-y-2.5 mb-6">
-                        ${plan.features.map(f => `<li class="flex items-start gap-2 text-sm text-gray-700"><i data-lucide="check" class="w-4 h-4 text-success flex-shrink-0 mt-0.5"></i> ${f}</li>`).join('')}
-                    </ul>
-                    <button onclick="navigate('signup')" class="w-full py-3 rounded-xl font-bold transition ${plan.popular ? 'bg-brand-600 text-white hover:bg-brand-700 shadow-md' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}">
-                        ${plan.cta}
-                    </button>
-                </div>
-                `).join('')}
-            </div>
-        </div>`;
-    };
-
-    Views.signup = function() {
-        return `
-        <div class="min-h-[70vh] flex items-center justify-center px-4 animate-fade-in">
-            <div class="bg-white rounded-2xl p-8 w-full max-w-md shadow-xl border border-gray-100">
-                <div class="text-center mb-6">
-                    <div class="w-14 h-14 bg-gradient-to-br from-brand-500 to-accent-500 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-md">
-                        <i data-lucide="user-plus" class="w-7 h-7 text-white"></i>
-                    </div>
-                    <h2 class="text-2xl font-heading font-extrabold text-gray-900">Create Your Account</h2>
-                    <p class="text-sm text-gray-500 mt-1">Start building professional resumes in minutes</p>
-                </div>
-                <div class="space-y-3">
-                    <input type="text" placeholder="Full Name" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none text-sm">
-                    <input type="email" placeholder="Email address" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none text-sm">
-                    <input type="password" placeholder="Password (min 8 characters)" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none text-sm">
-                    <button onclick="navigate('dashboard')" class="w-full py-3 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition font-bold shadow-md">Create Free Account</button>
-                </div>
-                <p class="text-center text-sm text-gray-500 mt-5">
-                    Already have an account? 
-                    <button onclick="navigate('login')" class="text-brand-600 font-semibold hover:underline">Log In</button>
-                </p>
-            </div>
-        </div>`;
-    };
-
-    Views.login = function() {
-        return `
-        <div class="min-h-[70vh] flex items-center justify-center px-4 animate-fade-in">
-            <div class="bg-white rounded-2xl p-8 w-full max-w-md shadow-xl border border-gray-100">
-                <div class="text-center mb-6">
-                    <div class="w-14 h-14 bg-gradient-to-br from-brand-500 to-accent-500 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-md">
-                        <i data-lucide="log-in" class="w-7 h-7 text-white"></i>
-                    </div>
-                    <h2 class="text-2xl font-heading font-extrabold text-gray-900">Welcome Back</h2>
-                    <p class="text-sm text-gray-500 mt-1">Log in to access your resumes</p>
-                </div>
-                <div class="space-y-3">
-                    <input type="email" placeholder="Email address" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none text-sm">
-                    <input type="password" placeholder="Password" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none text-sm">
-                    <button onclick="navigate('dashboard')" class="w-full py-3 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition font-bold shadow-md">Log In</button>
-                </div>
-                <p class="text-center text-sm text-gray-500 mt-5">
-                    Don't have an account? 
-                    <button onclick="navigate('signup')" class="text-brand-600 font-semibold hover:underline">Sign Up</button>
-                </p>
-            </div>
-        </div>`;
-    };
-
-    // ============================================
-    // NAVIGATION
-    // ============================================
-    function navigate(view) {
-        if (!Views[view]) view = 'dashboard';
-        updateState({ currentView: view });
-        window.location.hash = view;
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function toggleMobileNav() {
-        const nav = document.getElementById('mobile-nav');
-        nav.classList.toggle('hidden');
-    }
-
-    function closeMobileNav() {
-        document.getElementById('mobile-nav').classList.add('hidden');
-    }
-
-    // ============================================
-    // ERROR HANDLING & INITIALIZATION
-    // ============================================
-    function init() {
-        // Load saved data
-        loadFromStorage();
-        
-        // Determine initial view from URL hash
-        const hash = window.location.hash.replace('#', '') || 'dashboard';
-        navigate(Views[hash] ? hash : 'dashboard');
-        
-        // Handle browser back/forward
-        window.addEventListener('hashchange', function() {
-            const newHash = window.location.hash.replace('#', '');
-            if (newHash && Views[newHash] && newHash !== App.currentView) {
-                navigate(newHash);
-            }
-        });
-        
-        // Handle errors gracefully
-        window.addEventListener('error', function(e) {
-            console.warn('App error:', e.message);
-            // Continue running - don't crash
-        });
-        
-        console.log('✅ ResumeAI Pro initialized successfully');
-        console.log('📊 Views loaded:', Object.keys(Views).join(', '));
-        console.log('💾 LocalStorage:', typeof localStorage !== 'undefined' ? 'Available' : 'Unavailable');
-        console.log('📱 Ready for production deployment');
-    }
-
-    // Start the application
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        init();
-    }
+        console.log('✅ ResumeAI Pro loaded successfully!');
     </script>
-
 </body>
 </html>
