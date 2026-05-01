@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResumeAI Pro — AI Resume Builder with Job Targeting & ATS Optimization</title>
+    <meta name="description" content="Build ATS-optimized resumes with AI-powered job targeting. Match your skills to any job description, auto-generate tailored content, and export job-ready PDFs.">
+    <meta name="keywords" content="AI resume builder, ATS resume, job targeting, resume optimization, CV builder, PDF export, cover letter generator">
+    <meta property="og:title" content="ResumeAI Pro — AI-Powered Resume Builder">
+    <meta property="og:description" content="Build ATS-optimized resumes with AI job targeting. Export as PDF instantly.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a' },
+                        accent: { 500: '#8b5cf6', 600: '#7c3aed' },
+                        success: '#10b981', warning: '#f59e0b', danger: '#ef4444',
+                    },
+                },
+            },
+        }
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        *,*::before,*::after{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;padding:0;font-family:'Inter',system-ui,sans-serif;background:#f8fafc;color:#1e293b}::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#f1f5f9}::-webkit-scrollbar-thumb{background:#94a3b8;border-radius:3px}.gradient-text{background:linear-gradient(135deg,#2563eb,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}.glass{background:rgba(255,255,255,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(229,231,235,0.6)}.resume-preview{font-family:'Georgia','Times New Roman',serif;line-height:1.5}.resume-preview h1{font-size:22px;font-weight:bold;color:#1e293b;margin:0 0 4px 0}.resume-preview h2{font-size:15px;font-weight:bold;border-bottom:2px solid #2563eb;padding-bottom:4px;margin:16px 0 8px 0;color:#2563eb;text-transform:uppercase;letter-spacing:0.5px}.resume-preview h3{font-size:13px;font-weight:bold;color:#334155;margin:0 0 2px 0}.resume-preview p{font-size:11.5px;color:#475569;margin:0 0 4px 0}.resume-preview ul{list-style:disc;padding-left:20px;margin:4px 0 8px 0}.resume-preview li{font-size:11.5px;color:#475569;margin-bottom:3px}.resume-preview .section{margin-bottom:12px}.animate-fade-in{animation:fadeIn 0.3s ease-out}@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}@media print{.no-print{display:none!important}body{background:white!important}#resume-preview-area{box-shadow:none!important;border:none!important;padding:0!important}}@media(max-width:640px){.resume-preview h1{font-size:20px}.resume-preview h2{font-size:14px}}
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 antialiased">
+
+    <div id="app" role="application" aria-label="ResumeAI Pro Application">
+        <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 glass no-print" role="navigation">
+            <div class="max-w-7xl mx-auto px-3 sm:px-4 h-16 flex items-center justify-between">
+                <a href="#dashboard" onclick="navigate('dashboard');return false;" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                    <div class="w-8 h-8 bg-gradient-to-br from-brand-500 to-accent-500 rounded-lg flex items-center justify-center shadow-sm">
+                        <i data-lucide="target" class="w-4 h-4 text-white"></i>
+                    </div>
+                    <span class="font-heading font-bold text-lg hidden sm:inline">Resume<span class="text-brand-600">AI</span> Pro</span>
+                </a>
+                <div class="hidden lg:flex items-center gap-0.5" role="menubar">
+                    <button onclick="navigate('dashboard')" class="px-3 py-2 text-sm font-medium rounded-lg text-gray-600 hover:text-brand-600 hover:bg-brand-50 transition">Dashboard</button>
+                    <button onclick="navigate('builder')" class="px-3 py-2 text-sm font-medium rounded-lg text-gray-600 hover:text-brand-600 hover:bg-brand-50 transition">Builder</button>
+                    <button onclick="navigate('templates')" class="px-3 py-2 text-sm font-medium rounded-lg text-gray-600 hover:text-brand-600 hover:bg-brand-50 transition">Templates</button>
+                    <button onclick="navigate('pricing')" class="px-3 py-2 text-sm font-medium rounded-lg text-gray-600 hover:text-brand-600 hover:bg-brand-50 transition">Pricing</button>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="navigate('signup')" class="px-3 sm:px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition font-semibold text-xs sm:text-sm shadow-sm">Sign Up Free</button>
+                    <button onclick="toggleMobileNav()" class="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition" aria-label="Toggle menu">
+                        <i data-lucide="menu" class="w-5 h-5 text-gray-600"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="mobile-nav" class="lg:hidden hidden bg-white border-t border-gray-100 px-3 py-2 space-y-0.5 animate-fade-in">
+                <button onclick="navigate('dashboard');closeMobileNav()" class="block w-full text-left px-4 py-3 text-sm font-medium rounded-lg hover:bg-brand-50 hover:text-brand-600 transition">📊 Dashboard</button>
+                <button onclick="navigate('builder');closeMobileNav()" class="block w-full text-left px-4 py-3 text-sm font-medium rounded-lg hover:bg-brand-50 hover:text-brand-600 transition">📝 Builder</button>
+                <button onclick="navigate('templates');closeMobileNav()" class="block w-full text-left px-4 py-3 text-sm font-medium rounded-lg hover:bg-brand-50 hover:text-brand-600 transition">🎨 Templates</button>
+                <button onclick="navigate('pricing');closeMobileNav()" class="block w-full text-left px-4 py-3 text-sm font-medium rounded-lg hover:bg-brand-50 hover:text-brand-600 transition">💰 Pricing</button>
+            </div>
+        </nav>
+        <main id="view-container" class="pt-16 min-h-screen" role="main"></main>
+        <footer class="bg-gray-900 text-gray-400 py-8 no-print mt-8">
+            <div class="max-w-6xl mx-auto px-4 text-center">
+                <p class="text-sm">&copy; 2026 ResumeAI Pro. AI-powered resume builder for professionals worldwide.</p>
+                <div class="flex justify-center gap-5 mt-2 text-xs">
+                    <a href="#dashboard" onclick="navigate('dashboard');return false;" class="hover:text-white transition-colors">Home</a>
+                    <a href="#builder" onclick="navigate('builder');return false;" class="hover:text-white transition-colors">Builder</a>
+                    <a href="#templates" onclick="navigate('templates');return false;" class="hover:text-white transition-colors">Templates</a>
+                    <a href="#pricing" onclick="navigate('pricing');return false;" class="hover:text-white transition-colors">Pricing</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+    const App = {
+        currentView: 'dashboard',
+        resumeData: {
+            personal: { fullName: '', email: '', phone: '', location: '', linkedin: '' },
+            summary: '',
+            experience: [],
+            education: [],
+            skills: [],
+        },
+        jobTarget: {
+            title: '', company: '', description: '', parsed: false,
+            requiredSkills: [], keywords: [], tools: [],
+            requiredExperience: 0, educationLevel: '', keyResponsibilities: []
+        },
+        jobMatch: {
+            overallScore: 0,
+            skillMatch: { matched: [], missing: [], score: 0 },
+            keywordCoverage: { present: [], absent: [], score: 0 },
+            experienceMatch: { score: 0, gap: '' },
+            educationMatch: { score: 0 },
+            autoSummary: '', autoBullets: {}, suggestions: []
+        },
+        selectedTemplate: 'modern',
+    };
+
+    function updateState(changes) {
+        Object.assign(App, changes);
+        saveToStorage();
+        refreshView();
+    }
+
+    function refreshView() {
+        const container = document.getElementById('view-container');
+        if (!container) return;
+        const viewFn = Views[App.currentView];
+        if (viewFn) {
+            container.innerHTML = viewFn();
+            setTimeout(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); }, 50);
+        }
+        document.querySelectorAll('#navbar button[role="menuitem"]').forEach(btn => {
+            btn.classList.remove('text-brand-600', 'bg-brand-50');
+            if (btn.textContent.toLowerCase().includes(App.currentView) || (App.currentView === 'dashboard' && btn.textContent === 'Dashboard')) {
+                btn.classList.add('text-brand-600', 'bg-brand-50');
+            }
+        });
+    }
+
+    function saveToStorage() {
+        try {
+            const data = { resumeData: App.resumeData, jobTarget: App.jobTarget, jobMatch: App.jobMatch, selectedTemplate: App.selectedTemplate };
+            localStorage.setItem('resumeai_pro_data', JSON.stringify(data));
+        } catch (e) {}
+    }
+
+    function loadFromStorage() {
+        try {
+            const raw = localStorage.getItem('resumeai_pro_data');
+            if (raw) {
+                const data = JSON.parse(raw);
+                if (data.resumeData) App.resumeData = data.resumeData;
+                if (data.jobTarget) App.jobTarget = data.jobTarget;
+                if (data.jobMatch) App.jobMatch = data.jobMatch;
+                if (data.selectedTemplate) App.selectedTemplate = data.selectedTemplate;
+            }
+        } catch (e) {}
+    }
+
+    function parseAndMatch() {
+        const jd = App.jobTarget.description.toLowerCase().trim();
+        if (jd.length < 30) { alert('Please paste a complete job description (at least 30 characters).'); return; }
+        const jt = { ...App.jobTarget, parsed: true };
+        const skillMap = ['python','java','javascript','typescript','react','angular','vue','node','sql','mongodb','postgresql','aws','azure','docker','kubernetes','terraform','git','rest api','graphql','machine learning','data analysis','excel','tableau','power bi','figma','adobe','salesforce','hubspot','google analytics','seo','agile','scrum','jira','confluence','c++','c#','.net','php','django','flask','swift','kotlin','flutter','leadership','communication','project management','stakeholder management','strategic','analytical','problem-solving','team management','negotiation','mentoring'];
+        jt.requiredSkills = []; jt.keywords = [];
+        skillMap.forEach(skill => {
+            const regex = new RegExp('\\b' + skill.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '\\b', 'gi');
+            const matches = jd.match(regex);
+            if (matches) {
+                if (/required|must have|essential/i.test(jd) && jd.indexOf(skill) > jd.search(/required|must have|essential/i)) jt.requiredSkills.push(skill);
+                else jt.keywords.push(skill);
+            }
+        });
+        jt.requiredSkills = [...new Set(jt.requiredSkills)]; jt.keywords = [...new Set(jt.keywords)];
+        const tools = ['salesforce','hubspot','jira','confluence','slack','github','gitlab','figma','tableau','docker','kubernetes','aws','azure'];
+        jt.tools = [...new Set(tools.filter(t => jd.includes(t)))];
+        const expMatch = jd.match(/(\d+)\+?\s*(?:years?|yrs?)\s*(?:of\s*)?experience/i);
+        jt.requiredExperience = expMatch ? parseInt(expMatch[1]) : 0;
+        if (/ph\.?d|doctorate/i.test(jd)) jt.educationLevel = 'PhD';
+        else if (/master|m\.s\.|m\.a\.|mba/i.test(jd)) jt.educationLevel = 'Masters';
+        else if (/bachelor|b\.s\.|b\.a\.|undergrad/i.test(jd)) jt.educationLevel = 'Bachelors';
+        const bullets = jd.match(/[•\-\*\d+\.]\s*(.{25,}?)(?=[•\-\*\d+\.\n]|$)/g);
+        jt.keyResponsibilities = bullets ? bullets.map(b => b.replace(/^[•\-\*\d+\.]\s*/,'').trim()).filter(b => b.length > 10).slice(0,8) : [];
+        updateState({ jobTarget: jt });
+
+        const rd = App.resumeData;
+        const allItems = [...new Set([...jt.requiredSkills, ...jt.keywords, ...jt.tools])];
+        const candidateText = JSON.stringify(rd).toLowerCase();
+        const candidateSkills = rd.skills.map(s => s.toLowerCase().trim());
+        const match = { skillMatch: { matched: [], missing: [], score: 0 }, keywordCoverage: { present: [], absent: [], score: 0 }, experienceMatch: { score: 0, gap: '' }, educationMatch: { score: 0 }, overallScore: 0, autoSummary: '', autoBullets: {}, suggestions: [] };
+        allItems.forEach(item => {
+            if (candidateSkills.some(s => s.includes(item) || item.includes(s)) || candidateText.includes(item)) match.skillMatch.matched.push(item);
+            else match.skillMatch.missing.push(item);
+        });
+        match.skillMatch.score = allItems.length ? Math.round((match.skillMatch.matched.length/allItems.length)*100) : 100;
+        const allKW = [...new Set([...jt.keywords, ...jt.tools])];
+        allKW.forEach(kw => { if (candidateText.includes(kw.toLowerCase())) match.keywordCoverage.present.push(kw); else match.keywordCoverage.absent.push(kw); });
+        match.keywordCoverage.score = allKW.length ? Math.round((match.keywordCoverage.present.length/allKW.length)*100) : 100;
+        let totalYears = 0; rd.experience.forEach(exp => { const yrs = (exp.dates||'').match(/(\d{4})/g); if (yrs && yrs.length>=2) totalYears += Math.max(0,parseInt(yrs[1])-parseInt(yrs[0])); });
+        match.experienceMatch.score = jt.requiredExperience ? (totalYears>=jt.requiredExperience?90:totalYears>=jt.requiredExperience*0.7?65:30) : (totalYears>0?80:20);
+        match.experienceMatch.gap = totalYears>0?`${totalYears}+ years`:'No experience listed';
+        const levels={phd:4,masters:3,bachelors:2}; const reqLvl=levels[jt.educationLevel?.toLowerCase()]||0;
+        const eduText=JSON.stringify(rd.education).toLowerCase(); let maxLvl=0;
+        Object.entries(levels).forEach(([k,v])=>{if(eduText.includes(k))maxLvl=Math.max(maxLvl,v);});
+        match.educationMatch.score=reqLvl?(maxLvl>=reqLvl?95:maxLvl>=reqLvl-1?60:25):(rd.education.length>0?85:10);
+        if(rd.personal.fullName&&jt.title){match.autoSummary=`Results-driven ${jt.title} with ${totalYears}+ years experience in ${match.skillMatch.matched.slice(0,3).join(', ')||'delivering outcomes'}. Proven in ${(jt.keyResponsibilities[0]||'strategic initiatives').toLowerCase()}. Seeking role at ${jt.company||'a forward-thinking organization'}.`;}
+        rd.experience.forEach((exp,i)=>{const skill=match.skillMatch.matched[i%Math.max(1,match.skillMatch.matched.length)];if(skill&&!(exp.bullets||'').toLowerCase().includes(skill.toLowerCase()))match.autoBullets[i]=`• Applied ${skill} to ${(jt.keyResponsibilities[i%Math.max(1,jt.keyResponsibilities.length)]||'key outcomes').toLowerCase()}, achieving measurable impact`;});
+        if(match.skillMatch.missing.length>0)match.suggestions.push(`⚠️ Missing ${match.skillMatch.missing.length} skills: ${match.skillMatch.missing.slice(0,6).join(', ')}`);
+        if(match.keywordCoverage.absent.length>0)match.suggestions.push(`🔑 Add keywords: ${match.keywordCoverage.absent.slice(0,5).join(', ')}`);
+        match.overallScore=Math.round(match.skillMatch.score*0.35+match.keywordCoverage.score*0.30+match.experienceMatch.score*0.20+match.educationMatch.score*0.15);
+        updateState({ jobMatch: match });
+    }
+
+    function getATSScore(){const rd=App.resumeData;const s={contact:rd.personal.fullName&&rd.personal.email?95:rd.personal.fullName?60:20,summary:rd.summary?rd.summary.length>80?90:65:10,exp:rd.experience.length>=2?90:rd.experience.length===1?60:15,edu:rd.education.length>0?85:20,skills:rd.skills.length>=8?90:rd.skills.length>=5?70:rd.skills.length>0?45:10};return{total:Math.round(Object.values(s).reduce((a,b)=>a+b,0)/5),breakdown:s};}
+    function getCompositeScore(){const ats=getATSScore().total;const jm=App.jobMatch.overallScore||0;return jm>0?Math.round(ats*0.4+jm*0.6):ats;}
+
+    function updatePersonal(f,v){const rd={...App.resumeData};rd.personal={...rd.personal,[f]:v};updateState({resumeData:rd});}
+    function updateField(f,v){const rd={...App.resumeData};rd[f]=v;updateState({resumeData:rd});}
+    function addItem(key,tpl){const rd={...App.resumeData};if(!rd[key])rd[key]=[];rd[key].push({...tpl});updateState({resumeData:rd});}
+    function removeItem(key,i){const rd={...App.resumeData};if(rd[key])rd[key].splice(i,1);updateState({resumeData:rd});}
+    function updateArrayItem(key,i,f,v){const rd={...App.resumeData};if(rd[key]&&rd[key][i])rd[key][i][f]=v;updateState({resumeData:rd});}
+    function addSkill(s){const t=s.trim();if(!t)return;const rd={...App.resumeData};if(!rd.skills.includes(t)){rd.skills.push(t);updateState({resumeData:rd});}}
+    function removeSkill(i){const rd={...App.resumeData};rd.skills.splice(i,1);updateState({resumeData:rd});}
+    function updateJobTarget(f,v){const jt={...App.jobTarget,[f]:v};updateState({jobTarget:jt});}
+    function applyAllSuggestions(){const rd={...App.resumeData};if(App.jobMatch.autoSummary)rd.summary=App.jobMatch.autoSummary;Object.entries(App.jobMatch.autoBullets).forEach(([i,b])=>{const idx=parseInt(i);if(rd.experience[idx]){const ex=rd.experience[idx].bullets||'';rd.experience[idx].bullets=ex?ex+'\n'+b:b;}});[...App.jobMatch.skillMatch.missing,...App.jobMatch.keywordCoverage.absent].forEach(item=>{if(!rd.skills.includes(item))rd.skills.push(item);});updateState({resumeData:rd});parseAndMatch();alert('✅ All suggestions applied! Your resume is now optimized for the target job.');}
+
+    function renderResumePreview(){const rd=App.resumeData;const hasContent=rd.personal.fullName||rd.experience.length>0||rd.education.length>0||rd.skills.length>0;if(!hasContent)return`<div class="flex flex-col items-center justify-center h-64 text-gray-400"><i data-lucide="file-text" class="w-16 h-16 mb-4 text-gray-300"></i><p class="text-base font-medium">Your resume preview appears here</p><p class="text-sm mt-1">Fill in your details to see a live preview</p></div>`;const accent='#2563eb';let h=`<div style="border-bottom:3px solid ${accent};padding-bottom:10px;margin-bottom:16px;"><h1>${rd.personal.fullName||'Your Name'}</h1><div style="font-size:10px;color:#64748b;display:flex;flex-wrap:wrap;gap:10px;margin-top:6px;">${rd.personal.email?`<span>📧 ${rd.personal.email}</span>`:''}${rd.personal.phone?`<span>📱 ${rd.personal.phone}</span>`:''}${rd.personal.location?`<span>📍 ${rd.personal.location}</span>`:''}${rd.personal.linkedin?`<span>🔗 ${rd.personal.linkedin}</span>`:''}</div></div>`;if(rd.summary)h+=`<div class="section"><h2 style="color:${accent};">Professional Summary</h2><p>${rd.summary}</p></div>`;if(rd.experience.length>0){h+=`<div class="section"><h2 style="color:${accent};">Experience</h2>`;rd.experience.forEach(exp=>{h+=`<div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;"><h3>${exp.title||'Title'}${exp.company?` — ${exp.company}`:''}</h3><span style="font-size:10px;color:#94a3b8;">${exp.dates||''}</span></div>${exp.bullets?`<ul>${exp.bullets.split('\n').filter(b=>b.trim()).map(b=>`<li>${b.replace(/^[•\-]\s*/,'')}</li>`).join('')}</ul>`:''}</div>`;});h+=`</div>`;}if(rd.education.length>0){h+=`<div class="section"><h2 style="color:${accent};">Education</h2>`;rd.education.forEach(edu=>{h+=`<div style="margin-bottom:6px;"><h3>${edu.degree||'Degree'}</h3><p>${[edu.school,edu.year].filter(Boolean).join(' • ')}</p></div>`;});h+=`</div>`;}if(rd.skills.length>0)h+=`<div class="section"><h2 style="color:${accent};">Skills</h2><p>${rd.skills.join(' • ')}</p></div>`;return h;}
+
+    const Views={};
+    Views.dashboard=function(){const composite=getCompositeScore();const ats=getATSScore();const jt=App.jobTarget;const match=App.jobMatch;const rd=App.resumeData;return`
+    <div class="max-w-6xl mx-auto px-4 py-6 animate-fade-in">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-6"><h1 class="text-2xl sm:text-3xl font-heading font-extrabold text-gray-900">Dashboard</h1><div class="flex gap-2 flex-wrap"><button onclick="navigate('builder')" class="px-4 py-2.5 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition font-semibold text-sm flex items-center gap-1.5 shadow-sm"><i data-lucide="edit" class="w-4 h-4"></i> Edit Resume</button><button onclick="exportPDF()" class="px-4 py-2.5 bg-success text-white rounded-lg hover:bg-green-600 transition font-semibold text-sm flex items-center gap-1.5 shadow-sm"><i data-lucide="download" class="w-4 h-4"></i> Export PDF</button></div></div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">${[{label:'Composite Score',value:composite+'%',color:composite>=75?'green':composite>=50?'amber':'red'},{label:'ATS Quality',value:ats.total+'%',color:'blue'},{label:'Job Match',value:(match.overallScore||'--')+'%',color:'purple'},{label:'Skills',value:rd.skills.length,color:'amber'}].map(s=>`<div class="bg-white rounded-xl p-4 border border-gray-200 shadow-sm text-center"><div class="text-2xl sm:text-3xl font-extrabold text-${s.color}-600">${s.value}</div><div class="text-xs text-gray-500 mt-1">${s.label}</div></div>`).join('')}</div>
+        <div class="grid lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-1 space-y-4">
+                <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm"><h3 class="font-bold text-gray-900 mb-3 flex items-center gap-2"><i data-lucide="target" class="w-5 h-5 text-purple-600"></i> Target a Job</h3><input type="text" value="${jt.title}" onchange="updateJobTarget('title',this.value)" placeholder="Job Title" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm mb-2"><input type="text" value="${jt.company}" onchange="updateJobTarget('company',this.value)" placeholder="Company (optional)" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm mb-2"><textarea rows="5" onchange="updateJobTarget('description',this.value)" placeholder="Paste the full job description here..." class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm resize-none mb-3">${jt.description}</textarea><button onclick="parseAndMatch()" class="w-full py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-bold text-sm flex items-center justify-center gap-1.5"><i data-lucide="search" class="w-4 h-4"></i> Analyze & Match</button>${jt.parsed?`<button onclick="applyAllSuggestions()" class="w-full mt-2 py-2.5 bg-success text-white rounded-lg hover:bg-green-600 transition font-semibold text-sm flex items-center justify-center gap-1.5"><i data-lucide="check-circle" class="w-4 h-4"></i> Apply All Suggestions</button>`:''}</div>
+                ${jt.parsed?`<div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm"><h3 class="font-bold text-gray-900 mb-3">Job Requirements</h3><div class="space-y-1.5 text-xs">${jt.requiredSkills.length>0?`<p><span class="font-semibold text-danger">Skills:</span> ${jt.requiredSkills.join(', ')}</p>`:''}${jt.keywords.length>0?`<p class="mt-2"><span class="font-semibold text-brand-600">Keywords:</span> ${jt.keywords.slice(0,12).join(', ')}</p>`:''}${jt.requiredExperience>0?`<p class="mt-2"><span class="font-semibold">Experience:</span> ${jt.requiredExperience}+ years</p>`:''}${jt.educationLevel?`<p class="mt-2"><span class="font-semibold">Education:</span> ${jt.educationLevel}</p>`:''}</div></div>`:''}
+                ${match.suggestions.length>0?`<div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm"><h3 class="font-bold text-gray-900 mb-3 flex items-center gap-2"><i data-lucide="lightbulb" class="w-4 h-4 text-amber-500"></i> Suggestions</h3>${match.suggestions.map(s=>`<p class="text-xs text-gray-700 bg-amber-50 p-2.5 rounded-lg mb-2">${s}</p>`).join('')}</div>`:''}
+            </div>
+            <div class="lg:col-span-2"><div class="bg-white rounded-xl shadow-lg border border-gray-200 p-5 sm:p-8 min-h-[500px]"><div id="resume-preview-area" class="resume-preview">${renderResumePreview()}</div></div></div>
+        </div>
+    </div>`;};
+
+    Views.builder=function(){const rd=App.resumeData;return`
+    <div class="max-w-7xl mx-auto px-4 py-6 animate-fade-in">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-6 no-print"><h1 class="text-2xl sm:text-3xl font-heading font-extrabold text-gray-900">Resume Builder</h1><div class="flex gap-2"><button onclick="navigate('dashboard')" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition font-semibold text-sm">← Dashboard</button><button onclick="exportPDF()" class="px-4 py-2 bg-success text-white rounded-lg hover:bg-green-600 transition font-semibold text-sm flex items-center gap-1.5"><i data-lucide="download" class="w-4 h-4"></i> PDF</button></div></div>
+        <div class="grid lg:grid-cols-5 gap-6">
+            <div class="lg:col-span-2 space-y-3 no-print" style="max-height:calc(100vh - 200px);overflow-y:auto;">
+                <div class="bg-white rounded-xl p-4 border shadow-sm"><h3 class="font-bold text-sm mb-3"><i data-lucide="user" class="w-4 h-4 text-brand-600 inline mr-1"></i> Personal Info</h3><div class="grid grid-cols-2 gap-2"><div class="col-span-2"><input value="${rd.personal.fullName}" onchange="updatePersonal('fullName',this.value)" placeholder="Full Name" class="w-full px-3 py-2.5 border rounded-lg text-sm"></div><div><input value="${rd.personal.email}" onchange="updatePersonal('email',this.value)" placeholder="Email" class="w-full px-3 py-2.5 border rounded-lg text-sm"></div><div><input value="${rd.personal.phone}" onchange="updatePersonal('phone',this.value)" placeholder="Phone" class="w-full px-3 py-2.5 border rounded-lg text-sm"></div><div class="col-span-2"><input value="${rd.personal.location}" onchange="updatePersonal('location',this.value)" placeholder="Location" class="w-full px-3 py-2.5 border rounded-lg text-sm"></div></div></div>
+                <div class="bg-white rounded-xl p-4 border shadow-sm"><h3 class="font-bold text-sm mb-2"><i data-lucide="file-text" class="w-4 h-4 text-brand-600 inline mr-1"></i> Summary</h3><textarea rows="3" onchange="updateField('summary',this.value)" class="w-full px-3 py-2.5 border rounded-lg text-sm resize-none">${rd.summary}</textarea></div>
+                <div class="bg-white rounded-xl p-4 border shadow-sm"><div class="flex justify-between mb-2"><h3 class="font-bold text-sm"><i data-lucide="briefcase" class="w-4 h-4 text-brand-600 inline mr-1"></i> Experience</h3><button onclick="addItem('experience',{title:'',company:'',dates:'',bullets:''});navigate('builder')" class="text-xs bg-brand-100 text-brand-700 px-3 py-1.5 rounded-lg font-semibold">+ Add</button></div>${rd.experience.length===0?'<p class="text-sm text-gray-400 text-center py-4">No experience added yet.</p>':''}${rd.experience.map((exp,i)=>`<div class="bg-gray-50 rounded-lg p-3 border mb-2"><div class="flex justify-between"><input value="${exp.title}" onchange="updateArrayItem('experience',${i},'title',this.value)" placeholder="Job Title" class="font-semibold text-sm bg-transparent border-none outline-none flex-1"><button onclick="removeItem('experience',${i});navigate('builder')" class="text-danger"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div><div class="grid grid-cols-2 gap-1.5 my-1.5"><input value="${exp.company}" onchange="updateArrayItem('experience',${i},'company',this.value)" placeholder="Company" class="text-xs px-2 py-1 border rounded bg-white"><input value="${exp.dates}" onchange="updateArrayItem('experience',${i},'dates',this.value)" placeholder="Dates" class="text-xs px-2 py-1 border rounded bg-white"></div><textarea rows="2" onchange="updateArrayItem('experience',${i},'bullets',this.value)" placeholder="• Achievement..." class="w-full text-xs px-2 py-1 border rounded bg-white resize-none">${exp.bullets||''}</textarea></div>`).join('')}</div>
+                <div class="bg-white rounded-xl p-4 border shadow-sm"><div class="flex justify-between mb-2"><h3 class="font-bold text-sm"><i data-lucide="graduation-cap" class="w-4 h-4 text-brand-600 inline mr-1"></i> Education</h3><button onclick="addItem('education',{degree:'',school:'',year:''});navigate('builder')" class="text-xs bg-brand-100 text-brand-700 px-3 py-1.5 rounded-lg font-semibold">+ Add</button></div>${rd.education.length===0?'<p class="text-sm text-gray-400 text-center py-4">No education added yet.</p>':''}${rd.education.map((edu,i)=>`<div class="bg-gray-50 rounded-lg p-3 border mb-2"><div class="flex justify-between"><input value="${edu.degree}" onchange="updateArrayItem('education',${i},'degree',this.value)" placeholder="Degree" class="font-semibold text-sm bg-transparent border-none outline-none flex-1"><button onclick="removeItem('education',${i});navigate('builder')" class="text-danger"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div><input value="${edu.school}" onchange="updateArrayItem('education',${i},'school',this.value)" placeholder="School" class="text-xs px-2 py-1 border rounded bg-white w-full mt-1"><input value="${edu.year}" onchange="updateArrayItem('education',${i},'year',this.value)" placeholder="Year" class="text-xs px-2 py-1 border rounded bg-white w-full mt-1"></div>`).join('')}</div>
+                <div class="bg-white rounded-xl p-4 border shadow-sm"><h3 class="font-bold text-sm mb-2"><i data-lucide="zap" class="w-4 h-4 text-brand-600 inline mr-1"></i> Skills</h3><div class="flex flex-wrap gap-1.5 mb-2">${rd.skills.length===0?'<span class="text-xs text-gray-400">No skills added yet</span>':rd.skills.map((s,i)=>`<span class="bg-brand-50 text-brand-700 px-2.5 py-1 rounded-full text-xs flex items-center gap-1">${s}<button onclick="removeSkill(${i});navigate('builder')" class="hover:text-danger">×</button></span>`).join('')}</div><input type="text" placeholder="Add skill + Enter" class="w-full px-3 py-2.5 border rounded-lg text-sm" onkeydown="if(event.key==='Enter'){addSkill(this.value);this.value='';navigate('builder')}"></div>
+            </div>
+            <div class="lg:col-span-3"><div class="sticky top-20"><div class="bg-white rounded-xl shadow-lg border p-5 sm:p-8 min-h-[600px]"><div id="resume-preview-area" class="resume-preview">${renderResumePreview()}</div></div></div></div>
+        </div>
+    </div>`;};
+
+    Views.templates=function(){const tpls=['Modern','Classic','Creative','Executive','Professional','Minimalist','Academic','Europass'];const cols=['from-blue-500 to-blue-700','from-gray-600 to-gray-800','from-rose-400 to-orange-500','from-amber-500 to-amber-700','from-slate-600 to-slate-800','from-gray-400 to-gray-600','from-indigo-600 to-indigo-800','from-blue-500 to-purple-600'];return`<div class="max-w-5xl mx-auto px-4 py-8 animate-fade-in"><div class="text-center mb-8"><h1 class="text-2xl sm:text-3xl font-heading font-extrabold mb-2">Resume Templates</h1><p class="text-gray-600">All ATS-friendly and professionally designed.</p></div><div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">${tpls.map((t,i)=>`<div onclick="updateState({selectedTemplate:'${t.toLowerCase()}'});navigate('builder')" class="cursor-pointer bg-white rounded-xl border p-5 hover:shadow-xl hover:border-brand-300 transition text-center group"><div class="h-20 bg-gradient-to-br ${cols[i]} rounded-lg mb-3 flex items-center justify-center"><div class="bg-white/90 rounded p-2 w-16 h-12 shadow-sm"><div class="h-1.5 w-10 bg-gray-300 rounded mb-1"></div><div class="h-1 w-8 bg-gray-200 rounded mb-1.5"></div><div class="h-1 w-10 bg-gray-200 rounded"></div></div></div><h3 class="font-bold text-sm group-hover:text-brand-600 transition">${t}</h3></div>`).join('')}</div></div>`;};
+
+    Views.pricing=function(){const plans=[{name:'Free',price:'$0',period:'forever',features:['1 Resume','Basic ATS Check','PDF Export'],cta:'Get Started',popular:false},{name:'Pro',price:'$19',period:'/mo',features:['Unlimited Resumes','AI Job Targeting','Full ATS Analysis','All Templates','PDF Export'],cta:'Start Pro',popular:true},{name:'Enterprise',price:'Custom',period:'',features:['Everything in Pro','White-Label','Team Dashboard','API Access'],cta:'Contact Sales',popular:false}];return`<div class="max-w-5xl mx-auto px-4 py-8 animate-fade-in"><div class="text-center mb-10"><h1 class="text-2xl sm:text-3xl font-heading font-extrabold mb-2">Simple Pricing</h1><p class="text-gray-600">Start free, upgrade when ready.</p></div><div class="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">${plans.map(p=>`<div class="bg-white rounded-2xl p-7 border-2 ${p.popular?'border-brand-600 shadow-xl relative scale-105':'border-gray-200'}">${p.popular?'<div class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-brand-600 text-white px-4 py-1 rounded-full text-xs font-bold">Most Popular</div>':''}<h3 class="text-xl font-bold mb-1">${p.name}</h3><div class="mb-4"><span class="text-4xl font-extrabold">${p.price}</span><span class="text-gray-500 text-sm">${p.period}</span></div><ul class="space-y-2 mb-6">${p.features.map(f=>`<li class="flex items-start gap-2 text-sm text-gray-700"><i data-lucide="check" class="w-4 h-4 text-success flex-shrink-0 mt-0.5"></i> ${f}</li>`).join('')}</ul><button onclick="navigate('signup')" class="w-full py-3 rounded-xl font-bold transition ${p.popular?'bg-brand-600 text-white hover:bg-brand-700':'bg-gray-100 text-gray-700 hover:bg-gray-200'}">${p.cta}</button></div>`).join('')}</div></div>`;};
+
+    Views.signup=function(){return`<div class="min-h-[70vh] flex items-center justify-center px-4 animate-fade-in"><div class="bg-white rounded-2xl p-8 w-full max-w-md shadow-xl border"><div class="text-center mb-6"><div class="w-14 h-14 bg-gradient-to-br from-brand-500 to-accent-500 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-md"><i data-lucide="user-plus" class="w-7 h-7 text-white"></i></div><h2 class="text-2xl font-heading font-extrabold">Create Free Account</h2><p class="text-sm text-gray-500 mt-1">Start building professional resumes</p></div><div class="space-y-3"><input type="text" placeholder="Full Name" class="w-full px-4 py-3 border rounded-xl text-sm"><input type="email" placeholder="Email" class="w-full px-4 py-3 border rounded-xl text-sm"><input type="password" placeholder="Password" class="w-full px-4 py-3 border rounded-xl text-sm"><button onclick="navigate('dashboard')" class="w-full py-3 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition font-bold shadow-md">Create Free Account</button></div><p class="text-center text-sm text-gray-500 mt-5">Have an account? <button onclick="navigate('login')" class="text-brand-600 font-semibold hover:underline">Log In</button></p></div></div>`;};
+    Views.login=function(){return`<div class="min-h-[70vh] flex items-center justify-center px-4 animate-fade-in"><div class="bg-white rounded-2xl p-8 w-full max-w-md shadow-xl border"><div class="text-center mb-6"><div class="w-14 h-14 bg-gradient-to-br from-brand-500 to-accent-500 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-md"><i data-lucide="log-in" class="w-7 h-7 text-white"></i></div><h2 class="text-2xl font-heading font-extrabold">Welcome Back</h2></div><div class="space-y-3"><input type="email" placeholder="Email" class="w-full px-4 py-3 border rounded-xl text-sm"><input type="password" placeholder="Password" class="w-full px-4 py-3 border rounded-xl text-sm"><button onclick="navigate('dashboard')" class="w-full py-3 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition font-bold shadow-md">Log In</button></div><p class="text-center text-sm text-gray-500 mt-5">No account? <button onclick="navigate('signup')" class="text-brand-600 font-semibold hover:underline">Sign Up</button></p></div></div>`;};
+
+    function navigate(view){if(!Views[view])view='dashboard';updateState({currentView:view});window.location.hash=view;window.scrollTo({top:0,behavior:'smooth'});}
+    function toggleMobileNav(){document.getElementById('mobile-nav').classList.toggle('hidden');}
+    function closeMobileNav(){document.getElementById('mobile-nav').classList.add('hidden');}
+
+    async function exportPDF(){const preview=document.getElementById('resume-preview-area');if(!preview){alert('No resume to export. Fill in your details first.');return;}try{const [jsPDFModule,html2canvasModule]=await Promise.all([import('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'),import('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js')]);const canvas=await html2canvas(preview,{scale:2,backgroundColor:'#ffffff',logging:false});const {jsPDF}=window.jspdf;const pdf=new jsPDF('p','mm','letter');const w=pdf.internal.pageSize.getWidth();const h=(canvas.height*w)/canvas.width;pdf.addImage(canvas.toDataURL('image/png',1.0),'PNG',0,0,w,h);pdf.save(`${(App.resumeData.personal.fullName||'resume').toLowerCase().replace(/\s+/g,'-')}-job-ready.pdf`);}catch(e){alert('PDF export failed. Please try browser print (Ctrl+P).');}}
+
+    function init(){loadFromStorage();const hash=window.location.hash.replace('#','')||'dashboard';navigate(Views[hash]?hash:'dashboard');window.addEventListener('hashchange',function(){const h=window.location.hash.replace('#','');if(h&&Views[h]&&h!==App.currentView)navigate(h);});console.log('✅ ResumeAI Pro ready');}
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+    </script>
+</body>
+</html>
