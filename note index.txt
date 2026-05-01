@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResumeAI Pro — AI Resume Builder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:#f8fafc}
+        .gradient-text{background:linear-gradient(135deg,#2563eb,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    </style>
+</head>
+<body>
+    <nav style="background:white;border-bottom:1px solid #e2e8f0;padding:0 20px;position:sticky;top:0;z-index:50">
+        <div style="max-width:1200px;margin:0 auto;height:64px;display:flex;align-items:center;justify-content:space-between">
+            <a href="#" style="font-size:22px;font-weight:800;text-decoration:none;color:#1e293b">🎯 Resume<span style="color:#2563eb">AI</span> Pro</a>
+            <div style="display:flex;gap:20px;align-items:center">
+                <a href="#features" style="color:#64748b;text-decoration:none;font-size:14px;font-weight:500">Features</a>
+                <a href="#pricing" style="color:#64748b;text-decoration:none;font-size:14px;font-weight:500">Pricing</a>
+                <button style="background:#2563eb;color:white;border:none;padding:10px 20px;border-radius:8px;font-weight:600;font-size:14px;cursor:pointer">Sign Up Free</button>
+            </div>
+        </div>
+    </nav>
+
+    <section style="padding:80px 20px;background:linear-gradient(135deg,#eff6ff,#ffffff,#f5f3ff)">
+        <div style="max-width:800px;margin:0 auto;text-align:center">
+            <div style="display:inline-block;background:#dbeafe;color:#1d4ed8;padding:6px 16px;border-radius:50px;font-size:14px;font-weight:600;margin-bottom:20px">🎯 AI-Powered Job Targeting</div>
+            <h1 style="font-size:48px;font-weight:900;color:#1e293b;line-height:1.1;margin-bottom:20px">
+                Build <span class="gradient-text">ATS-Optimized</span> Resumes That Get You Hired
+            </h1>
+            <p style="font-size:18px;color:#64748b;margin-bottom:40px;max-width:600px;margin-left:auto;margin-right:auto;line-height:1.6">
+                Paste any job description. Our AI matches your skills, identifies gaps, generates tailored content, and exports a job-ready resume in minutes.
+            </p>
+            <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+                <button style="background:#2563eb;color:white;border:none;padding:16px 32px;border-radius:12px;font-weight:700;font-size:16px;cursor:pointer;box-shadow:0 4px 12px rgba(37,99,235,0.3)">Build Your Resume Free →</button>
+                <button style="background:white;color:#334155;border:2px solid #e2e8f0;padding:16px 32px;border-radius:12px;font-weight:600;font-size:16px;cursor:pointer">Browse Templates</button>
+            </div>
+            <p style="color:#94a3b8;font-size:13px;margin-top:24px">✅ No credit card required • ✅ Free forever plan • ✅ PDF Export</p>
+        </div>
+    </section>
+
+    <section id="features" style="padding:80px 20px;background:white">
+        <div style="max-width:1000px;margin:0 auto">
+            <h2 style="text-align:center;font-size:32px;font-weight:900;color:#1e293b;margin-bottom:48px">Everything You Need</h2>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px">
+                <div style="background:white;padding:32px;border-radius:16px;border:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,0.05)">
+                    <div style="font-size:36px;margin-bottom:16px">🎯</div>
+                    <h3 style="font-size:20px;font-weight:700;color:#1e293b;margin-bottom:8px">Job Targeting Engine</h3>
+                    <p style="color:#64748b;font-size:14px;line-height:1.6">Paste a JD and our AI instantly matches your skills, identifies gaps, and generates tailored content.</p>
+                </div>
+                <div style="background:white;padding:32px;border-radius:16px;border:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,0.05)">
+                    <div style="font-size:36px;margin-bottom:16px">📊</div>
+                    <h3 style="font-size:20px;font-weight:700;color:#1e293b;margin-bottom:8px">ATS Score Analysis</h3>
+                    <p style="color:#64748b;font-size:14px;line-height:1.6">Real-time scoring across 5 criteria — contact, summary, experience, education, and skills.</p>
+                </div>
+                <div style="background:white;padding:32px;border-radius:16px;border:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,0.05)">
+                    <div style="font-size:36px;margin-bottom:16px">📄</div>
+                    <h3 style="font-size:20px;font-weight:700;color:#1e293b;margin-bottom:8px">PDF Export</h3>
+                    <p style="color:#64748b;font-size:14px;line-height:1.6">One-click professional PDF generation. Print-ready and ATS-formatted for any job application.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="pricing" style="padding:80px 20px;background:#f8fafc">
+        <div style="max-width:900px;margin:0 auto;text-align:center">
+            <h2 style="font-size:32px;font-weight:900;color:#1e293b;margin-bottom:12px">Simple Pricing</h2>
+            <p style="color:#64748b;margin-bottom:48px">Start free, upgrade when you're ready</p>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:24px">
+                <div style="background:white;padding:32px;border-radius:16px;border:2px solid #e2e8f0">
+                    <h3 style="font-size:22px;font-weight:700;color:#1e293b">Free</h3>
+                    <div style="font-size:40px;font-weight:900;color:#1e293b;margin:12px 0">$0</div>
+                    <ul style="list-style:none;padding:0;text-align:left;margin-bottom:24px;color:#475569;font-size:14px;line-height:2">
+                        <li>✅ 1 Resume</li><li>✅ Basic ATS Check</li><li>✅ PDF Export</li>
+                    </ul>
+                    <button style="width:100%;padding:12px;background:#f1f5f9;border:none;border-radius:10px;font-weight:600;font-size:14px;cursor:pointer">Get Started</button>
+                </div>
+                <div style="background:white;padding:32px;border-radius:16px;border:2px solid #2563eb;box-shadow:0 8px 24px rgba(37,99,235,0.15);position:relative">
+                    <div style="position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:#2563eb;color:white;padding:4px 16px;border-radius:50px;font-size:12px;font-weight:700">Most Popular</div>
+                    <h3 style="font-size:22px;font-weight:700;color:#1e293b">Pro</h3>
+                    <div style="font-size:40px;font-weight:900;color:#1e293b;margin:12px 0">$19<span style="font-size:16px;font-weight:400;color:#94a3b8">/mo</span></div>
+                    <ul style="list-style:none;padding:0;text-align:left;margin-bottom:24px;color:#475569;font-size:14px;line-height:2">
+                        <li>✅ Unlimited Resumes</li><li>✅ AI Job Targeting</li><li>✅ Full ATS Analysis</li><li>✅ All Templates</li>
+                    </ul>
+                    <button style="width:100%;padding:12px;background:#2563eb;color:white;border:none;border-radius:10px;font-weight:600;font-size:14px;cursor:pointer">Start Pro</button>
+                </div>
+                <div style="background:white;padding:32px;border-radius:16px;border:2px solid #e2e8f0">
+                    <h3 style="font-size:22px;font-weight:700;color:#1e293b">Enterprise</h3>
+                    <div style="font-size:40px;font-weight:900;color:#1e293b;margin:12px 0">Custom</div>
+                    <ul style="list-style:none;padding:0;text-align:left;margin-bottom:24px;color:#475569;font-size:14px;line-height:2">
+                        <li>✅ Everything in Pro</li><li>✅ White-Label</li><li>✅ API Access</li>
+                    </ul>
+                    <button style="width:100%;padding:12px;background:#0f172a;color:white;border:none;border-radius:10px;font-weight:600;font-size:14px;cursor:pointer">Contact Sales</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer style="background:#0f172a;color:#94a3b8;padding:40px 20px;text-align:center;font-size:14px">
+        <p>© 2026 ResumeAI Pro. AI-powered resume builder for professionals worldwide.</p>
+    </footer>
+</body>
+</html>
