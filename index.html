@@ -91,7 +91,7 @@
     // ============================================
     // RAZORPAY CONFIGURATION
     // ============================================
-    const RAZORPAY_KEY_ID = 'YOUR_RAZORPAY_KEY_ID'; // ← REPLACE THIS with your actual Razorpay Key ID
+    const 'rzp_live_SZXHUEreD1sPfs'; // ← REPLACE THIS with your actual Razorpay Key ID
 
     function initiateRazorpayPayment(plan) {
         const plans = {
@@ -116,7 +116,7 @@
         if (!selectedPlan) return;
 
         const options = {
-            key: RAZORPAY_KEY_ID,
+            key: rzp_live_SZXHUEreD1sPfs,
             amount: selectedPlan.amount,
             currency: 'INR',
             name: 'ResumeAI Pro',
@@ -148,7 +148,7 @@
             },
         };
 
-        if (RAZORPAY_KEY_ID === 'YOUR_RAZORPAY_KEY_ID') {
+        if ('rzp_live_SZXHUEreD1sPfs') {
             alert('⚠️ Razorpay is not configured yet.\n\nPlease replace YOUR_RAZORPAY_KEY_ID with your actual Razorpay Key ID in the code.\n\nGet your Key ID at: https://dashboard.razorpay.com');
             return;
         }
