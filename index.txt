@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ResumeAI Pro — AI Resume Builder with Job Targeting & ATS Optimization</title>
     <meta name="description" content="Build ATS-optimized resumes with AI-powered job targeting. Match your skills to any job description, auto-generate tailored content, and export job-ready PDFs.">
-    <meta name="keywords" content="AI resume builder, ATS resume, job targeting, resume optimization, CV builder, PDF export, cover letter generator">
+    <meta name="keywords" content="AI resume builder, ATS resume, job targeting, resume optimization, CV builder, PDF export">
     <meta property="og:title" content="ResumeAI Pro — AI-Powered Resume Builder">
     <meta property="og:description" content="Build ATS-optimized resumes with AI job targeting. Export as PDF instantly.">
     <meta property="og:type" content="website">
@@ -33,6 +33,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Razorpay Checkout -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
     <style>
         *,*::before,*::after{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;padding:0;font-family:'Inter',system-ui,sans-serif;background:#f8fafc;color:#1e293b}::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#f1f5f9}::-webkit-scrollbar-thumb{background:#94a3b8;border-radius:3px}.gradient-text{background:linear-gradient(135deg,#2563eb,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}.glass{background:rgba(255,255,255,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(229,231,235,0.6)}.resume-preview{font-family:'Georgia','Times New Roman',serif;line-height:1.5}.resume-preview h1{font-size:22px;font-weight:bold;color:#1e293b;margin:0 0 4px 0}.resume-preview h2{font-size:15px;font-weight:bold;border-bottom:2px solid #2563eb;padding-bottom:4px;margin:16px 0 8px 0;color:#2563eb;text-transform:uppercase;letter-spacing:0.5px}.resume-preview h3{font-size:13px;font-weight:bold;color:#334155;margin:0 0 2px 0}.resume-preview p{font-size:11.5px;color:#475569;margin:0 0 4px 0}.resume-preview ul{list-style:disc;padding-left:20px;margin:4px 0 8px 0}.resume-preview li{font-size:11.5px;color:#475569;margin-bottom:3px}.resume-preview .section{margin-bottom:12px}.animate-fade-in{animation:fadeIn 0.3s ease-out}@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}@media print{.no-print{display:none!important}body{background:white!important}#resume-preview-area{box-shadow:none!important;border:none!important;padding:0!important}}@media(max-width:640px){.resume-preview h1{font-size:20px}.resume-preview h2{font-size:14px}}
@@ -73,6 +76,7 @@
         <footer class="bg-gray-900 text-gray-400 py-8 no-print mt-8">
             <div class="max-w-6xl mx-auto px-4 text-center">
                 <p class="text-sm">&copy; 2026 ResumeAI Pro. AI-powered resume builder for professionals worldwide.</p>
+                <p class="text-xs mt-1">🔒 Payments secured by Razorpay</p>
                 <div class="flex justify-center gap-5 mt-2 text-xs">
                     <a href="#dashboard" onclick="navigate('dashboard');return false;" class="hover:text-white transition-colors">Home</a>
                     <a href="#builder" onclick="navigate('builder');return false;" class="hover:text-white transition-colors">Builder</a>
@@ -84,6 +88,93 @@
     </div>
 
     <script>
+    // ============================================
+    // RAZORPAY CONFIGURATION
+    // ============================================
+    const 'rzp_live_SZXHUEreD1sPfs'; // ← REPLACE THIS with your actual Razorpay Key ID
+
+    function initiateRazorpayPayment(plan) {
+        const plans = {
+            'pro': {
+                amount: 49900, // ₹499 in paise
+                name: 'Pro Monthly Plan',
+                description: 'Unlimited resumes, AI job targeting, full ATS analysis',
+            },
+            'lifetime': {
+                amount: 999900, // ₹9999 in paise
+                name: 'Lifetime Plan',
+                description: 'Pay once, use forever. All features included.',
+            },
+            'yearly': {
+                amount: 399900, // ₹3999 in paise
+                name: 'Pro Yearly Plan',
+                description: 'All Pro features, save 33% with annual billing',
+            }
+        };
+
+        const selectedPlan = plans[plan];
+        if (!selectedPlan) return;
+
+        const options = {
+            key: rzp_live_SZXHUEreD1sPfs,
+            amount: selectedPlan.amount,
+            currency: 'INR',
+            name: 'ResumeAI Pro',
+            description: selectedPlan.description,
+            image: 'https://doketsrb.com/favicon.svg',
+            handler: function(response) {
+                // Payment successful
+                showPaymentSuccess(response.razorpay_payment_id, plan);
+                // Here you would typically verify the payment on your backend
+                // and activate the user's account
+            },
+            prefill: {
+                name: App.resumeData.personal.fullName || '',
+                email: App.resumeData.personal.email || '',
+                contact: App.resumeData.personal.phone || '',
+            },
+            notes: {
+                plan: plan,
+            },
+            theme: {
+                color: '#2563eb',
+            },
+            modal: {
+                ondismiss: function() {
+                    console.log('Payment modal closed');
+                },
+                escape: true,
+                animation: true,
+            },
+        };
+
+        if ('rzp_live_SZXHUEreD1sPfs') {
+            alert('⚠️ Razorpay is not configured yet.\n\nPlease replace YOUR_RAZORPAY_KEY_ID with your actual Razorpay Key ID in the code.\n\nGet your Key ID at: https://dashboard.razorpay.com');
+            return;
+        }
+
+        try {
+            const rzp = new Razorpay(options);
+            rzp.on('payment.failed', function(response) {
+                alert('Payment failed. Please try again.\n\nReason: ' + response.error.description);
+                console.error('Payment failed:', response.error);
+            });
+            rzp.open();
+        } catch (e) {
+            alert('Error opening payment gateway. Please try again.');
+            console.error('Razorpay error:', e);
+        }
+    }
+
+    function showPaymentSuccess(paymentId, plan) {
+        alert('✅ Payment Successful!\n\nPayment ID: ' + paymentId + '\nPlan: ' + plan + '\n\nYour account is being activated. Welcome to ResumeAI Pro!');
+        // In production, verify payment on backend and redirect to dashboard
+        navigate('dashboard');
+    }
+
+    // ============================================
+    // APPLICATION STATE
+    // ============================================
     const App = {
         currentView: 'dashboard',
         resumeData: {
@@ -197,7 +288,7 @@
         const eduText=JSON.stringify(rd.education).toLowerCase(); let maxLvl=0;
         Object.entries(levels).forEach(([k,v])=>{if(eduText.includes(k))maxLvl=Math.max(maxLvl,v);});
         match.educationMatch.score=reqLvl?(maxLvl>=reqLvl?95:maxLvl>=reqLvl-1?60:25):(rd.education.length>0?85:10);
-        if(rd.personal.fullName&&jt.title){match.autoSummary=`Results-driven ${jt.title} with ${totalYears}+ years experience in ${match.skillMatch.matched.slice(0,3).join(', ')||'delivering outcomes'}. Proven in ${(jt.keyResponsibilities[0]||'strategic initiatives').toLowerCase()}. Seeking role at ${jt.company||'a forward-thinking organization'}.`;}
+        if(rd.personal.fullName&&jt.title){match.autoSummary=`Results-driven ${jt.title} with ${totalYears}+ years experience in ${match.skillMatch.matched.slice(0,3).join(', ')||'delivering outcomes'}.`;}
         rd.experience.forEach((exp,i)=>{const skill=match.skillMatch.matched[i%Math.max(1,match.skillMatch.matched.length)];if(skill&&!(exp.bullets||'').toLowerCase().includes(skill.toLowerCase()))match.autoBullets[i]=`• Applied ${skill} to ${(jt.keyResponsibilities[i%Math.max(1,jt.keyResponsibilities.length)]||'key outcomes').toLowerCase()}, achieving measurable impact`;});
         if(match.skillMatch.missing.length>0)match.suggestions.push(`⚠️ Missing ${match.skillMatch.missing.length} skills: ${match.skillMatch.missing.slice(0,6).join(', ')}`);
         if(match.keywordCoverage.absent.length>0)match.suggestions.push(`🔑 Add keywords: ${match.keywordCoverage.absent.slice(0,5).join(', ')}`);
@@ -218,7 +309,7 @@
     function updateJobTarget(f,v){const jt={...App.jobTarget,[f]:v};updateState({jobTarget:jt});}
     function applyAllSuggestions(){const rd={...App.resumeData};if(App.jobMatch.autoSummary)rd.summary=App.jobMatch.autoSummary;Object.entries(App.jobMatch.autoBullets).forEach(([i,b])=>{const idx=parseInt(i);if(rd.experience[idx]){const ex=rd.experience[idx].bullets||'';rd.experience[idx].bullets=ex?ex+'\n'+b:b;}});[...App.jobMatch.skillMatch.missing,...App.jobMatch.keywordCoverage.absent].forEach(item=>{if(!rd.skills.includes(item))rd.skills.push(item);});updateState({resumeData:rd});parseAndMatch();alert('✅ All suggestions applied! Your resume is now optimized for the target job.');}
 
-    function renderResumePreview(){const rd=App.resumeData;const hasContent=rd.personal.fullName||rd.experience.length>0||rd.education.length>0||rd.skills.length>0;if(!hasContent)return`<div class="flex flex-col items-center justify-center h-64 text-gray-400"><i data-lucide="file-text" class="w-16 h-16 mb-4 text-gray-300"></i><p class="text-base font-medium">Your resume preview appears here</p><p class="text-sm mt-1">Fill in your details to see a live preview</p></div>`;const accent='#2563eb';let h=`<div style="border-bottom:3px solid ${accent};padding-bottom:10px;margin-bottom:16px;"><h1>${rd.personal.fullName||'Your Name'}</h1><div style="font-size:10px;color:#64748b;display:flex;flex-wrap:wrap;gap:10px;margin-top:6px;">${rd.personal.email?`<span>📧 ${rd.personal.email}</span>`:''}${rd.personal.phone?`<span>📱 ${rd.personal.phone}</span>`:''}${rd.personal.location?`<span>📍 ${rd.personal.location}</span>`:''}${rd.personal.linkedin?`<span>🔗 ${rd.personal.linkedin}</span>`:''}</div></div>`;if(rd.summary)h+=`<div class="section"><h2 style="color:${accent};">Professional Summary</h2><p>${rd.summary}</p></div>`;if(rd.experience.length>0){h+=`<div class="section"><h2 style="color:${accent};">Experience</h2>`;rd.experience.forEach(exp=>{h+=`<div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;"><h3>${exp.title||'Title'}${exp.company?` — ${exp.company}`:''}</h3><span style="font-size:10px;color:#94a3b8;">${exp.dates||''}</span></div>${exp.bullets?`<ul>${exp.bullets.split('\n').filter(b=>b.trim()).map(b=>`<li>${b.replace(/^[•\-]\s*/,'')}</li>`).join('')}</ul>`:''}</div>`;});h+=`</div>`;}if(rd.education.length>0){h+=`<div class="section"><h2 style="color:${accent};">Education</h2>`;rd.education.forEach(edu=>{h+=`<div style="margin-bottom:6px;"><h3>${edu.degree||'Degree'}</h3><p>${[edu.school,edu.year].filter(Boolean).join(' • ')}</p></div>`;});h+=`</div>`;}if(rd.skills.length>0)h+=`<div class="section"><h2 style="color:${accent};">Skills</h2><p>${rd.skills.join(' • ')}</p></div>`;return h;}
+    function renderResumePreview(){const rd=App.resumeData;const hasContent=rd.personal.fullName||rd.experience.length>0||rd.education.length>0||rd.skills.length>0;if(!hasContent)return`<div class="flex flex-col items-center justify-center h-64 text-gray-400"><i data-lucide="file-text" class="w-16 h-16 mb-4 text-gray-300"></i><p class="text-base font-medium">Your resume preview appears here</p><p class="text-sm mt-1">Fill in your details to see a live preview</p></div>`;const accent='#2563eb';let h=`<div style="border-bottom:3px solid ${accent};padding-bottom:10px;margin-bottom:16px;"><h1>${rd.personal.fullName||'Your Name'}</h1><div style="font-size:10px;color:#64748b;display:flex;flex-wrap:wrap;gap:10px;margin-top:6px;">${rd.personal.email?`<span>📧 ${rd.personal.email}</span>`:''}${rd.personal.phone?`<span>📱 ${rd.personal.phone}</span>`:''}${rd.personal.location?`<span>📍 ${rd.personal.location}</span>`:''}</div></div>`;if(rd.summary)h+=`<div class="section"><h2 style="color:${accent};">Professional Summary</h2><p>${rd.summary}</p></div>`;if(rd.experience.length>0){h+=`<div class="section"><h2 style="color:${accent};">Experience</h2>`;rd.experience.forEach(exp=>{h+=`<div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;"><h3>${exp.title||'Title'}${exp.company?` — ${exp.company}`:''}</h3><span style="font-size:10px;color:#94a3b8;">${exp.dates||''}</span></div>${exp.bullets?`<ul>${exp.bullets.split('\n').filter(b=>b.trim()).map(b=>`<li>${b.replace(/^[•\-]\s*/,'')}</li>`).join('')}</ul>`:''}</div>`;});h+=`</div>`;}if(rd.education.length>0){h+=`<div class="section"><h2 style="color:${accent};">Education</h2>`;rd.education.forEach(edu=>{h+=`<div style="margin-bottom:6px;"><h3>${edu.degree||'Degree'}</h3><p>${[edu.school,edu.year].filter(Boolean).join(' • ')}</p></div>`;});h+=`</div>`;}if(rd.skills.length>0)h+=`<div class="section"><h2 style="color:${accent};">Skills</h2><p>${rd.skills.join(' • ')}</p></div>`;return h;}
 
     const Views={};
     Views.dashboard=function(){const composite=getCompositeScore();const ats=getATSScore();const jt=App.jobTarget;const match=App.jobMatch;const rd=App.resumeData;return`
@@ -252,7 +343,7 @@
 
     Views.templates=function(){const tpls=['Modern','Classic','Creative','Executive','Professional','Minimalist','Academic','Europass'];const cols=['from-blue-500 to-blue-700','from-gray-600 to-gray-800','from-rose-400 to-orange-500','from-amber-500 to-amber-700','from-slate-600 to-slate-800','from-gray-400 to-gray-600','from-indigo-600 to-indigo-800','from-blue-500 to-purple-600'];return`<div class="max-w-5xl mx-auto px-4 py-8 animate-fade-in"><div class="text-center mb-8"><h1 class="text-2xl sm:text-3xl font-heading font-extrabold mb-2">Resume Templates</h1><p class="text-gray-600">All ATS-friendly and professionally designed.</p></div><div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">${tpls.map((t,i)=>`<div onclick="updateState({selectedTemplate:'${t.toLowerCase()}'});navigate('builder')" class="cursor-pointer bg-white rounded-xl border p-5 hover:shadow-xl hover:border-brand-300 transition text-center group"><div class="h-20 bg-gradient-to-br ${cols[i]} rounded-lg mb-3 flex items-center justify-center"><div class="bg-white/90 rounded p-2 w-16 h-12 shadow-sm"><div class="h-1.5 w-10 bg-gray-300 rounded mb-1"></div><div class="h-1 w-8 bg-gray-200 rounded mb-1.5"></div><div class="h-1 w-10 bg-gray-200 rounded"></div></div></div><h3 class="font-bold text-sm group-hover:text-brand-600 transition">${t}</h3></div>`).join('')}</div></div>`;};
 
-    Views.pricing=function(){const plans=[{name:'Free',price:'$0',period:'forever',features:['1 Resume','Basic ATS Check','PDF Export'],cta:'Get Started',popular:false},{name:'Pro',price:'$19',period:'/mo',features:['Unlimited Resumes','AI Job Targeting','Full ATS Analysis','All Templates','PDF Export'],cta:'Start Pro',popular:true},{name:'Enterprise',price:'Custom',period:'',features:['Everything in Pro','White-Label','Team Dashboard','API Access'],cta:'Contact Sales',popular:false}];return`<div class="max-w-5xl mx-auto px-4 py-8 animate-fade-in"><div class="text-center mb-10"><h1 class="text-2xl sm:text-3xl font-heading font-extrabold mb-2">Simple Pricing</h1><p class="text-gray-600">Start free, upgrade when ready.</p></div><div class="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">${plans.map(p=>`<div class="bg-white rounded-2xl p-7 border-2 ${p.popular?'border-brand-600 shadow-xl relative scale-105':'border-gray-200'}">${p.popular?'<div class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-brand-600 text-white px-4 py-1 rounded-full text-xs font-bold">Most Popular</div>':''}<h3 class="text-xl font-bold mb-1">${p.name}</h3><div class="mb-4"><span class="text-4xl font-extrabold">${p.price}</span><span class="text-gray-500 text-sm">${p.period}</span></div><ul class="space-y-2 mb-6">${p.features.map(f=>`<li class="flex items-start gap-2 text-sm text-gray-700"><i data-lucide="check" class="w-4 h-4 text-success flex-shrink-0 mt-0.5"></i> ${f}</li>`).join('')}</ul><button onclick="navigate('signup')" class="w-full py-3 rounded-xl font-bold transition ${p.popular?'bg-brand-600 text-white hover:bg-brand-700':'bg-gray-100 text-gray-700 hover:bg-gray-200'}">${p.cta}</button></div>`).join('')}</div></div>`;};
+    Views.pricing=function(){const plans=[{name:'Free',price:'0',period:'forever',features:['1 Resume','Basic ATS Check','PDF Export','Community Support'],cta:'Get Started Free',action:'signup',popular:false},{name:'Pro',price:'499',period:'/month',features:['Unlimited Resumes','AI Job Targeting','Full ATS Analysis','All 8 Templates','PDF & Print Export','Priority Support'],cta:'Subscribe Now',action:'pro',popular:true},{name:'Pro Yearly',price:'3,999',period:'/year',features:['Everything in Pro','4 Months Free','All Future Updates','Premium Support'],cta:'Get Pro Yearly',action:'yearly',popular:false},{name:'Lifetime',price:'9,999',period:'one-time',features:['Everything in Pro','Lifetime Access','All Future Updates','Premium Support','No Recurring Fees'],cta:'Buy Lifetime',action:'lifetime',popular:false}];return`<div class="max-w-6xl mx-auto px-4 py-8 animate-fade-in"><div class="text-center mb-10"><h1 class="text-2xl sm:text-3xl font-heading font-extrabold mb-2">Simple, Transparent Pricing</h1><p class="text-gray-600">All prices in ₹ (INR). Secure payments via Razorpay.</p></div><div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">${plans.map(p=>`<div class="bg-white rounded-2xl p-7 border-2 ${p.popular?'border-brand-600 shadow-xl relative scale-105':'border-gray-200'}">${p.popular?'<div class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-brand-600 text-white px-4 py-1 rounded-full text-xs font-bold">Most Popular</div>':''}<h3 class="text-xl font-bold mb-1">${p.name}</h3><div class="mb-4"><span class="text-4xl font-extrabold">₹${p.price}</span><span class="text-gray-500 text-sm">${p.period}</span></div><ul class="space-y-2 mb-6">${p.features.map(f=>`<li class="flex items-start gap-2 text-sm text-gray-700"><i data-lucide="check" class="w-4 h-4 text-success flex-shrink-0 mt-0.5"></i> ${f}</li>`).join('')}</ul><button onclick="${p.action==='signup'?"navigate('signup')":`initiateRazorpayPayment('${p.action}')`}" class="w-full py-3 rounded-xl font-bold transition ${p.popular?'bg-brand-600 text-white hover:bg-brand-700 shadow-md':'bg-gray-100 text-gray-700 hover:bg-gray-200'}">💳 ${p.cta}</button></div>`).join('')}</div><p class="text-center text-xs text-gray-400 mt-6">🔒 Payments are processed securely through Razorpay. Your payment information is encrypted.</p></div>`;};
 
     Views.signup=function(){return`<div class="min-h-[70vh] flex items-center justify-center px-4 animate-fade-in"><div class="bg-white rounded-2xl p-8 w-full max-w-md shadow-xl border"><div class="text-center mb-6"><div class="w-14 h-14 bg-gradient-to-br from-brand-500 to-accent-500 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-md"><i data-lucide="user-plus" class="w-7 h-7 text-white"></i></div><h2 class="text-2xl font-heading font-extrabold">Create Free Account</h2><p class="text-sm text-gray-500 mt-1">Start building professional resumes</p></div><div class="space-y-3"><input type="text" placeholder="Full Name" class="w-full px-4 py-3 border rounded-xl text-sm"><input type="email" placeholder="Email" class="w-full px-4 py-3 border rounded-xl text-sm"><input type="password" placeholder="Password" class="w-full px-4 py-3 border rounded-xl text-sm"><button onclick="navigate('dashboard')" class="w-full py-3 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition font-bold shadow-md">Create Free Account</button></div><p class="text-center text-sm text-gray-500 mt-5">Have an account? <button onclick="navigate('login')" class="text-brand-600 font-semibold hover:underline">Log In</button></p></div></div>`;};
     Views.login=function(){return`<div class="min-h-[70vh] flex items-center justify-center px-4 animate-fade-in"><div class="bg-white rounded-2xl p-8 w-full max-w-md shadow-xl border"><div class="text-center mb-6"><div class="w-14 h-14 bg-gradient-to-br from-brand-500 to-accent-500 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-md"><i data-lucide="log-in" class="w-7 h-7 text-white"></i></div><h2 class="text-2xl font-heading font-extrabold">Welcome Back</h2></div><div class="space-y-3"><input type="email" placeholder="Email" class="w-full px-4 py-3 border rounded-xl text-sm"><input type="password" placeholder="Password" class="w-full px-4 py-3 border rounded-xl text-sm"><button onclick="navigate('dashboard')" class="w-full py-3 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition font-bold shadow-md">Log In</button></div><p class="text-center text-sm text-gray-500 mt-5">No account? <button onclick="navigate('signup')" class="text-brand-600 font-semibold hover:underline">Sign Up</button></p></div></div>`;};
@@ -263,7 +354,7 @@
 
     async function exportPDF(){const preview=document.getElementById('resume-preview-area');if(!preview){alert('No resume to export. Fill in your details first.');return;}try{const [jsPDFModule,html2canvasModule]=await Promise.all([import('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'),import('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js')]);const canvas=await html2canvas(preview,{scale:2,backgroundColor:'#ffffff',logging:false});const {jsPDF}=window.jspdf;const pdf=new jsPDF('p','mm','letter');const w=pdf.internal.pageSize.getWidth();const h=(canvas.height*w)/canvas.width;pdf.addImage(canvas.toDataURL('image/png',1.0),'PNG',0,0,w,h);pdf.save(`${(App.resumeData.personal.fullName||'resume').toLowerCase().replace(/\s+/g,'-')}-job-ready.pdf`);}catch(e){alert('PDF export failed. Please try browser print (Ctrl+P).');}}
 
-    function init(){loadFromStorage();const hash=window.location.hash.replace('#','')||'dashboard';navigate(Views[hash]?hash:'dashboard');window.addEventListener('hashchange',function(){const h=window.location.hash.replace('#','');if(h&&Views[h]&&h!==App.currentView)navigate(h);});console.log('✅ ResumeAI Pro ready');}
+    function init(){loadFromStorage();const hash=window.location.hash.replace('#','')||'dashboard';navigate(Views[hash]?hash:'dashboard');window.addEventListener('hashchange',function(){const h=window.location.hash.replace('#','');if(h&&Views[h]&&h!==App.currentView)navigate(h);});console.log('✅ ResumeAI Pro ready with Razorpay payments');}
     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
     </script>
 </body>
