@@ -336,12 +336,12 @@ async function showPaymentSuccess(paymentId, orderId, signature, plan) {
             setTimeout(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); }, 50);
         }
         document.querySelectorAll('#navbar button[role="menuitem"]').forEach(btn => {
-            btn.classList.remove('text-brand-600', 'bg-brand-50');
-            btn.classList.add('text-brand-600', 'bg-brand-50');
-            if (btn.textContent.toLowerCase().includes(App.currentView) || (App.currentView === 'dashboard' && btn.textContent === 'Dashboard')) {
-                btn.classList.add('text-brand-600', 'bg-brand-50');
-            }
-        });
+    btn.classList.remove('text-brand-600', 'bg-brand-50');
+    if (btn.textContent.trim().toLowerCase().includes(App.currentView) || 
+        (App.currentView === 'dashboard' && btn.textContent.trim() === 'Dashboard')) {
+        btn.classList.add('text-brand-600', 'bg-brand-50');
+    }
+});
     }
 
     function saveToStorage() {
