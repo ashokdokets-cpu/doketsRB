@@ -56,22 +56,22 @@ let userProfile = null;
 <body class="bg-gray-50 text-gray-900 antialiased">
 
     <div id="app" role="application" aria-label="ResumeAI Pro Application">
-        <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 glass no-print" role="navigation">
+        <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm border-b border-gray-200 no-print" role="navigation">
             <div class="max-w-7xl mx-auto px-3 sm:px-4 h-16 flex items-center justify-between">
                 <a href="#dashboard" onclick="navigate('dashboard');return false;" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                    <div class="w-9 h-9 bg-gradient-to-br from-brand-500 to-accent-600 rounded-lg flex items-center justify-center shadow-md ring-2 ring-white/50">
+                    <div class="w-9 h-9 bg-gradient-to-br from-brand-500 to-brand-700 rounded-lg flex items-center justify-center shadow-md ring-1 ring-brand-300">
                         <i data-lucide="target" class="w-4 h-4 text-white"></i>
                     </div>
-                    <span class="font-heading font-bold text-lg hidden sm:inline">Resume<span class="text-brand-600">AI</span> <span class="text-gray-800">Pro</span></span>
+                    <span class="font-heading font-extrabold text-lg hidden sm:inline text-gray-900">Resume<span class="text-brand-600">AI</span> <span class="text-gray-800">Pro</span></span>
                 </a>
                 <div class="hidden lg:flex items-center gap-0.5" role="menubar">
-                    <button onclick="navigate('dashboard')" class="px-3 py-2 text-sm font-medium rounded-lg text-gray-800 hover:text-brand-600 hover:bg-brand-50 transition">Dashboard</button>
+                    <button onclick="navigate('dashboard')" class="px-3 py-2 text-sm font-medium rounded-lg text-gray-900 hover:text-brand-600 hover:bg-brand-50 font-semibold transition">Dashboard</button>
                     <button onclick="navigate('builder')" class="px-4 py-2.5 bg-brand-600 text-white font-bold rounded-lg hover:bg-brand-700 transition text-sm flex items-center gap-1.5 shadow-md">
-                    <button onclick="navigate('templates')" class="px-3 py-2 text-sm font-medium rounded-lg text-gray-800 hover:text-brand-600 hover:bg-brand-50 transition">Templates</button>
-                    <button onclick="navigate('pricing')" class="px-3 py-2 text-sm font-medium rounded-lg text-gray-800 hover:text-brand-600 hover:bg-brand-50 transition">Pricing</button>
+                    <button onclick="navigate('templates')" class="px-3 py-2 text-sm font-medium rounded-lg text-gray-900 hover:text-brand-600 hover:bg-brand-50 font-semibold transition">Templates</button>
+                    <button onclick="navigate('pricing')" class="px-3 py-2 text-sm font-medium rounded-lg text-gray-900 hover:text-brand-600 hover:bg-brand-50 font-semibold transition">Pricing</button>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button onclick="navigate('signup')" class="px-3 sm:px-4 py-2 bg-brand-600 text-white font-bold rounded-lg hover:bg-brand-700 transition text-xs sm:text-sm shadow-md">Sign Up Free</button>
+                    <button onclick="navigate('signup')" class="px-3 sm:px-4 py-2.5 bg-brand-600 text-white font-bold rounded-lg hover:bg-brand-700 transition text-sm shadow-md">Sign Up Free</button>
                     <button onclick="toggleMobileNav()" class="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition" aria-label="Toggle menu">
                         <i data-lucide="menu" class="w-6 h-6 text-gray-900"></i>
                     </button>
