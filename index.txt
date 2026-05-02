@@ -15,6 +15,16 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
+// Supabase Configuration
+const SUPABASE_URL = 'https://arszgttojohsmzjiemgh.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFyc3pndHRvam9oc216amllbWdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3MTYwNTksImV4cCI6MjA5MzI5MjA1OX0.0Y6kM8cg0fERxlM0xTZu6AFzenfVY-USoNm6mJeg-dM';
+
+// Initialize Supabase
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Current user state
+let currentUser = null;
+let userProfile = null;
         tailwind.config = {
             theme: {
                 extend: {
@@ -40,6 +50,8 @@
     <style>
         *,*::before,*::after{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;padding:0;font-family:'Inter',system-ui,sans-serif;background:#f8fafc;color:#1e293b}::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#f1f5f9}::-webkit-scrollbar-thumb{background:#94a3b8;border-radius:3px}.gradient-text{background:linear-gradient(135deg,#2563eb,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}.glass{background:rgba(255,255,255,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(229,231,235,0.6)}.resume-preview{font-family:'Georgia','Times New Roman',serif;line-height:1.5}.resume-preview h1{font-size:22px;font-weight:bold;color:#1e293b;margin:0 0 4px 0}.resume-preview h2{font-size:15px;font-weight:bold;border-bottom:2px solid #2563eb;padding-bottom:4px;margin:16px 0 8px 0;color:#2563eb;text-transform:uppercase;letter-spacing:0.5px}.resume-preview h3{font-size:13px;font-weight:bold;color:#334155;margin:0 0 2px 0}.resume-preview p{font-size:11.5px;color:#475569;margin:0 0 4px 0}.resume-preview ul{list-style:disc;padding-left:20px;margin:4px 0 8px 0}.resume-preview li{font-size:11.5px;color:#475569;margin-bottom:3px}.resume-preview .section{margin-bottom:12px}.animate-fade-in{animation:fadeIn 0.3s ease-out}@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}@media print{.no-print{display:none!important}body{background:white!important}#resume-preview-area{box-shadow:none!important;border:none!important;padding:0!important}}@media(max-width:640px){.resume-preview h1{font-size:20px}.resume-preview h2{font-size:14px}}
     </style>
+<!-- Supabase Client -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 antialiased">
 
@@ -91,7 +103,7 @@
     // ============================================
     // RAZORPAY CONFIGURATION
     // ============================================
-    const 'rzp_live_SZXHUEreD1sPfs'; // ← REPLACE THIS with your actual Razorpay Key ID
+    const RAZORPAY_KEY_ID = 'rzp_live_SkGxektNh5gQfY'; // ← REPLACE THIS with your actual Razorpay Key ID
 
     function initiateRazorpayPayment(plan) {
         const plans = {
@@ -116,7 +128,7 @@
         if (!selectedPlan) return;
 
         const options = {
-            key: rzp_live_SZXHUEreD1sPfs,
+            key: RAZORPAY_KEY_ID,
             amount: selectedPlan.amount,
             currency: 'INR',
             name: 'ResumeAI Pro',
@@ -150,11 +162,7 @@
             },
         };
 
-        if ('rzp_live_SZXHUEreD1sPfs') {
-            alert('⚠️ Razorpay is not configured yet.\n\nPlease replace YOUR_RAZORPAY_KEY_ID with your actual Razorpay Key ID in the code.\n\nGet your Key ID at: https://dashboard.razorpay.com');
-            return;
-        }
-
+        
         try {
             const rzp = new Razorpay(options);
             rzp.on('payment.failed', function(response) {
@@ -167,32 +175,101 @@
             console.error('Razorpay error:', e);
         }
     }
-
-    function showPaymentSuccess(paymentId, orderId, signature, plan) {
-    fetch('/api/verify-payment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            razorpay_payment_id: paymentId,
-            razorpay_order_id: orderId,
-            razorpay_signature: signature,
-            plan: plan
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('✅ Payment Verified!\n\nYour ' + plan + ' plan is now active.\nWelcome to ResumeAI Pro!');
+async function showPaymentSuccess(paymentId, orderId, signature, plan) {
+    try {
+        // Verify payment with backend
+        const response = await fetch('/api/verify-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                razorpay_payment_id: paymentId,
+                razorpay_order_id: orderId,
+                razorpay_signature: signature,
+                plan: plan,
+            }),
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Activate the plan
+            await activatePlan(plan, paymentId);
+            
+            // Save payment record
+            await supabase.from('payments').insert({
+                user_id: currentUser.id,
+                payment_id: paymentId,
+                order_id: orderId,
+                plan: plan,
+            });
+            
+            alert(`✅ Payment Verified!\n\nYour ${plan.toUpperCase()} plan is now active.\nWelcome to ResumeAI Pro!`);
+            await loadUserProfile();
             navigate('dashboard');
         } else {
-            alert('❌ Payment verification failed. Please contact support.\n\nError: ' + data.error);
+            alert('❌ Payment verification failed. Please contact support.');
         }
-    })
-    .catch(error => {
-        alert('❌ Could not verify payment. Your payment may still have been processed. Please contact support.');
-        console.error('Verification error:', error);
-    });
+    } catch (error) {
+        console.error('Payment error:', error);
+        alert('❌ An error occurred. Please contact support.');
+    }
 }
+
+    // ============================================
+    // AUTH FUNCTIONS (Supabase)
+    // ============================================
+    async function checkAuth() {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+            currentUser = user;
+            await loadUserProfile();
+            return true;
+        }
+        return false;
+    }
+
+    async function loadUserProfile() {
+        const { data } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', currentUser.id)
+            .single();
+        userProfile = data;
+        return data;
+    }
+
+    async function signUp(email, password, fullName) {
+        const { data, error } = await supabase.auth.signUp({ email, password });
+        if (error) return { error };
+        await supabase.from('profiles').insert({ id: data.user.id, full_name: fullName, email: email });
+        return { success: true };
+    }
+
+    async function logIn(email, password) {
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) return { error };
+        currentUser = data.user;
+        await loadUserProfile();
+        return { success: true };
+    }
+
+    async function logOut() {
+        await supabase.auth.signOut();
+        currentUser = null;
+        userProfile = null;
+        navigate('dashboard');
+    }
+
+    async function activatePlan(plan, paymentId) {
+        const { data, error } = await supabase.rpc('update_user_plan', {
+            p_user_id: currentUser.id,
+            p_plan: plan,
+            p_payment_id: paymentId,
+        });
+        if (error) return { error };
+        await loadUserProfile();
+        return data;
+    }
 
     // ============================================
     // APPLICATION STATE
@@ -219,8 +296,30 @@
             educationMatch: { score: 0 },
             autoSummary: '', autoBullets: {}, suggestions: []
         },
-        selectedTemplate: 'modern',
+                selectedTemplate: 'modern',
     };
+
+    // ============================================
+    // FEATURE GATES (Plan-Based Access Control)
+    // ============================================
+    function canAccess(feature) {
+        if (!userProfile) return feature === 'basic';
+        const gates = {
+            'ai_targeting': userProfile.ai_job_targeting,
+            'full_ats': userProfile.full_ats_analysis,
+            'all_templates': userProfile.all_templates,
+            'docx_export': userProfile.docx_export,
+            'cover_letters': userProfile.cover_letters,
+            'unlimited_resumes': userProfile.max_resumes > 100,
+            'priority_support': userProfile.priority_support,
+        };
+        return gates[feature] || false;
+    }
+
+    function canCreateResume() {
+        if (!userProfile) return true;
+        return userProfile.resumes_created < userProfile.max_resumes;
+    }
 
     function updateState(changes) {
         Object.assign(App, changes);
