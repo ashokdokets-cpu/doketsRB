@@ -356,6 +356,13 @@ async function resetPassword() {
     const App = {
         currentView: 'dashboard',
         currency: 'INR',  // ← ADD THIS LINE
+            // AI Usage Tracking
+        aiUsageToday: 0,
+        aiUsageDate: '',
+        maxFreeAIUsage: 5,
+    // Resume Counter
+        resumesCreated: 0,
+        maxResumes: 1,
         resumeData: {
             personal: { fullName: '', email: '', phone: '', location: '', linkedin: '' },
             summary: '',
@@ -400,6 +407,58 @@ async function resetPassword() {
         if (!userProfile) return true;
         return userProfile.resumes_created < userProfile.max_resumes;
     }
+// AI Usage Tracking
+function trackAIUsage() {
+    const today = new Date().toDateString();
+    
+    // Reset counter if it's a new day
+    if (App.aiUsageDate !== today) {
+        App.aiUsageToday = 0;
+        App.aiUsageDate = today;
+    }
+    
+    // Check if user is on free plan and has exceeded limit
+    if (!userProfile || userProfile.plan === 'free') {
+        if (App.aiUsageToday >= App.maxFreeAIUsage) {
+            alert(`⚠️ You've used all ${App.maxFreeAIUsage} free AI suggestions today.\n\nUpgrade to Pro for unlimited AI usage!`);
+            navigate('pricing');
+            return false;
+        }
+    }
+    
+    // Increment usage counter
+    App.aiUsageToday++;
+    saveToStorage();
+    return true;
+}
+
+function getRemainingAIUsage() {
+    const today = new Date().toDateString();
+    if (App.aiUsageDate !== today) {
+        App.aiUsageToday = 0;
+        App.aiUsageDate = today;
+    }
+    
+    if (userProfile && userProfile.plan !== 'free') return 'Unlimited';
+    return Math.max(0, App.maxFreeAIUsage - App.aiUsageToday);
+}
+
+function enforceResumeLimit() {
+    // Check if user can create another resume
+    if (userProfile && userProfile.plan === 'free') {
+        if (userProfile.resumes_created >= userProfile.max_resumes) {
+            alert(`⚠️ You've reached your free plan limit of ${userProfile.max_resumes} resume.\n\nUpgrade to Pro for unlimited resumes!`);
+            navigate('pricing');
+            return false;
+        }
+    }
+    return true;
+}
+
+function incrementResumeCount() {
+    App.resumesCreated++;
+    saveToStorage();
+}
 
     function updateState(changes) {
         Object.assign(App, changes);
@@ -426,7 +485,9 @@ async function resetPassword() {
 
     function saveToStorage() {
         try {
-            const data = { resumeData: App.resumeData, jobTarget: App.jobTarget, jobMatch: App.jobMatch, selectedTemplate: App.selectedTemplate };
+            const data = { resumeData: App.resumeData, jobTarget: App.jobTarget, jobMatch: App.jobMatch, selectedTemplate: App.selectedTemplate, aiUsageToday: App.aiUsageToday,     // ← ADD
+            aiUsageDate: App.aiUsageDate,       // ← ADD
+            resumesCreated: App.resumesCreated, // ← ADD };
             localStorage.setItem('resumeai_pro_data', JSON.stringify(data));
         } catch (e) {}
     }
@@ -440,6 +501,9 @@ async function resetPassword() {
                 if (data.jobTarget) App.jobTarget = data.jobTarget;
                 if (data.jobMatch) App.jobMatch = data.jobMatch;
                 if (data.selectedTemplate) App.selectedTemplate = data.selectedTemplate;
+                if (data.aiUsageToday !== undefined) App.aiUsageToday = data.aiUsageToday;     // ← ADD
+                if (data.aiUsageDate) App.aiUsageDate = data.aiUsageDate;                       // ← ADD
+                if (data.resumesCreated !== undefined) App.resumesCreated = data.resumesCreated; // ← ADD
             }
         } catch (e) {}
     }
@@ -503,13 +567,13 @@ async function resetPassword() {
 
     function updatePersonal(f,v){const rd={...App.resumeData};rd.personal={...rd.personal,[f]:v};updateState({resumeData:rd});}
     function updateField(f,v){const rd={...App.resumeData};rd[f]=v;updateState({resumeData:rd});}
-    function addItem(key,tpl){const rd={...App.resumeData};if(!rd[key])rd[key]=[];rd[key].push({...tpl});updateState({resumeData:rd});}
+    function addItem(key,tpl){if (key === 'experience' && !enforceResumeLimit()) return;  // ← ADD THIS LINE const rd={...App.resumeData};if(!rd[key])rd[key]=[];rd[key].push({...tpl});updateState({resumeData:rd});}
     function removeItem(key,i){const rd={...App.resumeData};if(rd[key])rd[key].splice(i,1);updateState({resumeData:rd});}
     function updateArrayItem(key,i,f,v){const rd={...App.resumeData};if(rd[key]&&rd[key][i])rd[key][i][f]=v;updateState({resumeData:rd});}
     function addSkill(s){const t=s.trim();if(!t)return;const rd={...App.resumeData};if(!rd.skills.includes(t)){rd.skills.push(t);updateState({resumeData:rd});}}
     function removeSkill(i){const rd={...App.resumeData};rd.skills.splice(i,1);updateState({resumeData:rd});}
     function updateJobTarget(f,v){const jt={...App.jobTarget,[f]:v};updateState({jobTarget:jt});}
-    function applyAllSuggestions(){const rd={...App.resumeData};if(App.jobMatch.autoSummary)rd.summary=App.jobMatch.autoSummary;Object.entries(App.jobMatch.autoBullets).forEach(([i,b])=>{const idx=parseInt(i);if(rd.experience[idx]){const ex=rd.experience[idx].bullets||'';rd.experience[idx].bullets=ex?ex+'\n'+b:b;}});[...App.jobMatch.skillMatch.missing,...App.jobMatch.keywordCoverage.absent].forEach(item=>{if(!rd.skills.includes(item))rd.skills.push(item);});updateState({resumeData:rd});parseAndMatch();alert('✅ All suggestions applied! Your resume is now optimized for the target job.');}
+    function applyAllSuggestions(){if (!trackAIUsage()) return;  // ← ADD THIS LINEconst rd={...App.resumeData};if(App.jobMatch.autoSummary)rd.summary=App.jobMatch.autoSummary;Object.entries(App.jobMatch.autoBullets).forEach(([i,b])=>{const idx=parseInt(i);if(rd.experience[idx]){const ex=rd.experience[idx].bullets||'';rd.experience[idx].bullets=ex?ex+'\n'+b:b;}});[...App.jobMatch.skillMatch.missing,...App.jobMatch.keywordCoverage.absent].forEach(item=>{if(!rd.skills.includes(item))rd.skills.push(item);});updateState({resumeData:rd});parseAndMatch();alert('✅ All suggestions applied! Your resume is now optimized for the target job.');}
 
     function renderResumePreview(){const rd=App.resumeData;const hasContent=rd.personal.fullName||rd.experience.length>0||rd.education.length>0||rd.skills.length>0;if(!hasContent)return`<div class="flex flex-col items-center justify-center h-64 text-gray-800"><i data-lucide="file-text" class="w-16 h-16 mb-4 text-gray-800"></i><p class="text-base font-medium">Your resume preview appears here</p><p class="text-sm mt-1">Fill in your details to see a live preview</p></div>`;const accent='#2563eb';let h=`<div style="border-bottom:3px solid ${accent};padding-bottom:10px;margin-bottom:16px;"><h1>${rd.personal.fullName||'Your Name'}</h1><div style="font-size:10px;color:#64748b;display:flex;flex-wrap:wrap;gap:10px;margin-top:6px;">${rd.personal.email?`<span>📧 ${rd.personal.email}</span>`:''}${rd.personal.phone?`<span>📱 ${rd.personal.phone}</span>`:''}${rd.personal.location?`<span>📍 ${rd.personal.location}</span>`:''}</div></div>`;if(rd.summary)h+=`<div class="section"><h2 style="color:${accent};">Professional Summary</h2><p>${rd.summary}</p></div>`;if(rd.experience.length>0){h+=`<div class="section"><h2 style="color:${accent};">Experience</h2>`;rd.experience.forEach(exp=>{h+=`<div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;"><h3>${exp.title||'Title'}${exp.company?` — ${exp.company}`:''}</h3><span style="font-size:10px;color:#94a3b8;">${exp.dates||''}</span></div>${exp.bullets?`<ul>${exp.bullets.split('\n').filter(b=>b.trim()).map(b=>`<li>${b.replace(/^[•\-]\s*/,'')}</li>`).join('')}</ul>`:''}</div>`;});h+=`</div>`;}if(rd.education.length>0){h+=`<div class="section"><h2 style="color:${accent};">Education</h2>`;rd.education.forEach(edu=>{h+=`<div style="margin-bottom:6px;"><h3>${edu.degree||'Degree'}</h3><p>${[edu.school,edu.year].filter(Boolean).join(' • ')}</p></div>`;});h+=`</div>`;}if(rd.skills.length>0)h+=`<div class="section"><h2 style="color:${accent};">Skills</h2><p>${rd.skills.join(' • ')}</p></div>`;return h;}
 
@@ -519,7 +583,14 @@ async function resetPassword() {
         <div class="flex flex-wrap items-center justify-between gap-3 mb-6"><h1 class="text-2xl sm:text-3xl font-heading font-extrabold text-gray-900">Dashboard</h1><div class="flex gap-2 flex-wrap"><button onclick="navigate('builder')" class="px-5 py-3 bg-blue-700 text-white font-black rounded-lg hover:bg-blue-800 transition text-base shadow-lg">✏️ Edit Resume</button>
 <button onclick="exportPDF()" class="px-4 py-2.5 bg-green-600 text-white font-extrabold rounded-lg hover:bg-green-700 transition text-sm shadow-md">📄 PDF</button>
 <button onclick="exportDOCX()" class="px-4 py-2.5 bg-blue-600 text-white font-extrabold rounded-lg hover:bg-blue-700 transition text-sm shadow-md">📝 DOCX</button></div></div>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">${[{label:'Composite Score',value:composite+'%',color:composite>=75?'green':composite>=50?'amber':'red'},{label:'ATS Quality',value:ats.total+'%',color:'blue'},{label:'Job Match',value:(match.overallScore||'--')+'%',color:'purple'},{label:'Skills',value:rd.skills.length,color:'amber'}].map(s=>`<div class="bg-white rounded-xl p-4 border border-gray-200 shadow-sm text-center"><div class="text-2xl sm:text-3xl font-extrabold text-${s.color}-600">${s.value}</div><div class="text-xs text-gray-800 mt-1">${s.label}</div></div>`).join('')}</div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">${[
+    {label:'Composite Score',value:composite+'%',color:composite>=75?'green':composite>=50?'amber':'red'},
+    {label:'ATS Quality',value:ats.total+'%',color:'blue'},
+    {label:'Job Match',value:(match.overallScore||'--')+'%',color:'purple'},
+    {label:'Skills',value:rd.skills.length,color:'amber'},
+    {label:'AI Uses Today',value:getRemainingAIUsage(),color:'indigo'},
+    {label:'Resumes',value:`${App.resumesCreated}/${App.maxResumes === 999999 ? '∞' : App.maxResumes}`,color:'pink'},
+].map(s=>`<div class="bg-white rounded-xl p-4 border border-gray-200 shadow-sm text-center"><div class="text-2xl sm:text-3xl font-extrabold text-${s.color}-600">${s.value}</div><div class="text-xs text-gray-500 mt-1">${s.label}</div></div>`).join('')}</div>
         <div class="grid lg:grid-cols-3 gap-6">
             <div class="lg:col-span-1 space-y-4">
                 <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm"><h3 class="font-bold text-gray-900 mb-3 flex items-center gap-2"><i data-lucide="target" class="w-5 h-5 text-purple-600"></i> Target a Job</h3><input type="text" value="${jt.title}" onchange="updateJobTarget('title',this.value)" placeholder="Job Title" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm mb-2"><input type="text" value="${jt.company}" onchange="updateJobTarget('company',this.value)" placeholder="Company (optional)" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm mb-2"><textarea rows="5" onchange="updateJobTarget('description',this.value)" placeholder="Paste the full job description here..." class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm resize-none mb-3">${jt.description}</textarea><button onclick="parseAndMatch()" class="w-full py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-bold text-sm flex items-center justify-center gap-1.5"><i data-lucide="search" class="w-4 h-4"></i> Analyze & Match</button>${jt.parsed?`<button onclick="applyAllSuggestions()" class="w-full mt-2 py-2.5 bg-success text-white rounded-lg hover:bg-green-600 transition font-semibold text-sm flex items-center justify-center gap-1.5"><i data-lucide="check-circle" class="w-4 h-4"></i> Apply All Suggestions</button>`:''}</div>
@@ -802,6 +873,7 @@ Views['cover-letter'] = function() {
     };
 
 function generateCoverLetter() {
+if (!trackAIUsage()) return;  // ← ADD THIS LINE
     const jobTitle = document.getElementById('cl-job-title').value || 'the position';
     const company = document.getElementById('cl-company').value || 'your company';
     const jobDesc = document.getElementById('cl-job-desc').value;
