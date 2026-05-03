@@ -52,6 +52,7 @@ let userProfile = null;
     </style>
 <!-- Supabase Client -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body class="bg-gray-50 text-gray-900 antialiased">
 
@@ -104,6 +105,7 @@ let userProfile = null;
     // RAZORPAY CONFIGURATION
     // ============================================
     const RAZORPAY_KEY_ID = 'rzp_live_SkGxektNh5gQfY'; // ← REPLACE THIS with your actual Razorpay Key ID
+    const TURNSTILE_SITE_KEY = '0x4AAAAAADH4CJD8VeDh1kVK'; // ← Replace with your actual Turnstile Site Key
 
     function initiateRazorpayPayment(plan) {
         const plans = {
@@ -270,7 +272,73 @@ async function showPaymentSuccess(paymentId, orderId, signature, plan) {
         await loadUserProfile();
         return data;
     }
-
+    // Google Sign-In
+   async function signInWithGoogle() {
+       const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+            redirectTo: 'https://doketsrb.com/#dashboard',
+        },
+    });
+    if (error) {
+        alert('Google sign-in failed. Please try again.');
+        console.error('Google auth error:', error);
+    }
+}
+async function resetPassword() {
+        const email = document.getElementById('reset-email').value;
+        if (!email) {
+            alert('Please enter your email address.');
+            return;
+        }
+        
+        const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: 'https://doketsrb.com/#update-password',
+        });
+        
+        if (error) {
+            alert('Error: ' + error.message);
+        } else {
+            alert('✅ Reset link sent! Check your email.');
+            navigate('login');
+        }
+    }
+    async function handleSignup() {
+        const turnstileResponse = document.querySelector('.cf-turnstile')?.getAttribute('data-response');
+        
+        if (!turnstileResponse) {
+            alert('Please complete the CAPTCHA verification.');
+            return;
+        }
+        
+        const verifyResult = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                secret: 'YOUR_TURNSTILE_SECRET_KEY',
+                response: turnstileResponse,
+            }),
+        });
+        
+        const verifyData = await verifyResult.json();
+        
+        if (!verifyData.success) {
+            alert('CAPTCHA verification failed. Please try again.');
+            return;
+        }
+        
+        const email = document.querySelector('#signup-email').value;
+        const password = document.querySelector('#signup-password').value;
+        const fullName = document.querySelector('#signup-name').value;
+        
+        const result = await signUp(email, password, fullName);
+        if (result.error) {
+            alert('Signup failed: ' + result.error.message);
+        } else {
+            alert('✅ Account created! Check your email to confirm.');
+            navigate('dashboard');
+        }
+    }
     // ============================================
     // APPLICATION STATE
     // ============================================
@@ -467,16 +535,198 @@ async function showPaymentSuccess(paymentId, orderId, signature, plan) {
 
     Views.pricing=function(){const plans=[{name:'Free',price:'0',period:'forever',features:['1 Resume','Basic ATS Check','PDF Export','Community Support'],cta:'Get Started Free',action:'signup',popular:false},{name:'Pro',price:'499',period:'/month',features:['Unlimited Resumes','AI Job Targeting','Full ATS Analysis','All 8 Templates','PDF & Print Export','Priority Support'],cta:'Subscribe Now',action:'pro',popular:true},{name:'Pro Yearly',price:'3,999',period:'/year',features:['Everything in Pro','4 Months Free','All Future Updates','Premium Support'],cta:'Get Pro Yearly',action:'yearly',popular:false},{name:'Lifetime',price:'9,999',period:'one-time',features:['Everything in Pro','Lifetime Access','All Future Updates','Premium Support','No Recurring Fees'],cta:'Buy Lifetime',action:'lifetime',popular:false}];return`<div class="max-w-6xl mx-auto px-4 py-8 animate-fade-in"><div class="text-center mb-10"><h1 class="text-2xl sm:text-3xl font-heading font-extrabold mb-2">Simple, Transparent Pricing</h1><p class="text-gray-800">All prices in ₹ (INR). Secure payments via Razorpay.</p></div><div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">${plans.map(p=>`<div class="bg-white rounded-2xl p-7 border-2 ${p.popular?'border-brand-600 shadow-xl relative scale-105':'border-gray-200'}">${p.popular?'<div class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-brand-600 text-white px-4 py-1 rounded-full text-xs font-bold">Most Popular</div>':''}<h3 class="text-xl font-bold mb-1">${p.name}</h3><div class="mb-4"><span class="text-4xl font-extrabold">₹${p.price}</span><span class="text-gray-800 text-sm">${p.period}</span></div><ul class="space-y-2 mb-6">${p.features.map(f=>`<li class="flex items-start gap-2 text-sm text-gray-800"><i data-lucide="check" class="w-4 h-4 text-success flex-shrink-0 mt-0.5"></i> ${f}</li>`).join('')}</ul><button onclick="${p.action==='signup'?"navigate('signup')":`initiateRazorpayPayment('${p.action}')`}" class="w-full py-3 rounded-xl font-bold transition ${p.popular?'bg-brand-600 text-white hover:bg-brand-700 shadow-md':'bg-gray-200 text-gray-900 font-bold hover:bg-gray-300'}">💳 ${p.cta}</button></div>`).join('')}</div><p class="text-center text-xs text-gray-800 mt-6">🔒 Payments are processed securely through Razorpay. Your payment information is encrypted.</p></div>`;};
 
-    Views.signup=function(){return`<div class="min-h-[70vh] flex items-center justify-center px-4 animate-fade-in"><div class="bg-white rounded-2xl p-8 w-full max-w-md shadow-xl border"><div class="text-center mb-6"><div class="w-14 h-14 bg-gradient-to-br from-brand-500 to-accent-500 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-md"><i data-lucide="user-plus" class="w-7 h-7 text-white"></i></div><h2 class="text-2xl font-heading font-extrabold">Create Free Account</h2><p class="text-sm text-gray-800 mt-1">Start building professional resumes</p></div><div class="space-y-3"><input type="text" placeholder="Full Name" class="w-full px-4 py-3 border rounded-xl text-sm"><input type="email" placeholder="Email" class="w-full px-4 py-3 border rounded-xl text-sm"><input type="password" placeholder="Password" class="w-full px-4 py-3 border rounded-xl text-sm"><button onclick="navigate('dashboard')" class="w-full py-3 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition font-bold shadow-md">Create Free Account</button></div><p class="text-center text-sm text-gray-800 mt-5">Have an account? <button onclick="navigate('login')" class="text-brand-600 font-semibold hover:underline">Log In</button></p></div></div>`;};
-    Views.login=function(){return`<div class="min-h-[70vh] flex items-center justify-center px-4 animate-fade-in"><div class="bg-white rounded-2xl p-8 w-full max-w-md shadow-xl border"><div class="text-center mb-6"><div class="w-14 h-14 bg-gradient-to-br from-brand-500 to-accent-500 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-md"><i data-lucide="log-in" class="w-7 h-7 text-white"></i></div><h2 class="text-2xl font-heading font-extrabold">Welcome Back</h2></div><div class="space-y-3"><input type="email" placeholder="Email" class="w-full px-4 py-3 border rounded-xl text-sm"><input type="password" placeholder="Password" class="w-full px-4 py-3 border rounded-xl text-sm"><button onclick="navigate('dashboard')" class="w-full py-3 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition font-bold shadow-md">Log In</button></div><p class="text-center text-sm text-gray-800 mt-5">No account? <button onclick="navigate('signup')" class="text-brand-600 font-semibold hover:underline">Sign Up</button></p></div></div>`;};
+    Views.signup=function(){return`<div class="min-h-[70vh] flex items-center justify-center px-4 animate-fade-in"><div class="bg-white rounded-2xl p-8 w-full max-w-md shadow-xl border"><div class="text-center mb-6"><div class="w-14 h-14 bg-gradient-to-br from-brand-500 to-accent-500 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-md"><i data-lucide="user-plus" class="w-7 h-7 text-white"></i></div><h2 class="text-2xl font-heading font-extrabold">Create Free Account</h2><p class="text-sm text-gray-800 mt-1">Start building professional resumes</p></div><div class="space-y-3"><input type="text" id="signup-name" placeholder="Full Name" class="w-full px-4 py-3 border rounded-xl text-sm">
+<input type="email" id="signup-email" placeholder="Email" class="w-full px-4 py-3 border rounded-xl text-sm">
+<input type="password" id="signup-password" placeholder="Password" class="w-full px-4 py-3 border rounded-xl text-sm"><div class="cf-turnstile mb-3" data-sitekey="${TURNSTILE_SITE_KEY}"></div><button onclick="handleSignup()" class="w-full py-3 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition font-bold shadow-md">Create Free Account</button><button onclick="signInWithGoogle()" class="w-full py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition font-semibold text-sm flex items-center justify-center gap-2 mt-3">
+    <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+    Continue with Google
+</button></div><p class="text-center text-sm text-gray-800 mt-5">Have an account? <button onclick="navigate('login')" class="text-brand-600 font-semibold hover:underline">Log In</button></p></div></div>`;};
+    Views['forgot-password'] = function() {
+        return `
+        <div class="min-h-[70vh] flex items-center justify-center px-4 animate-fade-in">
+            <div class="bg-white rounded-2xl p-8 w-full max-w-md shadow-xl border">
+                <div class="text-center mb-6">
+                    <div class="w-14 h-14 bg-gradient-to-br from-brand-500 to-accent-500 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-md">
+                        <i data-lucide="key" class="w-7 h-7 text-white"></i>
+                    </div>
+                    <h2 class="text-2xl font-heading font-extrabold text-gray-900">Reset Password</h2>
+                    <p class="text-sm text-gray-500 mt-1">Enter your email and we'll send you a reset link</p>
+                </div>
+                <input type="email" id="reset-email" placeholder="Your email address" class="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm mb-3">
+                <button onclick="resetPassword()" class="w-full py-3 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition font-bold shadow-md">Send Reset Link</button>
+                <p class="text-center text-sm text-gray-500 mt-5">
+                    Remember your password?
+                    <button onclick="navigate('login')" class="text-brand-600 font-semibold hover:underline">Log In</button>
+                </p>
+            </div>
+        </div>`;
+    };
+    Views.login=function(){return`<div class="min-h-[70vh] flex items-center justify-center px-4 animate-fade-in"><div class="bg-white rounded-2xl p-8 w-full max-w-md shadow-xl border"><div class="text-center mb-6"><div class="w-14 h-14 bg-gradient-to-br from-brand-500 to-accent-500 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-md"><i data-lucide="log-in" class="w-7 h-7 text-white"></i></div><h2 class="text-2xl font-heading font-extrabold">Welcome Back</h2></div><div class="space-y-3"><input type="email" placeholder="Email" class="w-full px-4 py-3 border rounded-xl text-sm"><input type="password" placeholder="Password" class="w-full px-4 py-3 border rounded-xl text-sm"><button onclick="navigate('dashboard')" class="w-full py-3 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition font-bold shadow-md">Log In</button><button onclick="signInWithGoogle()" class="w-full py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition font-semibold text-sm flex items-center justify-center gap-2 mt-3"><svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Continue with Google</button></div><p class="text-center text-sm text-gray-800 mt-5">No account? <button onclick="navigate('signup')" class="text-brand-600 font-semibold hover:underline">Sign Up</button></p></div></div>`;};
 
     function navigate(view){if(!Views[view])view='dashboard';updateState({currentView:view});window.location.hash=view;window.scrollTo({top:0,behavior:'smooth'});}
     function toggleMobileNav(){document.getElementById('mobile-nav').classList.toggle('hidden');}
     function closeMobileNav(){document.getElementById('mobile-nav').classList.add('hidden');}
+    
+    Views['terms'] = function() {
+        return `
+        <div class="max-w-3xl mx-auto px-4 py-12 animate-fade-in prose">
+            <h1 class="text-3xl font-heading font-extrabold mb-6">Terms of Service</h1>
+            <p class="text-gray-600 mb-4">Last updated: May 2026</p>
+            <h2 class="text-xl font-bold mt-8 mb-3">1. Acceptance of Terms</h2>
+            <p class="text-gray-700 mb-4">By accessing and using ResumeAI Pro, you agree to be bound by these Terms of Service.</p>
+            <h2 class="text-xl font-bold mt-8 mb-3">2. User Accounts</h2>
+            <p class="text-gray-700 mb-4">You are responsible for maintaining the confidentiality of your account credentials and for all activities under your account.</p>
+            <h2 class="text-xl font-bold mt-8 mb-3">3. Payments & Refunds</h2>
+            <p class="text-gray-700 mb-4">All payments are processed securely through Razorpay. Refund requests must be submitted within 7 days of purchase.</p>
+            <h2 class="text-xl font-bold mt-8 mb-3">4. Limitation of Liability</h2>
+            <p class="text-gray-700 mb-4">ResumeAI Pro is provided "as is" without warranties of any kind. We do not guarantee job placement or interview calls.</p>
+            <h2 class="text-xl font-bold mt-8 mb-3">5. Contact</h2>
+            <p class="text-gray-700">For questions, contact us at support@doketsrb.com</p>
+        </div>`;
+    };
 
+    Views['privacy'] = function() {
+        return `
+        <div class="max-w-3xl mx-auto px-4 py-12 animate-fade-in prose">
+            <h1 class="text-3xl font-heading font-extrabold mb-6">Privacy Policy</h1>
+            <p class="text-gray-600 mb-4">Last updated: May 2026</p>
+            <h2 class="text-xl font-bold mt-8 mb-3">1. Information We Collect</h2>
+            <p class="text-gray-700 mb-4">We collect your name, email address, and resume content that you create on our platform. Payment information is processed by Razorpay and not stored on our servers.</p>
+            <h2 class="text-xl font-bold mt-8 mb-3">2. How We Use Your Information</h2>
+            <p class="text-gray-700 mb-4">Your information is used to provide and improve our services. We do not sell your personal data to third parties.</p>
+            <h2 class="text-xl font-bold mt-8 mb-3">3. Data Security</h2>
+            <p class="text-gray-700 mb-4">We use industry-standard encryption and security measures to protect your data. All data is stored securely on Supabase with row-level security.</p>
+            <h2 class="text-xl font-bold mt-8 mb-3">4. Your Rights</h2>
+            <p class="text-gray-700 mb-4">You can request deletion of your data at any time by contacting us. You have the right to access, correct, or delete your personal information.</p>
+            <h2 class="text-xl font-bold mt-8 mb-3">5. Cookies</h2>
+            <p class="text-gray-700">We use essential cookies for authentication and session management. No tracking cookies are used.</p>
+        </div>`;
+    };
+    
+
+Views['cover-letter'] = function() {
+    return `
+    <div class="max-w-4xl mx-auto px-4 py-8 animate-fade-in">
+        <h1 class="text-2xl font-heading font-extrabold mb-6">AI Cover Letter Generator</h1>
+        <div class="grid md:grid-cols-2 gap-6">
+            <div class="space-y-4">
+                <div class="bg-white rounded-xl p-5 border shadow-sm">
+                    <h3 class="font-bold mb-3">Job Details</h3>
+                    <input type="text" id="cl-job-title" placeholder="Job Title" class="w-full px-3 py-2 border rounded-lg text-sm mb-2">
+                    <input type="text" id="cl-company" placeholder="Company Name" class="w-full px-3 py-2 border rounded-lg text-sm mb-2">
+                    <textarea id="cl-job-desc" rows="4" placeholder="Paste job description..." class="w-full px-3 py-2 border rounded-lg text-sm resize-none mb-3"></textarea>
+                    <button onclick="generateCoverLetter()" class="w-full py-2.5 bg-purple-600 text-white rounded-lg font-bold text-sm">
+                        ✨ Generate Cover Letter
+                    </button>
+                </div>
+                <div class="bg-white rounded-xl p-5 border shadow-sm">
+                    <h3 class="font-bold mb-3">Your Info</h3>
+                    <textarea id="cl-your-info" rows="3" placeholder="Briefly describe your relevant experience..." class="w-full px-3 py-2 border rounded-lg text-sm resize-none"></textarea>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl p-6 border shadow-sm min-h-[400px]">
+                <h3 class="font-bold mb-3">Generated Cover Letter</h3>
+                <div id="cover-letter-output" class="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+                    <p class="text-gray-400">Your generated cover letter will appear here...</p>
+                </div>
+                <button onclick="copyCoverLetter()" class="mt-4 px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-semibold hidden" id="copy-cl-btn">
+                    📋 Copy to Clipboard
+                </button>
+            </div>
+        </div>
+    </div>`;
+};
+
+    Views['analytics'] = function() {
+        const score = getCompositeScore();
+        const ats = getATSScore();
+        return `
+        <div class="max-w-6xl mx-auto px-4 py-8 animate-fade-in">
+            <h1 class="text-2xl font-heading font-extrabold mb-6">Resume Analytics</h1>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div class="bg-white rounded-xl p-5 border text-center">
+                    <div class="text-3xl font-extrabold text-brand-600">${App.resumeData.experience.length}</div>
+                    <div class="text-xs text-gray-500 mt-1">Experience Entries</div>
+                </div>
+                <div class="bg-white rounded-xl p-5 border text-center">
+                    <div class="text-3xl font-extrabold text-purple-600">${App.resumeData.skills.length}</div>
+                    <div class="text-xs text-gray-500 mt-1">Skills Listed</div>
+                </div>
+                <div class="bg-white rounded-xl p-5 border text-center">
+                    <div class="text-3xl font-extrabold text-green-600">${score}%</div>
+                    <div class="text-xs text-gray-500 mt-1">Composite Score</div>
+                </div>
+                <div class="bg-white rounded-xl p-5 border text-center">
+                    <div class="text-3xl font-extrabold text-amber-600">${ats.total}%</div>
+                    <div class="text-xs text-gray-500 mt-1">ATS Score</div>
+                </div>
+            </div>
+        </div>`;
+    };
+
+function generateCoverLetter() {
+    const jobTitle = document.getElementById('cl-job-title').value || 'the position';
+    const company = document.getElementById('cl-company').value || 'your company';
+    const jobDesc = document.getElementById('cl-job-desc').value;
+    const yourInfo = document.getElementById('cl-your-info').value || App.resumeData.summary;
+    const name = App.resumeData.personal.fullName || '[Your Name]';
+    
+    const letter = `Dear Hiring Manager,
+
+I am writing to express my strong interest in the ${jobTitle} position at ${company}. With my background and experience, I am confident in my ability to contribute to your team's success.
+
+${yourInfo ? `Based on my experience, ${yourInfo.toLowerCase()}` : 'Throughout my career, I have developed a strong foundation in delivering results and driving team success.'}
+
+${jobDesc ? `I was particularly drawn to this role because it aligns perfectly with my expertise. The job description emphasizes key areas where I have demonstrated success, and I am excited about the opportunity to bring my skills to ${company}.` : ''}
+
+I am impressed by ${company}'s reputation and would welcome the opportunity to discuss how my skills and experience can contribute to your continued success.
+
+Thank you for considering my application. I look forward to the possibility of discussing this opportunity further.
+
+Sincerely,
+${name}`;
+
+    document.getElementById('cover-letter-output').innerHTML = letter.replace(/\n/g, '<br>');
+    document.getElementById('copy-cl-btn').classList.remove('hidden');
+}
+
+function copyCoverLetter() {
+    const text = document.getElementById('cover-letter-output').innerText;
+    navigator.clipboard.writeText(text);
+    alert('✅ Cover letter copied to clipboard!');
+}
     async function exportPDF(){const preview=document.getElementById('resume-preview-area');if(!preview){alert('No resume to export. Fill in your details first.');return;}try{const [jsPDFModule,html2canvasModule]=await Promise.all([import('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'),import('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js')]);const canvas=await html2canvas(preview,{scale:2,backgroundColor:'#ffffff',logging:false});const {jsPDF}=window.jspdf;const pdf=new jsPDF('p','mm','letter');const w=pdf.internal.pageSize.getWidth();const h=(canvas.height*w)/canvas.width;pdf.addImage(canvas.toDataURL('image/png',1.0),'PNG',0,0,w,h);pdf.save(`${(App.resumeData.personal.fullName||'resume').toLowerCase().replace(/\s+/g,'-')}-job-ready.pdf`);}catch(e){alert('PDF export failed. Please try browser print (Ctrl+P).');}}
+        function init(){
+        loadFromStorage();
+        
+        // Idle session management
+        let idleTimer;
+        const IDLE_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 
-    function init(){loadFromStorage();const hash=window.location.hash.replace('#','')||'dashboard';navigate(Views[hash]?hash:'dashboard');window.addEventListener('hashchange',function(){const h=window.location.hash.replace('#','');if(h&&Views[h]&&h!==App.currentView)navigate(h);});console.log('✅ ResumeAI Pro ready with Razorpay payments');}
+        function resetIdleTimer() {
+            clearTimeout(idleTimer);
+            idleTimer = setTimeout(() => {
+                if (currentUser) {
+                    logOut();
+                    alert('You have been logged out due to inactivity.');
+                }
+            }, IDLE_TIMEOUT);
+        }
+
+        ['click', 'keypress', 'scroll', 'mousemove'].forEach(event => {
+            document.addEventListener(event, resetIdleTimer);
+        });
+
+        resetIdleTimer();
+        
+        const hash = window.location.hash.replace('#', '') || 'dashboard';
+        navigate(Views[hash] ? hash : 'dashboard');
+        window.addEventListener('hashchange', function() {
+            const h = window.location.hash.replace('#', '');
+            if (h && Views[h] && h !== App.currentView) navigate(h);
+        });
+        console.log('✅ ResumeAI Pro ready with Razorpay payments');
+    }
     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
     </script>
 </body>
