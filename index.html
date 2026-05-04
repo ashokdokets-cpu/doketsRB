@@ -62,7 +62,7 @@ let userProfile = null;
 
     <div id="app" role="application" aria-label="ResumeAI Pro Application">
         <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm border-b border-gray-200 no-print" role="navigation">
-            <div class="max-w-7xl mx-auto px-3 sm:px-4 h-16 flex items-center justify-between">
+            <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 h-16 flex items-center justify-between">
                 <a href="#dashboard" onclick="navigate('dashboard');return false;" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
                     <div class="w-9 h-9 bg-gradient-to-br from-brand-500 to-brand-700 rounded-lg flex items-center justify-center shadow-md ring-1 ring-brand-300">
                         <i data-lucide="target" class="w-4 h-4 text-white"></i>
@@ -98,7 +98,7 @@ let userProfile = null;
             <div class="max-w-6xl mx-auto px-4 text-center">
                 <p class="text-sm">&copy; 2026 ResumeAI Pro. AI-powered resume builder for professionals worldwide.</p>
                 <p class="text-xs mt-1">🔒 Payments secured by Razorpay</p>
-                <div class="flex justify-center gap-5 mt-2 text-xs">
+                <div class="flex flex-wrap justify-center gap-3 sm:gap-5 mt-2 text-xs">
                     <a href="#dashboard" onclick="navigate('dashboard');return false;" class="hover:text-white transition-colors text-gray-300">Home</a>
                     <a href="#builder" onclick="navigate('builder');return false;" class="hover:text-white transition-colors">Builder</a>
                     <a href="#templates" onclick="navigate('templates');return false;" class="hover:text-white transition-colors">Templates</a>
@@ -579,10 +579,10 @@ function incrementResumeCount() {
     const Views={};
     Views.dashboard=function(){const composite=getCompositeScore();const ats=getATSScore();const jt=App.jobTarget;const match=App.jobMatch;const rd=App.resumeData;return`
     <div class="max-w-6xl mx-auto px-4 py-6 animate-fade-in">
-        <div class="flex flex-wrap items-center justify-between gap-3 mb-6"><h1 class="text-2xl sm:text-3xl font-heading font-extrabold text-gray-900">Dashboard</h1><div class="flex gap-2 flex-wrap"><button onclick="navigate('builder')" class="px-5 py-3 bg-blue-700 text-white font-black rounded-lg hover:bg-blue-800 transition text-base shadow-lg">✏️ Edit Resume</button>
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-6"><h1 class="text-2xl sm:text-3xl font-heading font-extrabold text-gray-900">Dashboard</h1><div class="flex gap-2 flex-wrap justify-end"><button onclick="navigate('builder')" class="px-5 py-3 bg-blue-700 text-white font-black rounded-lg hover:bg-blue-800 transition text-base shadow-lg">✏️ Edit Resume</button>
 <button onclick="exportPDF()" class="px-4 py-2.5 bg-green-600 text-white font-extrabold rounded-lg hover:bg-green-700 transition text-sm shadow-md">📄 PDF</button>
 <button onclick="exportDOCX()" class="px-4 py-2.5 bg-blue-600 text-white font-extrabold rounded-lg hover:bg-blue-700 transition text-sm shadow-md">📝 DOCX</button></div></div>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">${[
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3 mb-6">${[
     {label:'Composite Score',value:composite+'%',color:composite>=75?'green':composite>=50?'amber':'red'},
     {label:'ATS Quality',value:ats.total+'%',color:'blue'},
     {label:'Job Match',value:(match.overallScore||'--')+'%',color:'purple'},
@@ -596,7 +596,7 @@ function incrementResumeCount() {
                 ${jt.parsed?`<div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm"><h3 class="font-bold text-gray-900 mb-3">Job Requirements</h3><div class="space-y-1.5 text-xs">${jt.requiredSkills.length>0?`<p><span class="font-semibold text-danger">Skills:</span> ${jt.requiredSkills.join(', ')}</p>`:''}${jt.keywords.length>0?`<p class="mt-2"><span class="font-semibold text-brand-600">Keywords:</span> ${jt.keywords.slice(0,12).join(', ')}</p>`:''}${jt.requiredExperience>0?`<p class="mt-2"><span class="font-semibold">Experience:</span> ${jt.requiredExperience}+ years</p>`:''}${jt.educationLevel?`<p class="mt-2"><span class="font-semibold">Education:</span> ${jt.educationLevel}</p>`:''}</div></div>`:''}
                 ${match.suggestions.length>0?`<div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm"><h3 class="font-bold text-gray-900 mb-3 flex items-center gap-2"><i data-lucide="lightbulb" class="w-4 h-4 text-amber-500"></i> Suggestions</h3>${match.suggestions.map(s=>`<p class="text-xs text-gray-800 bg-amber-50 p-2.5 rounded-lg mb-2">${s}</p>`).join('')}</div>`:''}
             </div>
-            <div class="lg:col-span-2"><div class="bg-white rounded-xl shadow-lg border border-gray-200 p-5 sm:p-8 min-h-[500px]"><div id="resume-preview-area" class="resume-preview">${renderResumePreview()}</div></div></div>
+            <div class="lg:col-span-2"><div class="bg-white rounded-xl shadow-lg border border-gray-200 p-3 sm:p-5 lg:p-8 min-h-[400px] sm:min-h-[500px] overflow-x-auto"><div id="resume-preview-area" class="resume-preview">${renderResumePreview()}</div></div></div>
         </div>
     </div>`;};
 
@@ -604,7 +604,7 @@ function incrementResumeCount() {
     <div class="max-w-7xl mx-auto px-4 py-6 animate-fade-in">
         <div class="flex flex-wrap items-center justify-between gap-3 mb-6 no-print"><h1 class="text-2xl sm:text-3xl font-heading font-extrabold text-gray-900">Resume Builder</h1><div class="flex gap-2"><button onclick="navigate('dashboard')" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition font-semibold text-sm">← Dashboard</button><button onclick="exportPDF()" class="px-4 py-2 bg-green-600 text-white font-extrabold rounded-lg hover:bg-green-700 transition text-sm flex items-center gap-1.5 shadow-md">📄 PDF</button>
 <button onclick="exportDOCX()" class="px-4 py-2 bg-blue-600 text-white font-extrabold rounded-lg hover:bg-blue-700 transition text-sm flex items-center gap-1.5 shadow-md">📝 DOCX</button></div></div>
-        <div class="grid lg:grid-cols-5 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-4 lg:gap-6">
             <div class="lg:col-span-2 space-y-3 no-print" style="max-height:calc(100vh - 200px);overflow-y:auto;">
                 <div class="bg-white rounded-xl p-4 border shadow-sm"><h3 class="font-bold text-sm mb-3"><i data-lucide="user" class="w-4 h-4 text-brand-600 inline mr-1"></i> Personal Info</h3><div class="grid grid-cols-2 gap-2"><div class="col-span-2"><input value="${rd.personal.fullName}" onchange="updatePersonal('fullName',this.value)" placeholder="Full Name" class="w-full px-3 py-2.5 border rounded-lg text-sm"></div><div><input value="${rd.personal.email}" onchange="updatePersonal('email',this.value)" placeholder="Email" class="w-full px-3 py-2.5 border rounded-lg text-sm"></div><div><input value="${rd.personal.phone}" onchange="updatePersonal('phone',this.value)" placeholder="Phone" class="w-full px-3 py-2.5 border rounded-lg text-sm"></div><div class="col-span-2"><input value="${rd.personal.location}" onchange="updatePersonal('location',this.value)" placeholder="Location" class="w-full px-3 py-2.5 border rounded-lg text-sm"></div></div></div>
                 <div class="bg-white rounded-xl p-4 border shadow-sm"><h3 class="font-bold text-sm mb-2"><i data-lucide="file-text" class="w-4 h-4 text-brand-600 inline mr-1"></i> Summary</h3><textarea rows="3" onchange="updateField('summary',this.value)" class="w-full px-3 py-2.5 border rounded-lg text-sm resize-none">${rd.summary}</textarea></div>
@@ -612,7 +612,7 @@ function incrementResumeCount() {
                 <div class="bg-white rounded-xl p-4 border shadow-sm"><div class="flex justify-between mb-2"><h3 class="font-bold text-sm"><i data-lucide="graduation-cap" class="w-4 h-4 text-brand-600 inline mr-1"></i> Education</h3><button onclick="addItem('education',{degree:'',school:'',year:''});navigate('builder')" class="text-xs bg-brand-100 text-brand-700 px-3 py-1.5 rounded-lg font-semibold">+ Add</button></div>${rd.education.length===0?'<p class="text-sm text-gray-800 text-center py-4">No education added yet.</p>':''}${rd.education.map((edu,i)=>`<div class="bg-gray-50 rounded-lg p-3 border mb-2"><div class="flex justify-between"><input value="${edu.degree}" onchange="updateArrayItem('education',${i},'degree',this.value)" placeholder="Degree" class="font-semibold text-sm bg-transparent border-none outline-none flex-1"><button onclick="removeItem('education',${i});navigate('builder')" class="text-danger"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div><input value="${edu.school}" onchange="updateArrayItem('education',${i},'school',this.value)" placeholder="School" class="text-xs px-2 py-1 border rounded bg-white w-full mt-1"><input value="${edu.year}" onchange="updateArrayItem('education',${i},'year',this.value)" placeholder="Year" class="text-xs px-2 py-1 border rounded bg-white w-full mt-1"></div>`).join('')}</div>
                 <div class="bg-white rounded-xl p-4 border shadow-sm"><h3 class="font-bold text-sm mb-2"><i data-lucide="zap" class="w-4 h-4 text-brand-600 inline mr-1"></i> Skills</h3><div class="flex flex-wrap gap-1.5 mb-2">${rd.skills.length===0?'<span class="text-xs text-gray-800">No skills added yet</span>':rd.skills.map((s,i)=>`<span class="bg-brand-50 text-brand-700 px-2.5 py-1 rounded-full text-xs flex items-center gap-1">${s}<button onclick="removeSkill(${i});navigate('builder')" class="hover:text-danger">×</button></span>`).join('')}</div><input type="text" placeholder="Add skill + Enter" class="w-full px-3 py-2.5 border rounded-lg text-sm" onkeydown="if(event.key==='Enter'){addSkill(this.value);this.value='';navigate('builder')}"></div>
             </div>
-            <div class="lg:col-span-3"><div class="sticky top-20"><div class="bg-white rounded-xl shadow-lg border p-5 sm:p-8 min-h-[600px]"><div id="resume-preview-area" class="resume-preview">${renderResumePreview()}</div></div></div></div>
+            <div class="lg:col-span-3"><div class="lg:sticky lg:top-20"><div class="bg-white rounded-xl shadow-lg border p-5 sm:p-8 min-h-[600px]"><div id="resume-preview-area" class="resume-preview">${renderResumePreview()}</div></div></div></div>
         </div>
     </div>`;};
 
@@ -691,7 +691,7 @@ function incrementResumeCount() {
             </div>
         </div>
 
-        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">`;
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-6xl mx-auto">`;
 
     plans.forEach(p => {
         const isPopular = p.action === 'lifetime';
@@ -717,7 +717,7 @@ function incrementResumeCount() {
             badgeText = p.highlight;
         }
         
-        html += `<div class="bg-white rounded-2xl p-7 border-2 ${borderClass} ${isPro ? 'relative scale-105' : ''} ${isAnnual ? 'relative' : ''}">
+        html += `<div class="bg-white rounded-2xl p-7 border-2 ${borderClass} ${isPro ? 'relative lg:scale-105' : ''} ${isAnnual ? 'relative' : ''}">
             ${badgeText ? `<div class="absolute -top-3.5 left-1/2 -translate-x-1/2 ${badgeClass} px-4 py-1 rounded-full text-xs font-bold">${badgeText}</div>` : ''}
             <h3 class="text-xl font-bold mb-1">${p.name}</h3>
             <div class="mb-1">
@@ -815,7 +815,7 @@ Views['cover-letter'] = function() {
     return `
     <div class="max-w-4xl mx-auto px-4 py-8 animate-fade-in">
         <h1 class="text-2xl font-heading font-extrabold mb-6">AI Cover Letter Generator</h1>
-        <div class="grid md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
             <div class="space-y-4">
                 <div class="bg-white rounded-xl p-5 border shadow-sm">
                     <h3 class="font-bold mb-3">Job Details</h3>
