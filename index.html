@@ -485,9 +485,9 @@ function incrementResumeCount() {
 
     function saveToStorage() {
         try {
-            const data = { resumeData: App.resumeData, jobTarget: App.jobTarget, jobMatch: App.jobMatch, selectedTemplate: App.selectedTemplate, aiUsageToday: App.aiUsageToday,     // ← ADD
-            aiUsageDate: App.aiUsageDate,       // ← ADD
-            resumesCreated: App.resumesCreated, // ← ADD };
+            const data = { resumeData: App.resumeData, jobTarget: App.jobTarget, jobMatch: App.jobMatch, selectedTemplate: App.selectedTemplate, aiUsageToday: App.aiUsageToday,
+            aiUsageDate: App.aiUsageDate,
+            resumesCreated: App.resumesCreated };
             localStorage.setItem('resumeai_pro_data', JSON.stringify(data));
         } catch (e) {}
     }
@@ -567,13 +567,13 @@ function incrementResumeCount() {
 
     function updatePersonal(f,v){const rd={...App.resumeData};rd.personal={...rd.personal,[f]:v};updateState({resumeData:rd});}
     function updateField(f,v){const rd={...App.resumeData};rd[f]=v;updateState({resumeData:rd});}
-    function addItem(key,tpl){if (key === 'experience' && !enforceResumeLimit()) return;  // ← ADD THIS LINE const rd={...App.resumeData};if(!rd[key])rd[key]=[];rd[key].push({...tpl});updateState({resumeData:rd});}
+    function addItem(key,tpl){if (key === 'experience' && !enforceResumeLimit()) return; const rd={...App.resumeData};if(!rd[key])rd[key]=[];rd[key].push({...tpl});updateState({resumeData:rd});}
     function removeItem(key,i){const rd={...App.resumeData};if(rd[key])rd[key].splice(i,1);updateState({resumeData:rd});}
     function updateArrayItem(key,i,f,v){const rd={...App.resumeData};if(rd[key]&&rd[key][i])rd[key][i][f]=v;updateState({resumeData:rd});}
     function addSkill(s){const t=s.trim();if(!t)return;const rd={...App.resumeData};if(!rd.skills.includes(t)){rd.skills.push(t);updateState({resumeData:rd});}}
     function removeSkill(i){const rd={...App.resumeData};rd.skills.splice(i,1);updateState({resumeData:rd});}
     function updateJobTarget(f,v){const jt={...App.jobTarget,[f]:v};updateState({jobTarget:jt});}
-    function applyAllSuggestions(){if (!trackAIUsage()) return;  // ← ADD THIS LINEconst rd={...App.resumeData};if(App.jobMatch.autoSummary)rd.summary=App.jobMatch.autoSummary;Object.entries(App.jobMatch.autoBullets).forEach(([i,b])=>{const idx=parseInt(i);if(rd.experience[idx]){const ex=rd.experience[idx].bullets||'';rd.experience[idx].bullets=ex?ex+'\n'+b:b;}});[...App.jobMatch.skillMatch.missing,...App.jobMatch.keywordCoverage.absent].forEach(item=>{if(!rd.skills.includes(item))rd.skills.push(item);});updateState({resumeData:rd});parseAndMatch();alert('✅ All suggestions applied! Your resume is now optimized for the target job.');}
+    function applyAllSuggestions(){if (!trackAIUsage()) return; const rd={...App.resumeData};if(App.jobMatch.autoSummary)rd.summary=App.jobMatch.autoSummary;Object.entries(App.jobMatch.autoBullets).forEach(([i,b])=>{const idx=parseInt(i);if(rd.experience[idx]){const ex=rd.experience[idx].bullets||'';rd.experience[idx].bullets=ex?ex+'\n'+b:b;}});[...App.jobMatch.skillMatch.missing,...App.jobMatch.keywordCoverage.absent].forEach(item=>{if(!rd.skills.includes(item))rd.skills.push(item);});updateState({resumeData:rd});parseAndMatch();alert('✅ All suggestions applied! Your resume is now optimized for the target job.');}
 
     function renderResumePreview(){const rd=App.resumeData;const hasContent=rd.personal.fullName||rd.experience.length>0||rd.education.length>0||rd.skills.length>0;if(!hasContent)return`<div class="flex flex-col items-center justify-center h-64 text-gray-800"><i data-lucide="file-text" class="w-16 h-16 mb-4 text-gray-800"></i><p class="text-base font-medium">Your resume preview appears here</p><p class="text-sm mt-1">Fill in your details to see a live preview</p></div>`;const accent='#2563eb';let h=`<div style="border-bottom:3px solid ${accent};padding-bottom:10px;margin-bottom:16px;"><h1>${rd.personal.fullName||'Your Name'}</h1><div style="font-size:10px;color:#64748b;display:flex;flex-wrap:wrap;gap:10px;margin-top:6px;">${rd.personal.email?`<span>📧 ${rd.personal.email}</span>`:''}${rd.personal.phone?`<span>📱 ${rd.personal.phone}</span>`:''}${rd.personal.location?`<span>📍 ${rd.personal.location}</span>`:''}</div></div>`;if(rd.summary)h+=`<div class="section"><h2 style="color:${accent};">Professional Summary</h2><p>${rd.summary}</p></div>`;if(rd.experience.length>0){h+=`<div class="section"><h2 style="color:${accent};">Experience</h2>`;rd.experience.forEach(exp=>{h+=`<div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;"><h3>${exp.title||'Title'}${exp.company?` — ${exp.company}`:''}</h3><span style="font-size:10px;color:#94a3b8;">${exp.dates||''}</span></div>${exp.bullets?`<ul>${exp.bullets.split('\n').filter(b=>b.trim()).map(b=>`<li>${b.replace(/^[•\-]\s*/,'')}</li>`).join('')}</ul>`:''}</div>`;});h+=`</div>`;}if(rd.education.length>0){h+=`<div class="section"><h2 style="color:${accent};">Education</h2>`;rd.education.forEach(edu=>{h+=`<div style="margin-bottom:6px;"><h3>${edu.degree||'Degree'}</h3><p>${[edu.school,edu.year].filter(Boolean).join(' • ')}</p></div>`;});h+=`</div>`;}if(rd.skills.length>0)h+=`<div class="section"><h2 style="color:${accent};">Skills</h2><p>${rd.skills.join(' • ')}</p></div>`;return h;}
 
@@ -873,7 +873,7 @@ Views['cover-letter'] = function() {
     };
 
 function generateCoverLetter() {
-if (!trackAIUsage()) return;  // ← ADD THIS LINE
+if (!trackAIUsage()) return;
     const jobTitle = document.getElementById('cl-job-title').value || 'the position';
     const company = document.getElementById('cl-company').value || 'your company';
     const jobDesc = document.getElementById('cl-job-desc').value;
