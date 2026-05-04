@@ -20,7 +20,7 @@ const SUPABASE_URL = 'https://arszgttojohsmzjiemgh.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFyc3pndHRvam9oc216amllbWdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3MTYwNTksImV4cCI6MjA5MzI5MjA1OX0.0Y6kM8cg0fERxlM0xTZu6AFzenfVY-USoNm6mJeg-dM';
 
 // Initialize Supabase
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const sbClient = window.supabase && window.supabase.createClient ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
 // Current user state
 let currentUser = null;
@@ -209,7 +209,7 @@ async function showPaymentSuccess(paymentId, orderId, signature, plan) {
             await activatePlan(plan, paymentId);
             
             // Save payment record
-            await supabase.from('payments').insert({
+            await sbClient.from('payments').insert({
                 user_id: currentUser.id,
                 payment_id: paymentId,
                 order_id: orderId,
@@ -232,7 +232,7 @@ async function showPaymentSuccess(paymentId, orderId, signature, plan) {
     // AUTH FUNCTIONS (Supabase)
     // ============================================
     async function checkAuth() {
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { user } } = await sbClient.auth.getUser();
         if (user) {
             currentUser = user;
             await loadUserProfile();
@@ -242,7 +242,7 @@ async function showPaymentSuccess(paymentId, orderId, signature, plan) {
     }
 
     async function loadUserProfile() {
-        const { data } = await supabase
+        const { data } = await sbClient
             .from('profiles')
             .select('*')
             .eq('id', currentUser.id)
@@ -252,14 +252,14 @@ async function showPaymentSuccess(paymentId, orderId, signature, plan) {
     }
 
     async function signUp(email, password, fullName) {
-        const { data, error } = await supabase.auth.signUp({ email, password });
+        const { data, error } = await sbClient.auth.signUp({ email, password });
         if (error) return { error };
-        await supabase.from('profiles').insert({ id: data.user.id, full_name: fullName, email: email });
+        await sbClient.from('profiles').insert({ id: data.user.id, full_name: fullName, email: email });
         return { success: true };
     }
 
     async function logIn(email, password) {
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await sbClient.auth.signInWithPassword({ email, password });
         if (error) return { error };
         currentUser = data.user;
         await loadUserProfile();
@@ -267,14 +267,14 @@ async function showPaymentSuccess(paymentId, orderId, signature, plan) {
     }
 
     async function logOut() {
-        await supabase.auth.signOut();
+        await sbClient.auth.signOut();
         currentUser = null;
         userProfile = null;
         navigate('dashboard');
     }
 
     async function activatePlan(plan, paymentId) {
-        const { data, error } = await supabase.rpc('update_user_plan', {
+        const { data, error } = await sbClient.rpc('update_user_plan', {
             p_user_id: currentUser.id,
             p_plan: plan,
             p_payment_id: paymentId,
@@ -285,7 +285,7 @@ async function showPaymentSuccess(paymentId, orderId, signature, plan) {
     }
     // Google Sign-In
    async function signInWithGoogle() {
-       const { data, error } = await supabase.auth.signInWithOAuth({
+       const { data, error } = await sbClient.auth.signInWithOAuth({
         provider: 'google',
         options: {
             redirectTo: 'https://doketsrb.com/#dashboard',
@@ -303,7 +303,7 @@ async function resetPassword() {
             return;
         }
         
-        const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+        const { data, error } = await sbClient.auth.resetPasswordForEmail(email, {
             redirectTo: 'https://doketsrb.com/#update-password',
         });
         
@@ -439,7 +439,8 @@ function getRemainingAIUsage() {
         App.aiUsageDate = today;
     }
     
-    if (userProfile && userProfile.plan !== 'free') return 'Unlimited';
+   if (userProfile && userProfile.plan && userProfile.plan !== 'free') return 'Unlimited';
+    if (!userProfile) return App.maxFreeAIUsage - App.aiUsageToday;
     return Math.max(0, App.maxFreeAIUsage - App.aiUsageToday);
 }
 
