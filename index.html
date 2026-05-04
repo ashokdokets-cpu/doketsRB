@@ -55,6 +55,8 @@ let userProfile = null;
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <!-- DOCX Export Library -->
 <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.min.js"></script>
+<!-- PayPal SDK (USD only) -->
+<script src="https://www.paypal.com/sdk/js?client-id=AbWYyxAuiIQIm3vcbt0rUOVK-3p115wGxdRVuYnHhE_No9wDlzwJaH2tHK3qfcizS0CIm-tfaeJgQsQP&currency=USD" data-namespace="paypal_sdk"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 antialiased">
 
@@ -117,77 +119,73 @@ let userProfile = null;
     const RAZORPAY_KEY_ID = 'rzp_live_SkGxektNh5gQfY'; // ← REPLACE THIS with your actual Razorpay Key ID
     const TURNSTILE_SITE_KEY = '0x4AAAAAADH4CJD8VeDh1kVK'; // ← Replace with your actual Turnstile Site Key
 
-    function initiateRazorpayPayment(plan) {
-    const currencyMultiplier = App.currency === 'INR' ? 100 : 1; // paise for INR, cents for USD
+function initiateRazorpayPayment(plan) {
+    const currency = App.currency || 'INR';
+    
+    // Multi-currency pricing (amounts in paise/cents)
     const plans = {
         'pro': {
-            amount: App.currency === 'INR' ? 49900 : App.currency === 'EUR' ? 1399 : App.currency === 'GBP' ? 1199 : 1499,
-            name: 'Pro Monthly Plan',
-            description: 'Unlimited resumes, AI job targeting, full ATS analysis',
+            INR: { amount: 49900, name: 'Pro Monthly Plan', desc: 'Unlimited resumes, AI job targeting, full ATS analysis' },
+            USD: { amount: 1499, name: 'Pro Monthly Plan', desc: 'Unlimited resumes, AI job targeting, full ATS analysis' },
+            EUR: { amount: 1399, name: 'Pro Monthly Plan', desc: 'Unlimited resumes, AI job targeting, full ATS analysis' },
+            GBP: { amount: 1199, name: 'Pro Monthly Plan', desc: 'Unlimited resumes, AI job targeting, full ATS analysis' },
         },
         'lifetime': {
-            amount: App.currency === 'INR' ? 999900 : App.currency === 'EUR' ? 13900 : App.currency === 'GBP' ? 11900 : 14900,
-            name: 'Lifetime Plan',
-            description: 'Pay once, use forever. All features included.',
+            INR: { amount: 999900, name: 'Lifetime Plan', desc: 'Pay once, use forever. All features included.' },
+            USD: { amount: 14900, name: 'Lifetime Plan', desc: 'Pay once, use forever. All features included.' },
+            EUR: { amount: 13900, name: 'Lifetime Plan', desc: 'Pay once, use forever. All features included.' },
+            GBP: { amount: 11900, name: 'Lifetime Plan', desc: 'Pay once, use forever. All features included.' },
         },
         'yearly': {
-            amount: App.currency === 'INR' ? 399900 : App.currency === 'EUR' ? 8900 : App.currency === 'GBP' ? 7900 : 9900,
-            name: 'Pro Annual Plan',
-            description: 'All Pro features, save 45% with annual billing',
+            INR: { amount: 399900, name: 'Pro Annual Plan', desc: 'All Pro features, save 45% with annual billing' },
+            USD: { amount: 9900, name: 'Pro Annual Plan', desc: 'All Pro features, save 45% with annual billing' },
+            EUR: { amount: 8900, name: 'Pro Annual Plan', desc: 'All Pro features, save 45% with annual billing' },
+            GBP: { amount: 7900, name: 'Pro Annual Plan', desc: 'All Pro features, save 45% with annual billing' },
         }
-        };
+    };
 
-        const selectedPlan = plans[plan];
-        if (!selectedPlan) return;
+    const selectedPlan = plans[plan]?.[currency];
+    if (!selectedPlan) return;
 
-        const options = {
-            key: RAZORPAY_KEY_ID,
-            amount: selectedPlan.amount,
-            currency: 'INR',
-            name: 'ResumeAI Pro',
-            description: selectedPlan.description,
-            image: 'https://doketsrb.com/favicon.svg',
-            handler: function(response) {
-    showPaymentSuccess(
-        response.razorpay_payment_id,
-        response.razorpay_order_id,
-        response.razorpay_signature,
-        plan
-    );
-},
-            prefill: {
-                name: App.resumeData.personal.fullName || '',
-                email: App.resumeData.personal.email || '',
-                contact: App.resumeData.personal.phone || '',
-            },
-            notes: {
-                plan: plan,
-            },
-            theme: {
-                color: '#2563eb',
-            },
-            modal: {
-                ondismiss: function() {
-                    console.log('Payment modal closed');
-                },
-                escape: true,
-                animation: true,
-            },
-        };
+    const options = {
+        key: RAZORPAY_KEY_ID,
+        amount: selectedPlan.amount,
+        currency: currency,
+        name: 'ResumeAI Pro',
+        description: selectedPlan.desc,
+        image: 'https://doketsrb.com/favicon.svg',
+        handler: function(response) {
+            showPaymentSuccess(
+                response.razorpay_payment_id,
+                response.razorpay_order_id,
+                response.razorpay_signature,
+                plan
+            );
+        },
+        prefill: {
+            name: App.resumeData.personal.fullName || '',
+            email: App.resumeData.personal.email || '',
+            contact: App.resumeData.personal.phone || '',
+        },
+        notes: { plan: plan },
+        theme: { color: '#2563eb' },
+        modal: {
+            ondismiss: function() { console.log('Payment modal closed'); },
+            escape: true,
+            animation: true,
+        },
+    };
 
-        
-        try {
-            const rzp = new Razorpay(options);
-            rzp.on('payment.failed', function(response) {
-                alert('Payment failed. Please try again.\n\nReason: ' + response.error.description);
-                console.error('Payment failed:', response.error);
-            });
-            rzp.open();
-        } catch (e) {
-            alert('Error opening payment gateway. Please try again.');
-            console.error('Razorpay error:', e);
-        }
+    try {
+        const rzp = new Razorpay(options);
+        rzp.on('payment.failed', function(response) {
+            alert('Payment failed. Please try again.\n\nReason: ' + response.error.description);
+        });
+        rzp.open();
+    } catch (e) {
+        alert('Error opening payment gateway. Please try again.');
     }
+}
 async function showPaymentSuccess(paymentId, orderId, signature, plan) {
     try {
         // Verify payment with backend
@@ -1109,6 +1107,57 @@ async function exportDOCX() {
     }
 }
     async function exportPDF(){const preview=document.getElementById('resume-preview-area');if(!preview){alert('No resume to export. Fill in your details first.');return;}try{const [jsPDFModule,html2canvasModule]=await Promise.all([import('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'),import('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js')]);const canvas=await html2canvas(preview,{scale:2,backgroundColor:'#ffffff',logging:false});const {jsPDF}=window.jspdf;const pdf=new jsPDF('p','mm','letter');const w=pdf.internal.pageSize.getWidth();const h=(canvas.height*w)/canvas.width;pdf.addImage(canvas.toDataURL('image/png',1.0),'PNG',0,0,w,h);pdf.save(`${(App.resumeData.personal.fullName||'resume').toLowerCase().replace(/\s+/g,'-')}-job-ready.pdf`);}catch(e){alert('PDF export failed. Please try browser print (Ctrl+P).');}}
+function initiatePayPalPayment(plan) {
+        const prices = { pro: '14.99', yearly: '99.00', lifetime: '149.00' };
+        const names = { pro: 'Pro Monthly Plan', yearly: 'Pro Annual Plan', lifetime: 'Lifetime Plan' };
+        const price = prices[plan];
+        const planName = names[plan];
+
+        const overlay = document.createElement('div');
+        overlay.id = 'paypal-overlay';
+        overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9998;';
+        
+        const container = document.createElement('div');
+        container.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9999;background:white;padding:30px;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);text-align:center;max-width:400px;width:90%;';
+        container.innerHTML = `<h3 style="margin-bottom:10px;font-size:18px;font-weight:700;">Pay with PayPal</h3><p style="margin-bottom:5px;color:#64748b;">${planName}</p><p style="margin-bottom:20px;font-size:24px;font-weight:800;color:#2563eb;">$${price} USD</p><div id="paypal-btn-${plan}"></div><button onclick="document.getElementById('paypal-overlay').remove()" style="margin-top:12px;background:#e2e8f0;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:600;width:100%;">Cancel</button>`;
+        
+        document.body.appendChild(overlay);
+        document.body.appendChild(container);
+
+        if (window.paypal_sdk) {
+            window.paypal_sdk.Buttons({
+                createOrder: function(data, actions) {
+                    return actions.order.create({ purchase_units: [{ amount: { value: price, currency_code: 'USD' } }] });
+                },
+                onApprove: function(data, actions) {
+                    return actions.order.capture().then(function(details) {
+                        document.getElementById('paypal-overlay').remove();
+                        container.remove();
+                        handlePayPalSuccess(details, plan);
+                    });
+                },
+                onCancel: function() { document.getElementById('paypal-overlay').remove();
+                    container.remove(); },
+                onError: function(err) { document.getElementById('paypal-overlay').remove();
+                    container.remove();
+                    alert('PayPal error. Please try Razorpay instead.'); },
+            }).render('#paypal-btn-' + plan);
+        }
+    }
+
+    function handlePayPalSuccess(details, plan) {
+        const paymentId = details.id;
+        const name = details.payer.name.given_name;
+        if (currentUser) {
+            activatePlan(plan, paymentId).then(() => {
+                alert('✅ Paid via PayPal!\nWelcome, ' + name + '! Your ' + plan.toUpperCase() + ' plan is active.');
+                navigate('dashboard');
+            });
+        } else {
+            alert('✅ Paid via PayPal!\nSign up to activate your ' + plan.toUpperCase() + ' plan.');
+            navigate('signup');
+        }
+    }
         function init(){
         loadFromStorage();
         
