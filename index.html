@@ -59,6 +59,29 @@ let userProfile = null;
 <script src="https://www.paypal.com/sdk/js?client-id=AbWYyxAuiIQIm3vcbt0rUOVK-3p115wGxdRVuYnHhE_No9wDlzwJaH2tHK3qfcizS0CIm-tfaeJgQsQP&currency=USD" data-namespace="paypal_sdk"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 antialiased">
+<!-- GDPR Cookie Consent Banner -->
+<div id="gdpr-banner" class="fixed bottom-0 left-0 right-0 z-[100] bg-white border-t border-gray-200 shadow-2xl transform translate-y-0 transition-transform duration-300" style="display:none;">
+    <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex-1">
+                <p class="text-sm text-gray-700">
+                    🍪 We use essential cookies for authentication and to improve your experience. 
+                    By continuing to use ResumeAI Pro, you agree to our 
+                    <button onclick="navigate('privacy')" class="text-brand-600 font-semibold hover:underline">Privacy Policy</button> and 
+                    <button onclick="navigate('terms')" class="text-brand-600 font-semibold hover:underline">Terms of Service</button>.
+                </p>
+            </div>
+            <div class="flex gap-2 flex-shrink-0">
+                <button onclick="acceptGDPR()" class="px-5 py-2.5 bg-brand-600 text-white font-bold rounded-lg hover:bg-brand-700 transition text-sm shadow-md">
+                    Accept All
+                </button>
+                <button onclick="rejectGDPR()" class="px-5 py-2.5 bg-gray-200 text-gray-700 font-bold rounded-lg hover:bg-gray-300 transition text-sm">
+                    Essential Only
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
     <div id="app" role="application" aria-label="ResumeAI Pro Application">
         <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm border-b border-gray-200 no-print" role="navigation">
@@ -107,6 +130,7 @@ let userProfile = null;
                     <a href="#analytics" onclick="navigate('analytics');return false;" class="hover:text-white transition-colors text-gray-300">Analytics</a>
                     <a href="#terms" onclick="navigate('terms');return false;" class="hover:text-white transition-colors text-gray-300">Terms</a>
                     <a href="#privacy" onclick="navigate('privacy');return false;" class="hover:text-white transition-colors text-gray-300">Privacy</a>
+                    <a href="#privacy" onclick="showGDPRSettings();return false;" class="hover:text-white transition-colors text-gray-300">🍪 Cookie Settings</a>
                 </div>
             </div>
         </footer>
@@ -1158,7 +1182,68 @@ function initiatePayPalPayment(plan) {
             navigate('signup');
         }
     }
+// ============================================
+// GDPR CONSENT MANAGEMENT
+// ============================================
+function checkGDPRConsent() {
+    const consent = localStorage.getItem('gdpr_consent');
+    if (!consent) {
+        // Show banner after a short delay
+        setTimeout(() => {
+            const banner = document.getElementById('gdpr-banner');
+            if (banner) {
+                banner.style.display = 'block';
+            }
+        }, 500);
+        return false;
+    }
+    return consent === 'accepted';
+}
+
+function acceptGDPR() {
+    localStorage.setItem('gdpr_consent', 'accepted');
+    localStorage.setItem('gdpr_date', new Date().toISOString());
+    const banner = document.getElementById('gdpr-banner');
+    if (banner) {
+        banner.style.transform = 'translateY(100%)';
+        setTimeout(() => { banner.style.display = 'none'; }, 300);
+    }
+    // Enable analytics or non-essential features here
+    console.log('✅ GDPR consent accepted');
+}
+
+function rejectGDPR() {
+    localStorage.setItem('gdpr_consent', 'rejected');
+    localStorage.setItem('gdpr_date', new Date().toISOString());
+    const banner = document.getElementById('gdpr-banner');
+    if (banner) {
+        banner.style.transform = 'translateY(100%)';
+        setTimeout(() => { banner.style.display = 'none'; }, 300);
+    }
+    // Disable any non-essential tracking here
+    console.log('❌ GDPR consent rejected — essential cookies only');
+}
+
+function getGDPRStatus() {
+    return {
+        consent: localStorage.getItem('gdpr_consent') || 'none',
+        date: localStorage.getItem('gdpr_date') || null,
+        hasConsented: !!localStorage.getItem('gdpr_consent'),
+    };
+}
+function showGDPRSettings() {
+    const status = getGDPRStatus();
+    alert(`🍪 Cookie Settings\n\nCurrent Status: ${status.hasConsented ? (status.consent === 'accepted' ? 'All Cookies Accepted' : 'Essential Only') : 'No Choice Made'}\nDate: ${status.date ? new Date(status.date).toLocaleDateString() : 'N/A'}\n\nTo change your preferences, click "Reset" below.`);
+    
+    if (confirm('Reset cookie preferences? The consent banner will reappear.')) {
+        localStorage.removeItem('gdpr_consent');
+        localStorage.removeItem('gdpr_date');
+        checkGDPRConsent();
+        alert('✅ Preferences reset. The cookie banner will appear on next page load.');
+    }
+}
         function init(){
+        checkGDPRConsent();
         loadFromStorage();
         
         // Idle session management
