@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "LinkedIn to ResumeAI Pro",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Import your LinkedIn profile into ResumeAI Pro and build a professional resume instantly",
   "permissions": ["activeTab", "storage", "tabs", "scripting"],
   "host_permissions": [
@@ -10,12 +10,7 @@
   ],
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Import to ResumeAI Pro",
-    "default_icon": {
-      "16": "icon16.png",
-      "48": "icon48.png",
-      "128": "icon128.png"
-    }
+    "default_title": "Import to ResumeAI Pro"
   },
   "background": {
     "service_worker": "background.js"
@@ -24,7 +19,7 @@
     {
       "matches": ["https://*.linkedin.com/in/*"],
       "js": ["content.js"],
-      "run_at": "document_idle"
+      "run_at": "document_end"
     }
   ]
 }

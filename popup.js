@@ -64,6 +64,8 @@ importBtn.addEventListener('click', async () => {
             importBtn.classList.add('hidden');
             reviewSection.classList.remove('hidden');
             showMessage(`✅ Found: ${extractedProfile.personal?.fullName || 'Profile'}`, 'success');
+            
+            console.log('📤 Extracted data ready:', extractedProfile);
         } else {
             showMessage('❌ Could not extract profile. Try refreshing the LinkedIn page.', 'error');
             importBtn.textContent = '📥 Import to ResumeAI Pro';
@@ -77,7 +79,7 @@ importBtn.addEventListener('click', async () => {
     }
 });
 
-// Step 2: Confirm and send to ResumeAI Pro
+// Step 2: Confirm and send to ResumeAI Pro via URL params
 confirmBtn.addEventListener('click', () => {
     if (!extractedProfile) {
         showMessage('❌ No profile data to import', 'error');
@@ -86,23 +88,23 @@ confirmBtn.addEventListener('click', () => {
 
     confirmBtn.textContent = '⏳ Opening ResumeAI Pro...';
     confirmBtn.disabled = true;
-    showMessage('Storing profile data...');
+    showMessage('Sending profile data...');
 
-    // Store data in Chrome storage
+    // Store in Chrome storage AND send via URL params
     chrome.storage.local.set({
         linkedinResumeData: extractedProfile,
         importTimestamp: Date.now()
     }, () => {
-        showMessage('✅ Opening ResumeAI Pro builder...', 'success');
+        // Encode the complete data for URL
+        const jsonStr = JSON.stringify(extractedProfile);
+        const encoded = encodeURIComponent(jsonStr);
         
-        // Open ResumeAI Pro builder
-        setTimeout(() => {
-            chrome.tabs.create({
-                url: 'https://doketsrb.com/#builder',
-                active: true
-            });
-            window.close();
-        }, 600);
+        const url = `https://doketsrb.com/?linkedin_data=${encoded}#builder`;
+        console.log('🔗 Opening URL with data:', url.substring(0, 100) + '...');
+        
+        // Open ResumeAI Pro with data in URL params
+        chrome.tabs.create({ url: url, active: true });
+        window.close();
     });
 });
 
