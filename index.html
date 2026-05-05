@@ -371,6 +371,49 @@ async function handleLinkedInCallback() {
         alert('❌ LinkedIn import failed. Please try again.');
     }
 }
+function checkExtensionData() {
+    // Method 1: Check URL parameters (new method)
+    const urlParams = new URLSearchParams(window.location.search);
+    const linkedinData = urlParams.get('linkedin_data');
+    
+    if (linkedinData) {
+        try {
+            const d = JSON.parse(decodeURIComponent(linkedinData));
+            if (d.personal) App.resumeData.personal = d.personal;
+            if (d.summary) App.resumeData.summary = d.summary;
+            if (d.experience?.length > 0) App.resumeData.experience = d.experience;
+            if (d.education?.length > 0) App.resumeData.education = d.education;
+            if (d.skills?.length > 0) App.resumeData.skills = d.skills;
+            saveToStorage();
+            setTimeout(() => navigate('builder'), 300);
+            console.log('✅ LinkedIn data loaded from URL');
+            return;
+        } catch (e) {
+            console.error('Failed to parse LinkedIn URL data:', e);
+        }
+    }
+    
+    // Method 2: Check Chrome storage (old method — may not work from website)
+    if (typeof chrome !== 'undefined' && chrome.storage) {
+        chrome.storage.local.get(['linkedinResumeData', 'importTimestamp'], function(result) {
+            if (result.linkedinResumeData && result.importTimestamp) {
+                const fiveMinutes = 5 * 60 * 1000;
+                if (Date.now() - result.importTimestamp < fiveMinutes) {
+                    const d = result.linkedinResumeData;
+                    if (d.personal) App.resumeData.personal = d.personal;
+                    if (d.summary) App.resumeData.summary = d.summary;
+                    if (d.experience?.length > 0) App.resumeData.experience = d.experience;
+                    if (d.education?.length > 0) App.resumeData.education = d.education;
+                    if (d.skills?.length > 0) App.resumeData.skills = d.skills;
+                    saveToStorage();
+                    chrome.storage.local.remove(['linkedinResumeData', 'importTimestamp']);
+                    setTimeout(() => navigate('builder'), 300);
+                }
+            }
+        });
+    }
+}
+
 async function resetPassword() {
         const email = document.getElementById('reset-email').value;
         if (!email) {
@@ -1365,6 +1408,7 @@ function showGDPRSettings() {
 }
         function init(){
         handleLinkedInCallback();
+        checkExtensionData();
         checkGDPRConsent();
         loadFromStorage();
         
