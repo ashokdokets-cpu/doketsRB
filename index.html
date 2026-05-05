@@ -379,17 +379,55 @@ function checkExtensionData() {
     if (linkedinData) {
         try {
             const d = JSON.parse(decodeURIComponent(linkedinData));
-            if (d.personal) App.resumeData.personal = d.personal;
+            
+            console.log('📥 LinkedIn data received via URL:', d);
+            console.log('  Name:', d.personal?.fullName);
+            console.log('  Experience:', d.experience?.length, 'entries');
+            console.log('  Education:', d.education?.length, 'entries');
+            console.log('  Skills:', d.skills?.length, 'skills');
+            
+            if (d.personal) {
+                App.resumeData.personal = {
+                    fullName: d.personal.fullName || App.resumeData.personal.fullName,
+                    email: d.personal.email || App.resumeData.personal.email,
+                    phone: d.personal.phone || App.resumeData.personal.phone,
+                    location: d.personal.location || App.resumeData.personal.location,
+                    linkedin: d.personal.linkedin || App.resumeData.personal.linkedin,
+                };
+            }
             if (d.summary) App.resumeData.summary = d.summary;
-            if (d.experience?.length > 0) App.resumeData.experience = d.experience;
-            if (d.education?.length > 0) App.resumeData.education = d.education;
-            if (d.skills?.length > 0) App.resumeData.skills = d.skills;
+            if (d.experience && d.experience.length > 0) App.resumeData.experience = d.experience;
+            if (d.education && d.education.length > 0) App.resumeData.education = d.education;
+            if (d.skills && d.skills.length > 0) App.resumeData.skills = d.skills;
+            if (d.certifications && d.certifications.length > 0) App.resumeData.certifications = d.certifications;
+            
+            // Save to localStorage
             saveToStorage();
-            setTimeout(() => navigate('builder'), 300);
-            console.log('✅ LinkedIn data loaded from URL');
-            return;
+            
+            // Log what was saved
+            console.log('✅ Saved to App state:', {
+                name: App.resumeData.personal.fullName,
+                expCount: App.resumeData.experience.length,
+                eduCount: App.resumeData.education.length,
+                skillCount: App.resumeData.skills.length
+            });
+            
+            // Clean the URL (remove the data parameter)
+            if (window.history && window.history.replaceState) {
+                const cleanUrl = window.location.pathname + '#builder';
+                window.history.replaceState({}, document.title, cleanUrl);
+            }
+            
+            // Navigate to builder after a slightly longer delay
+            setTimeout(() => {
+                navigate('builder');
+                console.log('✅ Navigated to builder with LinkedIn data');
+            }, 500);
+            
+            return true;
         } catch (e) {
-            console.error('Failed to parse LinkedIn URL data:', e);
+            console.error('❌ Failed to parse LinkedIn URL data:', e);
+            return false;
         }
     }
     
@@ -400,18 +438,28 @@ function checkExtensionData() {
                 const fiveMinutes = 5 * 60 * 1000;
                 if (Date.now() - result.importTimestamp < fiveMinutes) {
                     const d = result.linkedinResumeData;
-                    if (d.personal) App.resumeData.personal = d.personal;
+                    if (d.personal) {
+                        App.resumeData.personal = {
+                            fullName: d.personal.fullName || App.resumeData.personal.fullName,
+                            email: d.personal.email || App.resumeData.personal.email,
+                            phone: d.personal.phone || App.resumeData.personal.phone,
+                            location: d.personal.location || App.resumeData.personal.location,
+                            linkedin: d.personal.linkedin || App.resumeData.personal.linkedin,
+                        };
+                    }
                     if (d.summary) App.resumeData.summary = d.summary;
                     if (d.experience?.length > 0) App.resumeData.experience = d.experience;
                     if (d.education?.length > 0) App.resumeData.education = d.education;
                     if (d.skills?.length > 0) App.resumeData.skills = d.skills;
                     saveToStorage();
                     chrome.storage.local.remove(['linkedinResumeData', 'importTimestamp']);
-                    setTimeout(() => navigate('builder'), 300);
+                    setTimeout(() => navigate('builder'), 500);
                 }
             }
         });
     }
+    
+    return false;
 }
 
 async function resetPassword() {
@@ -1406,40 +1454,48 @@ function showGDPRSettings() {
         alert('✅ Preferences reset. The cookie banner will appear on next page load.');
     }
 }
-        function init(){
-        handleLinkedInCallback();
-        checkExtensionData();
-        checkGDPRConsent();
-        loadFromStorage();
-        
-        // Idle session management
-        let idleTimer;
-        const IDLE_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+function init() {
+    handleLinkedInCallback();
+    
+    // Check for extension data BEFORE anything else
+    const hasExtensionData = checkExtensionData();
+    
+    checkGDPRConsent();
+    loadFromStorage();
+    
+    // Idle session management
+    let idleTimer;
+    const IDLE_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 
-        function resetIdleTimer() {
-            clearTimeout(idleTimer);
-            idleTimer = setTimeout(() => {
-                if (currentUser) {
-                    logOut();
-                    alert('You have been logged out due to inactivity.');
-                }
-            }, IDLE_TIMEOUT);
-        }
+    function resetIdleTimer() {
+        clearTimeout(idleTimer);
+        idleTimer = setTimeout(() => {
+            if (currentUser) {
+                logOut();
+                alert('You have been logged out due to inactivity.');
+            }
+        }, IDLE_TIMEOUT);
+    }
 
-        ['click', 'keypress', 'scroll', 'mousemove'].forEach(event => {
-            document.addEventListener(event, resetIdleTimer);
-        });
+    ['click', 'keypress', 'scroll', 'mousemove'].forEach(event => {
+        document.addEventListener(event, resetIdleTimer);
+    });
 
-        resetIdleTimer();
-        
+    resetIdleTimer();
+    
+    // Only navigate to hash if no extension data was found
+    if (!hasExtensionData) {
         const hash = window.location.hash.replace('#', '') || 'dashboard';
         navigate(Views[hash] ? hash : 'dashboard');
-        window.addEventListener('hashchange', function() {
-            const h = window.location.hash.replace('#', '');
-            if (h && Views[h] && h !== App.currentView) navigate(h);
-        });
-        console.log('✅ ResumeAI Pro ready with Razorpay payments');
     }
+    
+    window.addEventListener('hashchange', function() {
+        const h = window.location.hash.replace('#', '');
+        if (h && Views[h] && h !== App.currentView) navigate(h);
+    });
+    
+    console.log('✅ ResumeAI Pro ready with Razorpay payments');
+}
     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
     </script>
 </body>
