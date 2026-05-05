@@ -10,7 +10,8 @@ export default async function handler(req, res) {
     }
     
     try {
-        const response = await fetch('https://www.linkedin.com/oauth/v2/accessToken', {
+        // Step 1: Exchange code for access token
+        const tokenResponse = await fetch('https://www.linkedin.com/oauth/v2/accessToken', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: new URLSearchParams({
@@ -22,13 +23,30 @@ export default async function handler(req, res) {
             }),
         });
         
-        const data = await response.json();
+        const tokenData = await tokenResponse.json();
         
-        if (data.error) {
-            return res.status(400).json({ error: data.error_description || 'Token exchange failed' });
+        if (tokenData.error) {
+            return res.status(400).json({ error: tokenData.error_description || 'Token exchange failed' });
         }
         
-        return res.status(200).json(data);
+        // Step 2: Fetch user profile using the access token (server-side — no CORS!)
+        const profileResponse = await fetch('https://api.linkedin.com/v2/userinfo', {
+            headers: { 'Authorization': `Bearer ${tokenData.access_token}` },
+        });
+        
+        const profileData = await profileResponse.json();
+        
+        // Return both token and profile data
+        return res.status(200).json({
+            access_token: tokenData.access_token,
+            profile: {
+                name: profileData.name || '',
+                email: profileData.email || '',
+                picture: profileData.picture || '',
+                sub: profileData.sub || '',
+            }
+        });
+        
     } catch (error) {
         return res.status(500).json({ error: 'Internal server error' });
     }

@@ -344,34 +344,27 @@ async function handleLinkedInCallback() {
     localStorage.removeItem('linkedin_state');
     
     try {
-        // Exchange code for access token via backend
         const response = await fetch('/api/linkedin-exchange', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
                 code: code, 
-                redirectUri: 'https://doketsrb.com/linkedin-callback' 
+                redirectUri: 'https://www.doketsrb.com/linkedin-callback' 
             })
         });
         
         const data = await response.json();
         
-        if (data.access_token) {
-            // Fetch user profile from LinkedIn
-            const profileRes = await fetch('https://api.linkedin.com/v2/userinfo', {
-                headers: { 'Authorization': `Bearer ${data.access_token}` }
-            });
-            
-            const profile = await profileRes.json();
-            
-            // Map to resume data
-            if (profile.name) App.resumeData.personal.fullName = profile.name;
-            if (profile.email) App.resumeData.personal.email = profile.email;
-            if (profile.picture) App.resumeData.personal.linkedin = `https://linkedin.com`;
+        if (data.profile) {
+            if (data.profile.name) App.resumeData.personal.fullName = data.profile.name;
+            if (data.profile.email) App.resumeData.personal.email = data.profile.email;
             
             saveToStorage();
             navigate('builder');
-            alert(`✅ LinkedIn profile imported!\nWelcome, ${profile.name || 'there'}!`);
+            alert(`✅ LinkedIn profile imported!\nWelcome, ${data.profile.name || 'there'}!`);
+        } else if (data.error) {
+            console.error('LinkedIn error:', data.error);
+            alert('❌ LinkedIn import failed: ' + data.error);
         }
     } catch (error) {
         console.error('LinkedIn import error:', error);
