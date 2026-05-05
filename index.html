@@ -19,8 +19,25 @@
 const SUPABASE_URL = 'https://arszgttojohsmzjiemgh.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFyc3pndHRvam9oc216amllbWdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3MTYwNTksImV4cCI6MjA5MzI5MjA1OX0.0Y6kM8cg0fERxlM0xTZu6AFzenfVY-USoNm6mJeg-dM';
 
-// Initialize Supabase
-const sbClient = window.supabase && window.supabase.createClient ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+// Initialize Supabase (only if NOT in invalid chrome-extension context)
+let sbClient = null;
+try {
+    if (typeof window !== 'undefined' && window.location.protocol !== 'chrome-extension:') {
+        sbClient = window.supabase && window.supabase.createClient ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+    }
+} catch (e) {
+    console.warn('Supabase initialization skipped:', e.message);
+}
+
+// Suppress Supabase chrome-extension fetch errors
+const originalFetch = window.fetch;
+window.fetch = function(...args) {
+    const url = typeof args[0] === 'string' ? args[0] : args[0]?.url || '';
+    if (url.includes('chrome-extension://invalid')) {
+        return Promise.reject(new Error('Blocked chrome-extension request'));
+    }
+    return originalFetch.apply(this, args);
+};
 
 // Current user state
 let currentUser = null;
