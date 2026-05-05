@@ -491,6 +491,11 @@ async function resetPassword() {
     }
 // AI Usage Tracking
 function trackAIUsage() {
+    if (!currentUser) {
+        alert('🔒 Please sign up or log in to use AI features.');
+        navigate('login');
+        return false;
+    }
     const today = new Date().toDateString();
     
     // Reset counter if it's a new day
@@ -717,54 +722,99 @@ function incrementResumeCount() {
             name: 'Free',
             price: c.free,
             period: 'forever',
-            features: ['1 Resume', '3 Basic Templates', '3 AI Suggestions/day', 'Basic ATS Check', 'PDF Export'],
-            cta: 'Get Started Free',
+            badge: 'Get Started',
+            description: 'Perfect for trying out ResumeAI Pro',
+            features: [
+                { text: '1 Resume', highlight: false },
+                { text: '3 Basic Templates', highlight: false },
+                { text: '5 AI Suggestions/day', highlight: false },
+                { text: 'Basic ATS Check', highlight: false },
+                { text: 'PDF Export', highlight: false },
+            ],
+            includes: '',
+            cta: 'Start Free',
             action: 'signup',
             popular: false,
-            color: 'gray'
+            borderColor: 'border-gray-200',
+            btnClass: 'bg-gray-100 text-gray-800 hover:bg-gray-200',
         },
         {
             name: 'Pro Monthly',
             price: c.pro,
             period: '/month',
-            features: ['Unlimited Resumes', 'All 8 Templates', 'Unlimited AI Usage', 'AI Job Targeting', 'Full ATS Analysis', 'AI Cover Letter Generator', 'Resume Analytics', 'PDF & DOCX Export', 'Priority Support'],
+            badge: 'Most Popular',
+            description: 'Everything in Free, plus:',
+            features: [
+                { text: '✅ All Free Features Included', highlight: true },
+                { text: 'Unlimited Resumes', highlight: false },
+                { text: 'All 8 Premium Templates', highlight: false },
+                { text: 'Unlimited AI Usage', highlight: false },
+                { text: 'AI Job Targeting Engine', highlight: true },
+                { text: 'Full 11-Point ATS Analysis', highlight: true },
+                { text: 'DOCX Export', highlight: true },
+                { text: 'AI Cover Letter Generator', highlight: true },
+                { text: 'Resume Analytics Dashboard', highlight: true },
+                { text: 'Standard Email Support', highlight: false },
+            ],
+            includes: 'All Free Features',
             cta: 'Subscribe Now',
             action: 'pro',
             popular: true,
-            color: 'brand',
-            highlight: 'Most Popular'
+            borderColor: 'border-brand-600',
+            btnClass: 'bg-brand-600 text-white hover:bg-brand-700',
         },
         {
             name: 'Pro Annual',
             price: c.annual,
             period: '/year',
+            badge: 'Best Value',
+            description: 'Everything in Pro Monthly, plus:',
             subtext: `${c.symbol}${c.annualMonthly}/mo billed annually`,
-            features: ['Everything in Pro Monthly', 'Save 45% vs Monthly', 'AI Cover Letter Generator', 'Resume Analytics', 'All Future Updates', 'Premium Support'],
+            features: [
+                { text: '✅ All Free + Pro Features Included', highlight: true },
+                { text: 'Save 45% vs Monthly Billing', highlight: true },
+                { text: 'All Future Feature Updates', highlight: true },
+                { text: 'Priority Customer Support', highlight: true },
+                { text: 'Early Access to Beta Features', highlight: false },
+                { text: 'Annual Resume Review', highlight: false },
+            ],
+            includes: 'All Free + Pro Features',
             cta: 'Get Pro Annual',
             action: 'yearly',
             popular: false,
-            color: 'accent',
-            highlight: 'Best Value'
+            borderColor: 'border-accent-500',
+            btnClass: 'bg-accent-600 text-white hover:bg-accent-700',
         },
         {
             name: 'Lifetime',
             price: c.lifetime,
             period: 'one-time',
-            features: ['Everything in Pro', 'Lifetime Access', 'All Future Updates Free', 'Premium Priority Support', 'No Recurring Fees Ever'],
-            cta: 'Buy Lifetime',
+            badge: 'Ultimate',
+            description: 'Everything in Pro Annual, plus:',
+            features: [
+                { text: '✅ All Features from Every Plan', highlight: true },
+                { text: 'Pay Once — Use Forever', highlight: true },
+                { text: 'Never Pay Again', highlight: true },
+                { text: 'VIP Dedicated Support', highlight: true },
+                { text: 'First Access to ALL New Features', highlight: true },
+                { text: 'Custom Template Requests', highlight: false },
+                { text: 'Personalized Onboarding Call', highlight: false },
+                { text: 'Lifetime Badge on Profile', highlight: false },
+            ],
+            includes: 'All Features from All Plans',
+            cta: 'Get Lifetime Access',
             action: 'lifetime',
             popular: false,
-            color: 'dark',
-            highlight: 'Most Popular'
+            borderColor: 'border-gray-800',
+            btnClass: 'bg-gray-900 text-white hover:bg-gray-800',
         }
     ];
 
     let html = `<div class="max-w-7xl mx-auto px-4 py-8 animate-fade-in">
         <div class="text-center mb-6">
             <h1 class="text-2xl sm:text-3xl font-heading font-extrabold mb-2">Simple, Transparent Pricing</h1>
-            <p class="text-gray-600">Choose the plan that works for you. All plans include a 7-day money-back guarantee.</p>
+            <p class="text-gray-600">Every plan includes all features from the previous tier. Upgrade anytime.</p>
             
-            <!-- Currency Switcher -->
             <div class="flex justify-center gap-2 mt-6 mb-8">
                 ${Object.keys(currencies).map(key => `
                     <button onclick="App.currency='${key}';navigate('pricing')" 
@@ -778,49 +828,37 @@ function incrementResumeCount() {
         <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-6xl mx-auto">`;
 
     plans.forEach(p => {
-        const isPopular = p.action === 'lifetime';
-        const isPro = p.action === 'pro';
-        const isAnnual = p.action === 'yearly';
-        
-        let borderClass = 'border-gray-200';
-        let bgClass = 'bg-white';
-        let badgeClass = '';
-        let badgeText = '';
-        
-        if (isPro) {
-            borderClass = 'border-brand-600 shadow-xl';
-            badgeClass = 'bg-brand-600 text-white';
-            badgeText = p.highlight;
-        } else if (isAnnual) {
-            borderClass = 'border-accent-500 shadow-lg';
-            badgeClass = 'bg-accent-600 text-white';
-            badgeText = p.highlight;
-        } else if (isPopular) {
-            borderClass = 'border-gray-800 shadow-lg';
-            badgeClass = 'bg-gray-900 text-white';
-            badgeText = p.highlight;
-        }
-        
-        html += `<div class="bg-white rounded-2xl p-7 border-2 ${borderClass} ${isPro ? 'relative lg:scale-105' : ''} ${isAnnual ? 'relative' : ''}">
-            ${badgeText ? `<div class="absolute -top-3.5 left-1/2 -translate-x-1/2 ${badgeClass} px-4 py-1 rounded-full text-xs font-bold">${badgeText}</div>` : ''}
-            <h3 class="text-xl font-bold mb-1">${p.name}</h3>
-            <div class="mb-1">
-                <span class="text-4xl font-extrabold">${c.symbol}${p.price}</span>
-                <span class="text-gray-500 text-sm">${p.period}</span>
+        html += `<div class="bg-white rounded-2xl p-6 border-2 ${p.borderColor} ${p.popular ? 'relative lg:scale-105 shadow-xl' : 'shadow-sm'}">
+            ${p.badge ? `<div class="absolute -top-3.5 left-1/2 -translate-x-1/2 ${p.popular ? 'bg-brand-600' : p.badge === 'Best Value' ? 'bg-accent-600' : p.badge === 'Ultimate' ? 'bg-gray-900' : 'bg-gray-500'} text-white px-4 py-1 rounded-full text-xs font-bold whitespace-nowrap">${p.badge}</div>` : ''}
+            
+            <div class="text-center mb-4 mt-2">
+                <h3 class="text-xl font-bold">${p.name}</h3>
+                <div class="my-2">
+                    <span class="text-3xl font-extrabold">${c.symbol}${p.price}</span>
+                    <span class="text-gray-500 text-sm">${p.period}</span>
+                </div>
+                ${p.subtext ? `<p class="text-xs text-green-600 font-semibold">${p.subtext}</p>` : ''}
+                <p class="text-xs text-gray-500 mt-1">${p.description}</p>
             </div>
-            ${p.subtext ? `<p class="text-xs text-green-600 font-semibold mb-3">${p.subtext}</p>` : ''}
-            <ul class="space-y-2.5 mb-6 mt-4">
-                ${p.features.map(f => `<li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-success font-bold flex-shrink-0">✓</span> ${f}</li>`).join('')}
+            
+            ${p.includes ? `<div class="bg-green-50 text-green-700 text-xs font-bold text-center py-1.5 rounded-lg mb-3">📦 ${p.includes}</div>` : ''}
+            
+            <ul class="space-y-2 mb-6">
+                ${p.features.map(f => `<li class="flex items-start gap-2 text-sm ${f.highlight ? 'text-brand-700 font-semibold' : 'text-gray-700'}">
+                    <span class="${f.highlight ? 'text-brand-600' : 'text-success'} font-bold flex-shrink-0">${f.highlight ? '⭐' : '✓'}</span> ${f.text}
+                </li>`).join('')}
             </ul>
+            
             <button onclick="${p.action === 'signup' ? "navigate('signup')" : `initiateRazorpayPayment('${p.action}')`}" 
-                class="w-full py-3.5 rounded-xl font-extrabold text-base transition shadow-md ${isPro ? 'bg-brand-600 text-white hover:bg-brand-700' : isAnnual ? 'bg-accent-600 text-white hover:bg-accent-700' : isPopular ? 'bg-gray-900 text-white hover:bg-gray-800' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'}">
-                💳 ${p.cta}
+                class="w-full py-3.5 rounded-xl font-extrabold text-sm transition shadow-md ${p.btnClass}">
+                ${p.action !== 'signup' ? '💳 ' : ''}${p.cta}
             </button>
         </div>`;
     });
 
     html += `</div>
-        <p class="text-center text-xs text-gray-500 mt-8">🔒 Payments processed securely through Razorpay. 7-day money-back guarantee on all paid plans.</p>
+        <p class="text-center text-xs text-gray-500 mt-8">🔒 Payments processed securely through Razorpay & PayPal. 7-day money-back guarantee on all paid plans.</p>
+        <p class="text-center text-xs text-gray-400 mt-2">All plans include: SSL encryption • GDPR compliance • Auto-save • Mobile responsive</p>
     </div>`;
     
     return html;
@@ -899,6 +937,15 @@ function incrementResumeCount() {
     
 
 Views['cover-letter'] = function() {
+if (!currentUser) {
+        return `<div class="max-w-4xl mx-auto px-4 py-20 text-center">
+            <h2 class="text-2xl font-bold mb-4">🔒 Sign Up Required</h2>
+            <p class="text-gray-600 mb-6">The AI Cover Letter Generator is available for registered users.</p>
+            <button onclick="navigate('signup')" class="px-6 py-3 bg-brand-600 text-white rounded-xl font-bold">Sign Up Free</button>
+            <p class="mt-3 text-sm text-gray-500">Already have an account? <button onclick="navigate('login')" class="text-brand-600 font-semibold">Log In</button></p>
+        </div>`;
+    }
+    if (!canAccess('cover_letter_ai') && userProfile?.plan !== 'free') return upgradePrompt('AI Cover Letter Generator');
     return `
     <div class="max-w-4xl mx-auto px-4 py-8 animate-fade-in">
         <h1 class="text-2xl font-heading font-extrabold mb-6">AI Cover Letter Generator</h1>
@@ -932,6 +979,13 @@ Views['cover-letter'] = function() {
 };
 
     Views['analytics'] = function() {
+    if (!currentUser) {
+        return `<div class="max-w-4xl mx-auto px-4 py-20 text-center">
+            <h2 class="text-2xl font-bold mb-4">🔒 Sign Up Required</h2>
+            <p class="text-gray-600 mb-6">Resume Analytics is available for registered users.</p>
+            <button onclick="navigate('signup')" class="px-6 py-3 bg-brand-600 text-white rounded-xl font-bold">Sign Up Free</button>
+        </div>`;
+    }
         const score = getCompositeScore();
         const ats = getATSScore();
         return `
@@ -991,6 +1045,10 @@ function copyCoverLetter() {
     alert('✅ Cover letter copied to clipboard!');
 }
 async function exportDOCX() {
+    if (!currentUser) {
+        alert('🔒 Please sign up or log in to export as DOCX.\n\nPDF export is available for free.');
+        return;
+    }
     const rd = App.resumeData;
     const template = App.selectedTemplate;
     
@@ -1245,6 +1303,13 @@ function initiatePayPalPayment(plan) {
             navigate('signup');
         }
     }
+function upgradePrompt(feature) {
+    return `<div class="max-w-4xl mx-auto px-4 py-20 text-center">
+        <h2 class="text-2xl font-bold mb-4">🔒 Premium Feature</h2>
+        <p class="text-gray-600 mb-6">${feature} is available on Pro, Annual, and Lifetime plans.</p>
+        <button onclick="navigate('pricing')" class="px-6 py-3 bg-brand-600 text-white rounded-xl font-bold">View Plans</button>
+    </div>`;
+}
 // ============================================
 // GDPR CONSENT MANAGEMENT
 // ============================================
