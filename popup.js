@@ -11,24 +11,36 @@ const linkedinBadge = document.getElementById('linkedin-badge');
 const notLinkedinBadge = document.getElementById('not-linkedin-badge');
 
 // Check if we're on a LinkedIn profile page
+// Check if we're on a LinkedIn profile page
 async function checkPage() {
     try {
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
         
-        if (tab.url && tab.url.includes('linkedin.com/in/')) {
+        console.log('🔍 Checking URL:', tab.url);
+        
+        // Check for LinkedIn profile URLs (handles www, in., ca., etc.)
+        const linkedinPattern = /linkedin\.com\/in\//i;
+        const isLinkedInProfile = tab.url && linkedinPattern.test(tab.url);
+        
+        if (isLinkedInProfile) {
             linkedinBadge.classList.remove('hidden');
             notLinkedinBadge.classList.add('hidden');
             importBtn.classList.remove('hidden');
+            statusDiv.textContent = '✅ Ready to import';
+            statusDiv.className = 'success';
+            console.log('✅ LinkedIn profile detected');
             return true;
         } else {
             linkedinBadge.classList.add('hidden');
             notLinkedinBadge.classList.remove('hidden');
             importBtn.classList.add('hidden');
-            statusDiv.textContent = '⚠️ Please navigate to a LinkedIn profile first';
+            statusDiv.textContent = '⚠️ Please navigate to a LinkedIn profile (linkedin.com/in/...)';
             statusDiv.className = 'error';
+            console.log('❌ Not a LinkedIn profile:', tab.url);
             return false;
         }
     } catch (error) {
+        console.error('Error checking page:', error);
         statusDiv.textContent = '❌ Error checking page';
         statusDiv.className = 'error';
         return false;
