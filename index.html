@@ -485,7 +485,7 @@ async function handleLinkedInCallback() {
     
     localStorage.removeItem('linkedin_state');
     
-    try {
+        try {
         const response = await fetch('/api/linkedin-exchange', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -497,41 +497,27 @@ async function handleLinkedInCallback() {
         
         const data = await response.json();
         
-if (data.profile) {
-    const normalized = SMART_IMPORT.normalize({
-        personal: {
-            fullName: data.profile.name || '',
-            email: data.profile.email || '',
-        },
-        source: 'linkedin_oauth'
-    }, 'linkedin_oauth');
-    SMART_IMPORT.apply(normalized, true);
-    navigate('builder');
-    alert(`✅ LinkedIn profile imported!\nWelcome, ${data.profile.name || 'there'}!`);
-}
-}
-function checkExtensionData() {
-    // Method 1: Check URL parameters (new method)
-    const urlParams = new URLSearchParams(window.location.search);
-    const linkedinData = urlParams.get('linkedin_data');
-    
-    if (linkedinData) {
-        try {
-            const d = JSON.parse(decodeURIComponent(linkedinData));
-            const normalized = SMART_IMPORT.normalize(d, 'chrome_extension');
-            SMART_IMPORT.apply(normalized);
-            
-            // Clean the URL
-            if (window.history && window.history.replaceState) {
-                const cleanUrl = window.location.pathname + '#builder';
-                window.history.replaceState({}, document.title, cleanUrl);
-            }
-            return;
-        } catch (e) {
-            console.error('❌ Failed to parse LinkedIn URL data:', e);
+        if (data.profile) {
+            const normalized = SMART_IMPORT.normalize({
+                personal: {
+                    fullName: data.profile.name || '',
+                    email: data.profile.email || '',
+                },
+                source: 'linkedin_oauth'
+            }, 'linkedin_oauth');
+            SMART_IMPORT.apply(normalized, true);
+            saveToStorage();
+            navigate('builder');
+            alert(`✅ LinkedIn profile imported!\nWelcome, ${data.profile.name || 'there'}!`);
+        } else if (data.error) {
+            console.error('LinkedIn error:', data.error);
+            alert('❌ LinkedIn import failed: ' + data.error);
         }
+    } catch (error) {
+        console.error('LinkedIn import error:', error);
+        alert('❌ LinkedIn import failed. Please try again.');
     }
-   
+}
     
     // Method 2: Check Chrome storage (old method — may not work from website)
     if (typeof chrome !== 'undefined' && chrome.storage) {
