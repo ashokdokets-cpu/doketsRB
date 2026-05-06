@@ -1,15 +1,9 @@
-// LinkedIn to ResumeAI Pro - Content Script v3
+// LinkedIn to ResumeAI Pro - Content Script v4 (with auto-scroll)
 console.log('✅ LinkedIn to ResumeAI Pro - Content Script loaded');
 
-function extractLinkedInProfile() {
+async function extractLinkedInProfile() {
     const profile = {
-        personal: {
-            fullName: '',
-            email: '',
-            phone: '',
-            location: '',
-            linkedin: window.location.href,
-        },
+        personal: { fullName: '', email: '', phone: '', location: '', linkedin: window.location.href },
         summary: '',
         experience: [],
         education: [],
@@ -17,152 +11,159 @@ function extractLinkedInProfile() {
     };
 
     try {
-        // Get ALL text from the page
+        // === SCROLL TO LOAD ALL SECTIONS ===
+        console.log('📜 Scrolling to load all sections...');
+        const scrollDelay = 800;
+        
+        // Scroll to bottom slowly to trigger lazy loading
+        for (let i = 0; i < 5; i++) {
+            window.scrollBy(0, window.innerHeight);
+            await new Promise(r => setTimeout(r, scrollDelay));
+        }
+        
+        // Scroll back to top
+        window.scrollTo(0, 0);
+        await new Promise(r => setTimeout(r, 500));
+        
+        console.log('✅ Scroll complete, extracting data...');
+
+        // === GET ALL TEXT ===
         const bodyText = document.body.innerText;
         const lines = bodyText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
         
-        // Find the profile card section (everything between the name and the first "Experience"/"Education"/"About")
-        const nameKeywords = ['followers', 'connections', 'Contact info'];
-        const sectionHeaders = ['Experience', 'Education', 'Skills', 'About', 'Licenses', 'Certifications'];
+        console.log('Total lines:', lines.length);
         
-        let profileStart = -1;
-        let profileEnd = lines.length;
-        
-        // Find where the profile info starts (first non-navigation line)
-        const skipWords = ['Home', 'My Network', 'Jobs', 'Messaging', 'Notifications', 'Me', 'For Business', 
-                          'Premium', 'Skip to', 'notifications', 'Advertise', 'Business Services'];
-        
+        // === FIND PROFILE NAME (starts at line 13 based on your data) ===
+        let profileStart = 0;
         for (let i = 0; i < lines.length; i++) {
-            if (!skipWords.some(w => lines[i].startsWith(w)) && 
-                lines[i].length > 2 && 
-                lines[i].length < 60 &&
-                !lines[i].includes('notifications')) {
+            // Skip navigation items
+            const navItems = ['Home', 'My Network', 'Jobs', 'Messaging', 'Notifications', 'Me', 'For Business', 'Try Premium'];
+            if (lines[i] === 'Bhavya M' || (!navItems.includes(lines[i]) && lines[i].length > 3 && i > 10)) {
                 profileStart = i;
                 break;
             }
         }
         
-        // Find where the profile section ends (first section header after profile info)
-        for (let i = profileStart; i < lines.length; i++) {
-            if (sectionHeaders.includes(lines[i]) && i > profileStart + 2) {
-                profileEnd = i;
+        profile.personal.fullName = lines[profileStart] || '';
+        console.log('Name:', profile.personal.fullName, '(line', profileStart + ')');
+        
+        // === HEADLINE ===
+        if (profileStart + 1 < lines.length) {
+            profile.summary = lines[profileStart + 1];
+        }
+        
+        // === LOCATION ===
+        for (let i = profileStart; i < Math.min(profileStart + 15, lines.length); i++) {
+            if (lines[i].includes('India') || lines[i].includes('Area') || lines[i].includes('United')) {
+                profile.personal.location = lines[i].replace('·', '').trim();
                 break;
             }
         }
         
-        console.log('Profile section:', profileStart, 'to', profileEnd);
+        // === FIND SECTIONS ===
+        const sectionLines = {};
+        const sectionNames = ['About', 'Experience', 'Education', 'Skills', 'Licenses', 'Certifications'];
         
-        // Extract profile info from this section
-        const profileLines = lines.slice(profileStart, profileEnd);
-        console.log('Profile lines:', profileLines);
-        
-        if (profileLines.length > 0) {
-            // Name is usually the first line
-            profile.personal.fullName = profileLines[0];
-            
-            // Headline is usually the second or third line
-            if (profileLines.length > 1 && profileLines[1].length < 100) {
-                profile.summary = profileLines[1];
+        lines.forEach((line, i) => {
+            if (sectionNames.includes(line) && i > profileStart) {
+                sectionLines[line] = i;
             }
+        });
+        
+        console.log('Section positions:', sectionLines);
+        
+        // === EXTRACT EXPERIENCE ===
+        if (sectionLines['Experience']) {
+            const startIdx = sectionLines['Experience'] + 1;
+            const endIdx = sectionLines['Education'] || sectionLines['Skills'] || lines.length;
+            const expLines = lines.slice(startIdx, endIdx);
             
-            // Find location (contains commas, countries, or "Area")
-            for (let i = 1; i < profileLines.length; i++) {
-                if (profileLines[i].includes('India') || 
-                    profileLines[i].includes('United') || 
-                    profileLines[i].includes('Area') ||
-                    profileLines[i].includes('·')) {
-                    profile.personal.location = profileLines[i].replace('·', '').trim();
-                    break;
+            console.log('Experience lines:', expLines.length);
+            
+            // Group by entries (each entry typically has company name followed by title)
+            let currentExp = { title: '', company: '', dates: '', bullets: '' };
+            for (let i = 0; i < expLines.length; i++) {
+                const line = expLines[i];
+                if (line.length > 100) continue; // skip long descriptions
+                
+                if (/^\d{4}|present|yr|year|mo/i.test(line) || line.includes('·')) {
+                    // Date line
+                    currentExp.dates = line;
+                } else if (line === expLines[i-1] && i > 0) {
+                    // Skip duplicates
+                    continue;
+                } else if (!currentExp.company) {
+                    currentExp.company = line;
+                } else if (!currentExp.title) {
+                    currentExp.title = line;
                 }
-            }
-            
-            // Find contact info
-            for (let i = 0; i < profileLines.length; i++) {
-                if (profileLines[i].includes('Contact info')) {
-                    // The company/school info is usually 1-2 lines before Contact info
-                    if (i > 0 && profileLines[i-1].length > 2) {
-                        // This could be company or school
-                        const infoLine = profileLines[i-1];
-                        if (!profile.experience.length) {
-                            profile.experience.push({ title: '', company: infoLine, dates: '', bullets: '' });
-                        }
+                
+                // Check if this is the start of a new entry
+                if (i > 0 && (expLines[i-1].includes('·') || /^\d{4}/.test(expLines[i-1])) && line.length < 30) {
+                    if (currentExp.company || currentExp.title) {
+                        profile.experience.push({ ...currentExp });
                     }
-                    break;
+                    currentExp = { title: line, company: '', dates: '', bullets: '' };
                 }
+            }
+            if (currentExp.company || currentExp.title) {
+                profile.experience.push(currentExp);
             }
         }
         
-        // === FIND SECTIONS BY SCANNING TEXT ===
-        const sections = {};
-        let currentSection = '';
-        
-        for (let i = 0; i < lines.length; i++) {
-            if (['Experience', 'Education', 'Skills', 'About'].includes(lines[i])) {
-                currentSection = lines[i];
-                sections[currentSection] = [];
-            } else if (currentSection && lines[i].length > 0) {
-                if (['Experience', 'Education', 'Skills', 'About'].includes(lines[i])) {
-                    // New section started
-                } else {
-                    sections[currentSection].push(lines[i]);
+        // === EXTRACT EDUCATION ===
+        if (sectionLines['Education']) {
+            const startIdx = sectionLines['Education'] + 1;
+            const endIdx = sectionLines['Skills'] || sectionLines['Licenses'] || lines.length;
+            const eduLines = lines.slice(startIdx, endIdx);
+            
+            console.log('Education lines:', eduLines.length);
+            
+            let currentEdu = { degree: '', school: '', year: '' };
+            for (let i = 0; i < eduLines.length; i++) {
+                const line = eduLines[i];
+                if (line.length < 3) continue;
+                
+                if (!currentEdu.school) {
+                    currentEdu.school = line;
+                } else if (!currentEdu.degree) {
+                    currentEdu.degree = line;
+                } else if (/\d{4}/.test(line)) {
+                    currentEdu.year = line;
+                    profile.education.push({ ...currentEdu });
+                    currentEdu = { degree: '', school: '', year: '' };
                 }
+            }
+            if (currentEdu.school || currentEdu.degree) {
+                profile.education.push(currentEdu);
             }
         }
         
-        console.log('Found sections:', Object.keys(sections));
-        
-        // Extract Experience items
-        if (sections['Experience']) {
-            let expText = sections['Experience'].join('\n');
-            // Split by company names or date patterns
-            const expBlocks = expText.split(/(?=\d{4}|present|yr|year|mo)/i);
-            expBlocks.forEach(block => {
-                const blockLines = block.trim().split('\n').filter(l => l.length > 0);
-                if (blockLines.length >= 2) {
-                    profile.experience.push({
-                        title: blockLines[0] || '',
-                        company: blockLines[1] || '',
-                        dates: blockLines.find(l => /\d{4}|present/i.test(l)) || '',
-                        bullets: blockLines.slice(2).join('. ')
-                    });
-                }
-            });
-        }
-        
-        // Extract Education items
-        if (sections['Education']) {
-            let eduText = sections['Education'].join('\n');
-            const eduBlocks = eduText.split(/(?=\d{4}|University|College|School|Institute)/i);
-            eduBlocks.forEach(block => {
-                const blockLines = block.trim().split('\n').filter(l => l.length > 0);
-                if (blockLines.length >= 2) {
-                    profile.education.push({
-                        degree: blockLines[0] || '',
-                        school: blockLines[1] || '',
-                        year: blockLines.find(l => /\d{4}/.test(l)) || ''
-                    });
-                }
-            });
-        }
-        
-        // Extract Skills
-        if (sections['Skills']) {
-            sections['Skills'].forEach(line => {
-                if (line.length > 2 && line.length < 50 && 
-                    !line.includes('endorsement') && !line.includes('Skill')) {
+        // === EXTRACT SKILLS ===
+        if (sectionLines['Skills']) {
+            const startIdx = sectionLines['Skills'] + 1;
+            const endIdx = sectionLines['Licenses'] || sectionLines['Certifications'] || lines.length;
+            const skillLines = lines.slice(startIdx, endIdx);
+            
+            skillLines.forEach(line => {
+                if (line.length > 2 && line.length < 40 && !line.includes('endorse')) {
                     profile.skills.push(line);
                 }
             });
         }
         
-        console.log('📊 FINAL RESULT:', 
+        console.log('📊 FINAL:', 
             '\n  Name:', profile.personal.fullName,
             '\n  Location:', profile.personal.location,
-            '\n  Headline:', profile.summary?.substring(0, 50),
-            '\n  Experience:', profile.experience.length, 'entries',
-            '\n  Education:', profile.education.length, 'entries',
-            '\n  Skills:', profile.skills.length, 'skills'
+            '\n  Headline:', profile.summary,
+            '\n  Experience:', profile.experience.length,
+            '\n  Education:', profile.education.length,
+            '\n  Skills:', profile.skills.length
         );
+        
+        console.log('Experience details:', profile.experience);
+        console.log('Education details:', profile.education);
+        console.log('Skills:', profile.skills);
 
     } catch (error) {
         console.error('❌ Extraction error:', error);
@@ -171,15 +172,11 @@ function extractLinkedInProfile() {
     return profile;
 }
 
-// Listen for messages from popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'scrapeProfile' || request.action === 'extract') {
-        try {
-            const profile = extractLinkedInProfile();
+        extractLinkedInProfile().then(profile => {
             sendResponse({ success: true, data: profile });
-        } catch (error) {
-            sendResponse({ success: false, error: error.message });
-        }
+        });
+        return true; // Keep channel open for async
     }
-    return true;
 });
