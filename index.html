@@ -74,6 +74,10 @@ let userProfile = null;
 <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.min.js"></script>
 <!-- PayPal SDK (USD only) -->
 <script src="https://www.paypal.com/sdk/js?client-id=AbWYyxAuiIQIm3vcbt0rUOVK-3p115wGxdRVuYnHhE_No9wDlzwJaH2tHK3qfcizS0CIm-tfaeJgQsQP&currency=USD" data-namespace="paypal_sdk"></script>
+<!-- PDF Parser for Resume/LinkedIn Upload -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<!-- DOCX Parser for Resume/LinkedIn Upload -->
+<script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 antialiased">
 <!-- GDPR Cookie Consent Banner -->
@@ -160,6 +164,127 @@ let userProfile = null;
     const RAZORPAY_KEY_ID = 'rzp_live_SkGxektNh5gQfY'; // ← REPLACE THIS with your actual Razorpay Key ID
     const TURNSTILE_SITE_KEY = '0x4AAAAAADH4CJD8VeDh1kVK'; // ← Replace with your actual Turnstile Site Key
     const LINKEDIN_CLIENT_ID = '86jm4ws8xy27h8';
+// ============================================
+// SMART IMPORT LAYER — Normalizes all import sources
+// ============================================
+const SMART_IMPORT = {
+    // Mapping from various source formats to standard resume structure
+    normalize(rawData, source) {
+        const d = rawData;
+        return {
+            personal: {
+                fullName: d.personal?.fullName || d.name || d.full_name || d.Name || '',
+                email: d.personal?.email || d.email || d.Email || d['E-mail'] || '',
+                phone: d.personal?.phone || d.phone || d.Phone || d['Phone Number'] || '',
+                location: d.personal?.location || d.location || d.Location || d.Address || '',
+                linkedin: d.personal?.linkedin || d.linkedin || d.LinkedIn || d.profileUrl || '',
+            },
+            summary: d.summary || d.headline || d.Headline || d.objective || d.professional_summary || '',
+            experience: (d.experience || d.positions || d.work || d.employment || []).map(exp => ({
+                title: exp.title || exp.Title || exp.position || exp.role || '',
+                company: exp.company || exp.Company || exp.organization || exp.employer || '',
+                dates: exp.dates || exp.Dates || exp.period || exp.duration || exp.dateRange || '',
+                bullets: exp.bullets || exp.description || exp.responsibilities || exp.details || ''
+            })),
+            education: (d.education || d.schools || d.qualifications || []).map(edu => ({
+                degree: edu.degree || edu.Degree || edu.qualification || edu.certification || '',
+                school: edu.school || edu.School || edu.institution || edu.university || '',
+                year: edu.year || edu.Year || edu.graduation || edu.completion || ''
+            })),
+            skills: [...new Set((d.skills || d.Skills || d.technologies || d.competencies || []).map(s => typeof s === 'string' ? s : s.name || s))],
+            source: source,
+            importedAt: new Date().toISOString(),
+        };
+    },
+
+    // Apply normalized data to the App state
+    apply(data, skipNavigate) {
+        const stats = { sections: 0, fields: 0, empty: [] };
+        
+        // Personal Info
+        if (data.personal.fullName) { App.resumeData.personal.fullName = data.personal.fullName; stats.fields++; } else stats.empty.push('Full Name');
+        if (data.personal.email) { App.resumeData.personal.email = data.personal.email; stats.fields++; } else stats.empty.push('Email');
+        if (data.personal.phone) { App.resumeData.personal.phone = data.personal.phone; stats.fields++; } else stats.empty.push('Phone');
+        if (data.personal.location) { App.resumeData.personal.location = data.personal.location; stats.fields++; } else stats.empty.push('Location');
+        stats.sections++;
+        
+        // Summary
+        if (data.summary) { App.resumeData.summary = data.summary; stats.fields++; stats.sections++; } else stats.empty.push('Professional Summary');
+        
+        // Experience
+        if (data.experience.length > 0) {
+            App.resumeData.experience = data.experience;
+            stats.fields += data.experience.length;
+            stats.sections++;
+        } else stats.empty.push('Work Experience');
+        
+        // Education
+        if (data.education.length > 0) {
+            App.resumeData.education = data.education;
+            stats.fields += data.education.length;
+            stats.sections++;
+        } else stats.empty.push('Education');
+        
+        // Skills
+        if (data.skills.length > 0) {
+            App.resumeData.skills = [...new Set([...App.resumeData.skills, ...data.skills])];
+            stats.fields += data.skills.length;
+            stats.sections++;
+        } else stats.empty.push('Skills');
+        
+        saveToStorage();
+        
+        // Show import summary — then navigate to builder
+        showImportSummary(data.source, stats);
+        
+        if (!skipNavigate) {
+            setTimeout(() => navigate('builder'), 1500);
+        }
+        
+        return stats;
+    },
+
+    // Detect what type of data was uploaded
+    detectSource(rawData) {
+        if (rawData.source === 'linkedin_oauth') return 'LinkedIn OAuth';
+        if (rawData.source === 'linkedin_export') return 'LinkedIn Data Export';
+        if (rawData.source === 'resume_upload') return 'Resume/CV Upload';
+        if (rawData.source === 'chrome_extension') return 'LinkedIn Chrome Extension';
+        if (rawData.linkedin || rawData.profileUrl) return 'LinkedIn Data';
+        if (rawData.resume || rawData.cv) return 'Resume/CV';
+        return 'Imported Data';
+    },
+};
+
+// Show import summary popup
+function showImportSummary(source, stats) {
+    const lines = [];
+    lines.push(`📥 Import from: ${source}`);
+    lines.push('');
+    lines.push(`✅ ${stats.sections} sections populated`);
+    lines.push(`✅ ${stats.fields} fields imported`);
+    lines.push('');
+    
+    if (stats.empty.length > 0) {
+        lines.push('⚠️ Still needs your input:');
+        stats.empty.forEach(field => lines.push(`   • ${field}`));
+    }
+    
+    lines.push('');
+    lines.push('Redirecting to Resume Builder...');
+    
+    alert(lines.join('\n'));
+}
+
+// Show status message in the upload area
+function showUploadStatus(message, type) {
+    const status = document.getElementById('upload-status');
+    if (status) {
+        status.classList.remove('hidden');
+        status.textContent = message;
+        status.className = 'text-xs text-center mt-2 ' + (type === 'success' ? 'text-green-600' : type === 'error' ? 'text-red-600' : 'text-blue-600');
+    }
+}
 
 function initiateRazorpayPayment(plan) {
     const currency = App.currency || 'INR';
@@ -372,21 +497,18 @@ async function handleLinkedInCallback() {
         
         const data = await response.json();
         
-        if (data.profile) {
-            if (data.profile.name) App.resumeData.personal.fullName = data.profile.name;
-            if (data.profile.email) App.resumeData.personal.email = data.profile.email;
-            
-            saveToStorage();
-            navigate('builder');
-            alert(`✅ LinkedIn profile imported!\nWelcome, ${data.profile.name || 'there'}!`);
-        } else if (data.error) {
-            console.error('LinkedIn error:', data.error);
-            alert('❌ LinkedIn import failed: ' + data.error);
-        }
-    } catch (error) {
-        console.error('LinkedIn import error:', error);
-        alert('❌ LinkedIn import failed. Please try again.');
-    }
+if (data.profile) {
+    const normalized = SMART_IMPORT.normalize({
+        personal: {
+            fullName: data.profile.name || '',
+            email: data.profile.email || '',
+        },
+        source: 'linkedin_oauth'
+    }, 'linkedin_oauth');
+    SMART_IMPORT.apply(normalized, true);
+    navigate('builder');
+    alert(`✅ LinkedIn profile imported!\nWelcome, ${data.profile.name || 'there'}!`);
+}
 }
 function checkExtensionData() {
     // Method 1: Check URL parameters (new method)
@@ -396,57 +518,20 @@ function checkExtensionData() {
     if (linkedinData) {
         try {
             const d = JSON.parse(decodeURIComponent(linkedinData));
+            const normalized = SMART_IMPORT.normalize(d, 'chrome_extension');
+            SMART_IMPORT.apply(normalized);
             
-            console.log('📥 LinkedIn data received via URL:', d);
-            console.log('  Name:', d.personal?.fullName);
-            console.log('  Experience:', d.experience?.length, 'entries');
-            console.log('  Education:', d.education?.length, 'entries');
-            console.log('  Skills:', d.skills?.length, 'skills');
-            
-            if (d.personal) {
-                App.resumeData.personal = {
-                    fullName: d.personal.fullName || App.resumeData.personal.fullName,
-                    email: d.personal.email || App.resumeData.personal.email,
-                    phone: d.personal.phone || App.resumeData.personal.phone,
-                    location: d.personal.location || App.resumeData.personal.location,
-                    linkedin: d.personal.linkedin || App.resumeData.personal.linkedin,
-                };
-            }
-            if (d.summary) App.resumeData.summary = d.summary;
-            if (d.experience && d.experience.length > 0) App.resumeData.experience = d.experience;
-            if (d.education && d.education.length > 0) App.resumeData.education = d.education;
-            if (d.skills && d.skills.length > 0) App.resumeData.skills = d.skills;
-            if (d.certifications && d.certifications.length > 0) App.resumeData.certifications = d.certifications;
-            
-            // Save to localStorage
-            saveToStorage();
-            
-            // Log what was saved
-            console.log('✅ Saved to App state:', {
-                name: App.resumeData.personal.fullName,
-                expCount: App.resumeData.experience.length,
-                eduCount: App.resumeData.education.length,
-                skillCount: App.resumeData.skills.length
-            });
-            
-            // Clean the URL (remove the data parameter)
+            // Clean the URL
             if (window.history && window.history.replaceState) {
                 const cleanUrl = window.location.pathname + '#builder';
                 window.history.replaceState({}, document.title, cleanUrl);
             }
-            
-            // Navigate to builder after a slightly longer delay
-            setTimeout(() => {
-                navigate('builder');
-                console.log('✅ Navigated to builder with LinkedIn data');
-            }, 500);
-            
-            return true;
+            return;
         } catch (e) {
             console.error('❌ Failed to parse LinkedIn URL data:', e);
-            return false;
         }
     }
+   
     
     // Method 2: Check Chrome storage (old method — may not work from website)
     if (typeof chrome !== 'undefined' && chrome.storage) {
@@ -759,6 +844,201 @@ function incrementResumeCount() {
     function addItem(key,tpl){if (key === 'experience' && !enforceResumeLimit()) return; const rd={...App.resumeData};if(!rd[key])rd[key]=[];rd[key].push({...tpl});updateState({resumeData:rd});}
     function removeItem(key,i){const rd={...App.resumeData};if(rd[key])rd[key].splice(i,1);updateState({resumeData:rd});}
     function updateArrayItem(key,i,f,v){const rd={...App.resumeData};if(rd[key]&&rd[key][i])rd[key][i][f]=v;updateState({resumeData:rd});}
+    // ============================================
+// FILE UPLOAD HANDLERS
+// ============================================
+
+function triggerLinkedInUpload() {
+    document.getElementById('linkedin-file-input').click();
+}
+
+function triggerResumeUpload() {
+    document.getElementById('resume-file-input').click();
+}
+
+async function handleLinkedInFileUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    showUploadStatus('⏳ Processing LinkedIn export...', 'loading');
+    
+    try {
+        let text = '';
+        if (file.name.endsWith('.zip')) {
+            text = await file.text();
+        } else if (file.name.endsWith('.pdf')) {
+            text = await extractPDFText(file);
+        } else if (file.name.endsWith('.docx')) {
+            text = await extractDOCXText(file);
+        }
+        
+        const parsed = parseLinkedInExportText(text);
+        const normalized = SMART_IMPORT.normalize(parsed, 'linkedin_export');
+        SMART_IMPORT.apply(normalized);
+        showUploadStatus('✅ LinkedIn data imported!', 'success');
+    } catch (e) {
+        showUploadStatus('❌ Failed to parse. Try a different file.', 'error');
+        console.error('LinkedIn upload error:', e);
+    }
+    event.target.value = '';
+}
+
+async function handleResumeFileUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    showUploadStatus('⏳ Parsing resume...', 'loading');
+    
+    try {
+        let text = '';
+        if (file.name.endsWith('.pdf')) {
+            text = await extractPDFText(file);
+        } else if (file.name.endsWith('.docx')) {
+            text = await extractDOCXText(file);
+        }
+        
+        const parsed = parseResumeText(text);
+        const normalized = SMART_IMPORT.normalize(parsed, 'resume_upload');
+        SMART_IMPORT.apply(normalized);
+        showUploadStatus('✅ Resume imported!', 'success');
+    } catch (e) {
+        showUploadStatus('❌ Failed to parse. Try a different file.', 'error');
+        console.error('Resume upload error:', e);
+    }
+    event.target.value = '';
+}
+
+// PDF text extraction
+async function extractPDFText(file) {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    let fullText = '';
+    for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        fullText += content.items.map(item => item.str).join(' ') + '\n';
+    }
+    return fullText;
+}
+
+// DOCX text extraction
+async function extractDOCXText(file) {
+    const arrayBuffer = await file.arrayBuffer();
+    const result = await mammoth.extractRawText({ arrayBuffer });
+    return result.value;
+}
+
+// Parse LinkedIn export text into structured data
+function parseLinkedInExportText(text) {
+    const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 2);
+    const result = { experience: [], education: [], skills: [] };
+    
+    // Name — first non-header line
+    for (let i = 0; i < Math.min(20, lines.length); i++) {
+        if (lines[i].length > 3 && lines[i].length < 40 && 
+            !lines[i].includes('LinkedIn') && !lines[i].includes('Page') && !lines[i].includes('©')) {
+            result.personal = { fullName: lines[i] };
+            break;
+        }
+    }
+    
+    // Headline — line after name
+    const nameIdx = lines.findIndex(l => l === result.personal?.fullName);
+    if (nameIdx >= 0 && lines[nameIdx + 1]) {
+        result.summary = lines[nameIdx + 1];
+    }
+    
+    // Experience — look for date patterns like "2020 - 2023" or "Jan 2020 - Present"
+    const dateRegex = /((Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4}|(19|20)\d{2})\s*[-–to]+\s*((Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4}|(19|20)\d{2}|Present|Current)/i;
+    for (let i = 2; i < lines.length - 1; i++) {
+        if (dateRegex.test(lines[i])) {
+            result.experience.push({
+                title: lines[i - 1] || '',
+                company: lines[i - 2] || '',
+                dates: lines[i],
+                bullets: ''
+            });
+        }
+    }
+    
+    // Education — university/college names
+    for (let i = 0; i < lines.length; i++) {
+        if (/(University|College|Institute|School|Academy)/i.test(lines[i]) && lines[i].length < 80) {
+            result.education.push({
+                degree: lines[i - 1] || '',
+                school: lines[i],
+                year: (lines[i + 1] && /\d{4}/.test(lines[i + 1])) ? lines[i + 1] : ''
+            });
+        }
+    }
+    
+    // Skills — keyword matching
+    const skillKeywords = ['JavaScript', 'Python', 'React', 'Node.js', 'SQL', 'AWS', 'Azure', 'Leadership', 'Management', 'Agile', 'Scrum', 'Java', 'C++', 'CSS', 'HTML', 'Docker', 'Kubernetes', 'Marketing', 'Sales', 'Finance', 'Design', 'Product Management', 'Project Management', 'Communication', 'Data Analysis', 'Strategy', 'Operations', 'Machine Learning', 'Excel', 'Tableau', 'Salesforce', 'SEO'];
+    skillKeywords.forEach(kw => {
+        if (text.toLowerCase().includes(kw.toLowerCase())) {
+            result.skills.push(kw);
+        }
+    });
+    
+    return result;
+}
+
+// Parse generic resume text into structured data
+function parseResumeText(text) {
+    const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 1);
+    const result = { experience: [], education: [], skills: [] };
+    
+    // Name and contact
+    if (lines.length > 0) result.personal = { fullName: lines[0] };
+    const emailMatch = text.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/);
+    if (emailMatch) {
+        if (!result.personal) result.personal = {};
+        result.personal.email = emailMatch[0];
+    }
+    const phoneMatch = text.match(/(\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
+    if (phoneMatch) {
+        if (!result.personal) result.personal = {};
+        result.personal.phone = phoneMatch[0];
+    }
+    
+    // Summary
+    const summaryIdx = lines.findIndex(l => /summary|profile|objective/i.test(l));
+    if (summaryIdx >= 0 && lines[summaryIdx + 1]) {
+        result.summary = lines[summaryIdx + 1];
+    }
+    
+    // Experience
+    const dateRegex = /((Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4}|(19|20)\d{2})\s*[-–to]+\s*((Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4}|(19|20)\d{2}|Present|Current)/i;
+    for (let i = 2; i < lines.length - 1; i++) {
+        if (dateRegex.test(lines[i])) {
+            result.experience.push({
+                title: lines[i - 1] || '',
+                company: lines[i - 2] || '',
+                dates: lines[i],
+                bullets: ''
+            });
+        }
+    }
+    
+    // Education
+    for (let i = 0; i < lines.length; i++) {
+        if (/(University|College|Institute|School|Academy|Bachelor|Master|PhD|B\.S\.|M\.S\.|MBA)/i.test(lines[i]) && lines[i].length < 80) {
+            result.education.push({
+                degree: lines[i - 1] || '',
+                school: lines[i],
+                year: (lines[i + 1] && /\d{4}/.test(lines[i + 1])) ? lines[i + 1] : ''
+            });
+        }
+    }
+    
+    // Skills
+    const skillKeywords = ['JavaScript', 'Python', 'React', 'Node.js', 'SQL', 'AWS', 'Azure', 'Leadership', 'Management', 'Agile', 'Scrum', 'Java', 'C++', 'CSS', 'HTML', 'Docker', 'Kubernetes', 'Marketing', 'Sales', 'Finance', 'Design', 'Product Management', 'Project Management', 'Communication', 'Data Analysis', 'Strategy', 'Operations', 'Machine Learning', 'Excel', 'Tableau', 'Salesforce', 'SEO', 'Git', 'CI/CD', 'DevOps', 'PHP', 'Ruby', 'Swift', 'Kotlin', 'Flutter', 'MongoDB', 'PostgreSQL', 'MySQL', 'Redis', 'REST API', 'GraphQL', 'Customer Service', 'Teamwork', 'Public Speaking'];
+    skillKeywords.forEach(kw => {
+        if (text.toLowerCase().includes(kw.toLowerCase())) {
+            result.skills.push(kw);
+        }
+    });
+    
+    return result;
+}
     function addSkill(s){const t=s.trim();if(!t)return;const rd={...App.resumeData};if(!rd.skills.includes(t)){rd.skills.push(t);updateState({resumeData:rd});}}
     function removeSkill(i){const rd={...App.resumeData};rd.skills.splice(i,1);updateState({resumeData:rd});}
     function updateJobTarget(f,v){const jt={...App.jobTarget,[f]:v};updateState({jobTarget:jt});}
@@ -794,9 +1074,28 @@ function incrementResumeCount() {
     <div class="max-w-7xl mx-auto px-4 py-6 animate-fade-in">
         <div class="flex flex-wrap items-center justify-between gap-3 mb-6 no-print"><h1 class="text-2xl sm:text-3xl font-heading font-extrabold text-gray-900">Resume Builder</h1><div class="flex gap-2"><button onclick="navigate('dashboard')" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition font-semibold text-sm">← Dashboard</button><button onclick="exportPDF()" class="px-4 py-2 bg-green-600 text-white font-extrabold rounded-lg hover:bg-green-700 transition text-sm flex items-center gap-1.5 shadow-md">📄 PDF</button>
 <button onclick="exportDOCX()" class="px-4 py-2 bg-blue-600 text-white font-extrabold rounded-lg hover:bg-blue-700 transition text-sm flex items-center gap-1.5 shadow-md">📝 DOCX</button></div></div>
-        <div class="grid grid-cols-1 lg:grid-cols-5 gap-4 lg:gap-6">
+<!-- Quick Import Bar -->
+<div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 mb-4 border border-blue-100" id="import-bar">
+    <div class="flex flex-wrap items-center gap-3">
+        <span class="text-sm font-bold text-gray-700">📥 Quick Import:</span>
+        <button onclick="triggerLinkedInUpload()" class="px-3 py-1.5 bg-white border border-blue-200 rounded-lg text-xs font-semibold text-blue-700 hover:bg-blue-50 transition flex items-center gap-1">
+            📎 LinkedIn Export
+        </button>
+        <button onclick="triggerResumeUpload()" class="px-3 py-1.5 bg-white border border-green-200 rounded-lg text-xs font-semibold text-green-700 hover:bg-green-50 transition flex items-center gap-1">
+            📄 Upload Resume
+        </button>
+        <button onclick="importLinkedInProfile()" class="px-3 py-1.5 bg-white border border-purple-200 rounded-lg text-xs font-semibold text-purple-700 hover:bg-purple-50 transition flex items-center gap-1">
+            🔗 LinkedIn Connect
+        </button>
+        <span class="text-xs text-gray-500 hidden sm:inline">Upload your LinkedIn data export or existing resume to auto-fill</span>
+    </div>
+    <input type="file" id="linkedin-file-input" accept=".pdf,.docx,.zip" class="hidden" onchange="handleLinkedInFileUpload(event)">
+    <input type="file" id="resume-file-input" accept=".pdf,.docx" class="hidden" onchange="handleResumeFileUpload(event)">
+    <div id="upload-status" class="text-xs text-center mt-2 hidden"></div>
+</div>        
+<div class="grid grid-cols-1 lg:grid-cols-5 gap-4 lg:gap-6">
             <div class="lg:col-span-2 space-y-3 no-print" style="max-height:calc(100vh - 200px);overflow-y:auto;">
-                <div class="bg-white rounded-xl p-4 border shadow-sm"><h3 class="font-bold text-sm mb-3"><i data-lucide="user" class="w-4 h-4 text-brand-600 inline mr-1"></i> Personal Info</h3><div class="grid grid-cols-2 gap-2"><div class="col-span-2"><input value="${rd.personal.fullName}" onchange="updatePersonal('fullName',this.value)" placeholder="Full Name" class="w-full px-3 py-2.5 border rounded-lg text-sm"></div><div><input value="${rd.personal.email}" onchange="updatePersonal('email',this.value)" placeholder="Email" class="w-full px-3 py-2.5 border rounded-lg text-sm"></div><div><input value="${rd.personal.phone}" onchange="updatePersonal('phone',this.value)" placeholder="Phone" class="w-full px-3 py-2.5 border rounded-lg text-sm"></div><div class="col-span-2"><input value="${rd.personal.location}" onchange="updatePersonal('location',this.value)" placeholder="Location" class="w-full px-3 py-2.5 border rounded-lg text-sm"></div></div></div>
+                <div class="bg-white rounded-xl p-4 border shadow-sm"><h3 class="font-bold text-sm mb-3"><i data-lucide="user" class="w-4 h-4 text-brand-600 inline mr-1"></i> Personal Info</h3><div class="grid grid-cols-2 gap-2"><div class="col-span-2"><input value="${rd.personal.fullName}" onchange="updatePersonal('fullName',this.value)" placeholder="${rd.personal.fullName ? 'Full Name ✅' : '⚠️ Full Name — Required'}" class="w-full px-3 py-2.5 border rounded-lg text-sm"></div><div><input value="${rd.personal.email}" onchange="updatePersonal('email',this.value)" placeholder="${rd.personal.email ? 'Email ✅' : '⚠️ Email — Required'}" class="w-full px-3 py-2.5 border rounded-lg text-sm"></div><div><input value="${rd.personal.phone}" onchange="updatePersonal('phone',this.value)" placeholder="${rd.personal.phone ? 'Phone ✅' : '⚠️ Phone — Recommended'}" class="w-full px-3 py-2.5 border rounded-lg text-sm"></div><div class="col-span-2"><input value="${rd.personal.location}" onchange="updatePersonal('location',this.value)" placeholder="Location" class="w-full px-3 py-2.5 border rounded-lg text-sm"></div></div></div>
                 <div class="bg-white rounded-xl p-4 border shadow-sm"><h3 class="font-bold text-sm mb-2"><i data-lucide="file-text" class="w-4 h-4 text-brand-600 inline mr-1"></i> Summary</h3><textarea rows="3" onchange="updateField('summary',this.value)" class="w-full px-3 py-2.5 border rounded-lg text-sm resize-none">${rd.summary}</textarea></div>
                 <div class="bg-white rounded-xl p-4 border shadow-sm"><div class="flex justify-between mb-2"><h3 class="font-bold text-sm"><i data-lucide="briefcase" class="w-4 h-4 text-brand-600 inline mr-1"></i> Experience</h3><button onclick="addItem('experience',{title:'',company:'',dates:'',bullets:''});navigate('builder')" class="text-xs bg-brand-100 text-brand-700 px-3 py-1.5 rounded-lg font-semibold">+ Add</button></div>${rd.experience.length===0?'<p class="text-sm text-gray-800 text-center py-4">No experience added yet.</p>':''}${rd.experience.map((exp,i)=>`<div class="bg-gray-50 rounded-lg p-3 border mb-2"><div class="flex justify-between"><input value="${exp.title}" onchange="updateArrayItem('experience',${i},'title',this.value)" placeholder="Job Title" class="font-semibold text-sm bg-transparent border-none outline-none flex-1"><button onclick="removeItem('experience',${i});navigate('builder')" class="text-danger"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div><div class="grid grid-cols-2 gap-1.5 my-1.5"><input value="${exp.company}" onchange="updateArrayItem('experience',${i},'company',this.value)" placeholder="Company" class="text-xs px-2 py-1 border rounded bg-white"><input value="${exp.dates}" onchange="updateArrayItem('experience',${i},'dates',this.value)" placeholder="Dates" class="text-xs px-2 py-1 border rounded bg-white"></div><textarea rows="2" onchange="updateArrayItem('experience',${i},'bullets',this.value)" placeholder="• Achievement..." class="w-full text-xs px-2 py-1 border rounded bg-white resize-none">${exp.bullets||''}</textarea></div>`).join('')}</div>
                 <div class="bg-white rounded-xl p-4 border shadow-sm"><div class="flex justify-between mb-2"><h3 class="font-bold text-sm"><i data-lucide="graduation-cap" class="w-4 h-4 text-brand-600 inline mr-1"></i> Education</h3><button onclick="addItem('education',{degree:'',school:'',year:''});navigate('builder')" class="text-xs bg-brand-100 text-brand-700 px-3 py-1.5 rounded-lg font-semibold">+ Add</button></div>${rd.education.length===0?'<p class="text-sm text-gray-800 text-center py-4">No education added yet.</p>':''}${rd.education.map((edu,i)=>`<div class="bg-gray-50 rounded-lg p-3 border mb-2"><div class="flex justify-between"><input value="${edu.degree}" onchange="updateArrayItem('education',${i},'degree',this.value)" placeholder="Degree" class="font-semibold text-sm bg-transparent border-none outline-none flex-1"><button onclick="removeItem('education',${i});navigate('builder')" class="text-danger"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div><input value="${edu.school}" onchange="updateArrayItem('education',${i},'school',this.value)" placeholder="School" class="text-xs px-2 py-1 border rounded bg-white w-full mt-1"><input value="${edu.year}" onchange="updateArrayItem('education',${i},'year',this.value)" placeholder="Year" class="text-xs px-2 py-1 border rounded bg-white w-full mt-1"></div>`).join('')}</div>
