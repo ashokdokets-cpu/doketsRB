@@ -1,4 +1,4 @@
-// LinkedIn to ResumeAI Pro - Content Script (Updated for LinkedIn 2026)
+// LinkedIn to ResumeAI Pro - Content Script v3
 console.log('✅ LinkedIn to ResumeAI Pro - Content Script loaded');
 
 function extractLinkedInProfile() {
@@ -14,167 +14,151 @@ function extractLinkedInProfile() {
         experience: [],
         education: [],
         skills: [],
-        certifications: [],
     };
 
     try {
-        // === NAME ===
-        // LinkedIn now puts name in h1 or in the top card
-        const nameSelectors = [
-            'h1',
-            '.pv-top-card--list li:first-child',
-            '[class*="top-card"] h1',
-            '.text-heading-xlarge'
-        ];
-        for (const sel of nameSelectors) {
-            const el = document.querySelector(sel);
-            if (el && el.textContent.trim()) {
-                profile.personal.fullName = el.textContent.trim();
+        // Get ALL text from the page
+        const bodyText = document.body.innerText;
+        const lines = bodyText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+        
+        // Find the profile card section (everything between the name and the first "Experience"/"Education"/"About")
+        const nameKeywords = ['followers', 'connections', 'Contact info'];
+        const sectionHeaders = ['Experience', 'Education', 'Skills', 'About', 'Licenses', 'Certifications'];
+        
+        let profileStart = -1;
+        let profileEnd = lines.length;
+        
+        // Find where the profile info starts (first non-navigation line)
+        const skipWords = ['Home', 'My Network', 'Jobs', 'Messaging', 'Notifications', 'Me', 'For Business', 
+                          'Premium', 'Skip to', 'notifications', 'Advertise', 'Business Services'];
+        
+        for (let i = 0; i < lines.length; i++) {
+            if (!skipWords.some(w => lines[i].startsWith(w)) && 
+                lines[i].length > 2 && 
+                lines[i].length < 60 &&
+                !lines[i].includes('notifications')) {
+                profileStart = i;
                 break;
             }
         }
-        // Fallback: find name from body text
-        if (!profile.personal.fullName) {
-            const bodyText = document.body.innerText;
-            const lines = bodyText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-            // Usually the first meaningful text line after "Skip to main content"
-            for (let i = 0; i < Math.min(lines.length, 20); i++) {
-                if (lines[i].length > 2 && 
-                    !lines[i].includes('notifications') && 
-                    !lines[i].includes('Skip to') &&
-                    !lines[i].includes('Home') &&
-                    !lines[i].includes('My Network') &&
-                    !lines[i].includes('Jobs') &&
-                    !lines[i].includes('Messaging') &&
-                    !lines[i].includes('Notifications') &&
-                    !lines[i].includes('Premium') &&
-                    !lines[i].includes('Me') &&
-                    lines[i].length < 60) {
-                    profile.personal.fullName = lines[i];
+        
+        // Find where the profile section ends (first section header after profile info)
+        for (let i = profileStart; i < lines.length; i++) {
+            if (sectionHeaders.includes(lines[i]) && i > profileStart + 2) {
+                profileEnd = i;
+                break;
+            }
+        }
+        
+        console.log('Profile section:', profileStart, 'to', profileEnd);
+        
+        // Extract profile info from this section
+        const profileLines = lines.slice(profileStart, profileEnd);
+        console.log('Profile lines:', profileLines);
+        
+        if (profileLines.length > 0) {
+            // Name is usually the first line
+            profile.personal.fullName = profileLines[0];
+            
+            // Headline is usually the second or third line
+            if (profileLines.length > 1 && profileLines[1].length < 100) {
+                profile.summary = profileLines[1];
+            }
+            
+            // Find location (contains commas, countries, or "Area")
+            for (let i = 1; i < profileLines.length; i++) {
+                if (profileLines[i].includes('India') || 
+                    profileLines[i].includes('United') || 
+                    profileLines[i].includes('Area') ||
+                    profileLines[i].includes('·')) {
+                    profile.personal.location = profileLines[i].replace('·', '').trim();
+                    break;
+                }
+            }
+            
+            // Find contact info
+            for (let i = 0; i < profileLines.length; i++) {
+                if (profileLines[i].includes('Contact info')) {
+                    // The company/school info is usually 1-2 lines before Contact info
+                    if (i > 0 && profileLines[i-1].length > 2) {
+                        // This could be company or school
+                        const infoLine = profileLines[i-1];
+                        if (!profile.experience.length) {
+                            profile.experience.push({ title: '', company: infoLine, dates: '', bullets: '' });
+                        }
+                    }
                     break;
                 }
             }
         }
-
-        // === HEADLINE / SUMMARY ===
-        const headlineEl = document.querySelector('[class*="top-card"] [class*="headline"], .pv-top-card__headline');
-        if (headlineEl) {
-            profile.summary = headlineEl.textContent.trim();
-        } else {
-            // Find headline from body text after name
-            const bodyText = document.body.innerText;
-            const lines = bodyText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-            const nameIndex = lines.findIndex(l => l === profile.personal.fullName);
-            if (nameIndex >= 0 && nameIndex + 1 < lines.length) {
-                profile.summary = lines[nameIndex + 1];
-            }
-        }
-
-        // === LOCATION ===
-        const locationEl = document.querySelector('[class*="top-card"] [class*="location"], .pv-top-card__location');
-        if (locationEl) {
-            profile.personal.location = locationEl.textContent.trim().replace('·', '').trim();
-        } else {
-            // Find location from body text
-            const bodyText = document.body.innerText;
-            const lines = bodyText.split('\n').map(l => l.trim());
-            const contactIndex = lines.findIndex(l => l.includes('Contact info'));
-            if (contactIndex >= 0) {
-                const prevLines = lines.slice(Math.max(0, contactIndex - 5), contactIndex);
-                for (const line of prevLines.reverse()) {
-                    if (line.includes('India') || line.includes('United') || line.includes('Area')) {
-                        profile.personal.location = line.replace('·', '').trim();
-                        break;
-                    }
+        
+        // === FIND SECTIONS BY SCANNING TEXT ===
+        const sections = {};
+        let currentSection = '';
+        
+        for (let i = 0; i < lines.length; i++) {
+            if (['Experience', 'Education', 'Skills', 'About'].includes(lines[i])) {
+                currentSection = lines[i];
+                sections[currentSection] = [];
+            } else if (currentSection && lines[i].length > 0) {
+                if (['Experience', 'Education', 'Skills', 'About'].includes(lines[i])) {
+                    // New section started
+                } else {
+                    sections[currentSection].push(lines[i]);
                 }
             }
         }
-
-        // === ABOUT SECTION (for summary) ===
-        const aboutSection = document.querySelector('#about, [id*="about"], section:has([id*="about"])');
-        if (aboutSection) {
-            const aboutText = aboutSection.querySelector('span, p, div')?.textContent?.trim();
-            if (aboutText && aboutText.length > 30) {
-                profile.summary = aboutText;
-            }
+        
+        console.log('Found sections:', Object.keys(sections));
+        
+        // Extract Experience items
+        if (sections['Experience']) {
+            let expText = sections['Experience'].join('\n');
+            // Split by company names or date patterns
+            const expBlocks = expText.split(/(?=\d{4}|present|yr|year|mo)/i);
+            expBlocks.forEach(block => {
+                const blockLines = block.trim().split('\n').filter(l => l.length > 0);
+                if (blockLines.length >= 2) {
+                    profile.experience.push({
+                        title: blockLines[0] || '',
+                        company: blockLines[1] || '',
+                        dates: blockLines.find(l => /\d{4}|present/i.test(l)) || '',
+                        bullets: blockLines.slice(2).join('. ')
+                    });
+                }
+            });
         }
-
-        // === EXPERIENCE ===
-        // Find all section headers and look for "Experience"
-        const allSections = document.querySelectorAll('section');
-        allSections.forEach(section => {
-            const sectionText = section.textContent.trim();
-            if (sectionText.startsWith('Experience') || sectionText.includes('Experience\n')) {
-                // Found experience section - extract list items
-                const items = section.querySelectorAll('li, [class*="position"], [class*="experience-item"]');
-                items.forEach(item => {
-                    const text = item.textContent.trim();
-                    if (text && text.length > 10 && !text.startsWith('Experience')) {
-                        const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-                        const title = lines[0] || '';
-                        const company = lines[1] || '';
-                        const dates = lines.find(l => l.includes('yr') || l.includes('year') || l.includes('mo') || l.includes('present') || /\d{4}/.test(l)) || '';
-                        const desc = lines.filter(l => l.length > 30 && l !== title && l !== company && l !== dates).join('. ');
-                        
-                        if (title && title.length < 100) {
-                            profile.experience.push({
-                                title: title,
-                                company: company,
-                                dates: dates,
-                                bullets: desc
-                            });
-                        }
-                    }
-                });
-            }
-        });
-
-        // === EDUCATION ===
-        allSections.forEach(section => {
-            const sectionText = section.textContent.trim();
-            if (sectionText.startsWith('Education') || sectionText.includes('Education\n')) {
-                const items = section.querySelectorAll('li, [class*="education-item"]');
-                items.forEach(item => {
-                    const text = item.textContent.trim();
-                    if (text && text.length > 5 && !text.startsWith('Education')) {
-                        const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-                        const degree = lines[0] || '';
-                        const school = lines[1] || '';
-                        const year = lines.find(l => /\d{4}/.test(l)) || '';
-                        
-                        if (degree || school) {
-                            profile.education.push({
-                                degree: degree,
-                                school: school,
-                                year: year
-                            });
-                        }
-                    }
-                });
-            }
-        });
-
-        // === SKILLS ===
-        allSections.forEach(section => {
-            const sectionText = section.textContent.trim();
-            if (sectionText.startsWith('Skills') || sectionText.includes('Skills\n')) {
-                const items = section.querySelectorAll('li, span, [class*="skill"], [class*="pill"]');
-                items.forEach(item => {
-                    const text = item.textContent.trim();
-                    if (text && text.length > 1 && text.length < 50 && 
-                        !text.startsWith('Skills') && !text.includes('endorsement')) {
-                        if (!profile.skills.includes(text)) {
-                            profile.skills.push(text);
-                        }
-                    }
-                });
-            }
-        });
-
-        console.log('📊 Extracted Profile:', 
+        
+        // Extract Education items
+        if (sections['Education']) {
+            let eduText = sections['Education'].join('\n');
+            const eduBlocks = eduText.split(/(?=\d{4}|University|College|School|Institute)/i);
+            eduBlocks.forEach(block => {
+                const blockLines = block.trim().split('\n').filter(l => l.length > 0);
+                if (blockLines.length >= 2) {
+                    profile.education.push({
+                        degree: blockLines[0] || '',
+                        school: blockLines[1] || '',
+                        year: blockLines.find(l => /\d{4}/.test(l)) || ''
+                    });
+                }
+            });
+        }
+        
+        // Extract Skills
+        if (sections['Skills']) {
+            sections['Skills'].forEach(line => {
+                if (line.length > 2 && line.length < 50 && 
+                    !line.includes('endorsement') && !line.includes('Skill')) {
+                    profile.skills.push(line);
+                }
+            });
+        }
+        
+        console.log('📊 FINAL RESULT:', 
             '\n  Name:', profile.personal.fullName,
             '\n  Location:', profile.personal.location,
-            '\n  Summary:', profile.summary?.substring(0, 60) + '...',
+            '\n  Headline:', profile.summary?.substring(0, 50),
             '\n  Experience:', profile.experience.length, 'entries',
             '\n  Education:', profile.education.length, 'entries',
             '\n  Skills:', profile.skills.length, 'skills'
