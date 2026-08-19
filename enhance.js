@@ -1,0 +1,288 @@
+﻿var fs = require('fs');
+var path = require('path');
+var filePath = path.join(__dirname, 'index.html');
+var html = fs.readFileSync(filePath, 'utf8');
+
+// ============================================
+// 1. EMAIL CONFIRMATION BANNER + RESEND BUTTON
+// ============================================
+var emailBanner = `
+<div id="email-verify-banner" style="display:none;background:#fef3c7;border-bottom:2px solid #f59e0b;padding:12px 20px;text-align:center;position:fixed;top:64px;left:0;right:0;z-index:49;">
+    <span style="font-weight:600;color:#92400e;">âš ï¸ Please verify your email address.</span>
+    <button onclick="resendVerificationEmail()" style="margin-left:12px;background:#f59e0b;color:white;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:600;font-size:13px;">Resend Email</button>
+    <button onclick="document.getElementById('email-verify-banner').style.display='none'" style="margin-left:8px;background:transparent;border:none;color:#92400e;cursor:pointer;font-size:16px;">Ã—</button>
+</div>
+`;
+
+html = html.replace('<div id="app" role="application"', emailBanner + '\n    <div id="app" role="application"');
+
+// Resend verification email function
+var resendFn = `
+async function resendVerificationEmail() {
+    if (!sbClient) { showError('Service unavailable.'); return; }
+    showLoader();
+    try {
+        var { error } = await sbClient.auth.resend({ type: 'signup', email: currentUser.email });
+        hideLoader();
+        if (error) { showError('Error: ' + error.message); }
+        else { showSuccess('Verification email resent! Check your inbox.'); }
+    } catch(e) { hideLoader(); showError('Error resending. Try again.'); }
+}
+
+async function checkEmailVerification() {
+    if (typeof GUEST_MODE !== "undefined" && GUEST_MODE) return;
+    if (!currentUser || !sbClient) return;
+    try {
+        var { data: { user } } = await sbClient.auth.getUser();
+        if (user && !user.email_confirmed_at) {
+            document.getElementById("email-verify-banner").style.display = "block";
+        }
+    } catch(e) {}
+`;
+
+html = html.replace('async function resendVerificationEmail', 'PLACEHOLDER_RESEND');
+html = html.replace('function navigate(view){', resendFn + '\nfunction navigate(view){');
+
+// Call checkEmailVerification after login
+html = html.replace("showSuccess('Welcome back!'); navigate('dashboard');",
+    "showSuccess('Welcome back!'); checkEmailVerification(); navigate('dashboard');");
+
+// ============================================
+// 2. MY RESUMES VIEW
+// ============================================
+var myResumesView = `
+Views['my-resumes'] = function() {
+    if (!currentUser) {
+        return '<div class="max-w-4xl mx-auto px-4 py-20 text-center"><h2 class="text-2xl font-bold mb-4">Sign In Required</h2><p class="text-gray-600 mb-6">Sign in to view your saved resumes.</p><button onclick="navigate(\\'login\\')" class="px-6 py-3 bg-brand-600 text-white rounded-xl font-bold">Log In</button></div>';
+    }
+    return '<div class="max-w-6xl mx-auto px-4 py-8 animate-fade-in"><h1 class="text-2xl font-heading font-extrabold mb-4">ðŸ“„ My Resumes</h1><div id="resume-list" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"><p class="text-gray-500">Loading your resumes...</p></div></div>';
+};
+
+async function loadResumeList() {
+    if (!currentUser || !sbClient) return;
+    try {
+        var { data, error } = await sbClient.from('resumes').select('*').eq('user_id', currentUser.id).order('updated_at', { ascending: false });
+        var container = document.getElementById('resume-list');
+        if (!container) return;
+        if (error || !data || data.length === 0) {
+            container.innerHTML = '<div class="col-span-full text-center py-12"><p class="text-gray-500 text-lg">No saved resumes yet.</p><button onclick="navigate(\\'builder\\')" class="mt-3 px-5 py-2.5 bg-brand-600 text-white rounded-lg font-bold">Create Your First Resume</button></div>';
+            return;
+        }
+        container.innerHTML = data.map(function(r) {
+            var score = r.composite_score || r.ats_score || 0;
+            var color = score >= 70 ? 'text-green-600' : score >= 40 ? 'text-amber-600' : 'text-red-600';
+            return '<div class="bg-white rounded-xl p-5 border shadow-sm hover:shadow-md transition cursor-pointer" onclick="loadResumeById(\\'' + r.id + '\\')"><h3 class="font-bold text-gray-900">' + (r.title || 'Untitled') + '</h3><div class="flex items-center gap-2 mt-2"><span class="' + color + ' font-extrabold text-xl">' + score + '%</span><span class="text-xs text-gray-500">ATS Score</span></div><p class="text-xs text-gray-400 mt-3">Updated: ' + new Date(r.updated_at).toLocaleDateString() + '</p></div>';
+        }).join('');
+    } catch(e) {}
+}
+
+async function loadResumeById(id) {
+    if (!sbClient) return;
+    try {
+        var { data, error } = await sbClient.from('resumes').select('*').eq('id', id).single();
+        if (error || !data) { showError('Resume not found.'); return; }
+        if (data.resume_data) App.resumeData = data.resume_data;
+        if (data.template) App.selectedTemplate = data.template;
+        if (data.job_target) App.jobTarget = data.job_target;
+        saveToStorage();
+        showSuccess('Resume loaded!');
+        navigate('builder');
+    } catch(e) { showError('Error loading resume.'); }
+}
+`;
+
+html = html.replace("Views['update-password'] = function()", myResumesView + "\n\nViews['update-password'] = function()");
+
+// ============================================
+// 3. PROFILE SETTINGS VIEW
+// ============================================
+var profileView = `
+Views['profile'] = function() {
+    if (!currentUser) {
+        return '<div class="max-w-4xl mx-auto px-4 py-20 text-center"><h2 class="text-2xl font-bold mb-4">Sign In Required</h2><button onclick="navigate(\\'login\\')" class="px-6 py-3 bg-brand-600 text-white rounded-xl font-bold">Log In</button></div>';
+    }
+    var plan = userProfile ? (userProfile.plan || 'free').toUpperCase() : 'FREE';
+    var planColor = plan === 'FREE' ? 'text-gray-500' : plan === 'PRO' ? 'text-brand-600' : 'text-purple-600';
+    var email = currentUser.email || '';
+    var name = (App.resumeData.personal.fullName || userProfile?.full_name || 'User');
+    return '<div class="max-w-2xl mx-auto px-4 py-8 animate-fade-in"><h1 class="text-2xl font-heading font-extrabold mb-6">ðŸ‘¤ Profile Settings</h1>' +
+        '<div class="bg-white rounded-xl p-6 border shadow-sm mb-4"><h3 class="font-bold text-lg mb-4">Account Details</h3>' +
+        '<div class="space-y-3"><div><label class="text-xs text-gray-500">Full Name</label><input id="profile-name" value="' + name + '" class="w-full px-3 py-2.5 border rounded-lg text-sm mt-1"></div>' +
+        '<div><label class="text-xs text-gray-500">Email</label><input id="profile-email" value="' + email + '" disabled class="w-full px-3 py-2.5 border rounded-lg text-sm mt-1 bg-gray-50 text-gray-500"></div>' +
+        '<button onclick="updateProfile()" class="px-4 py-2.5 bg-brand-600 text-white rounded-lg font-bold text-sm mt-2">Save Changes</button></div></div>' +
+        '<div class="bg-white rounded-xl p-6 border shadow-sm mb-4"><h3 class="font-bold text-lg mb-2">Current Plan</h3>' +
+        '<p class="text-2xl font-extrabold ' + planColor + '">' + plan + '</p>' +
+        (plan === 'FREE' ? '<button onclick="navigate(\\'pricing\\')" class="mt-3 px-4 py-2 bg-accent-600 text-white rounded-lg font-bold text-sm">Upgrade Now</button>' : '') + '</div>' +
+        '<div class="bg-white rounded-xl p-6 border shadow-sm"><h3 class="font-bold text-lg mb-2 text-red-600">Danger Zone</h3>' +
+        '<p class="text-sm text-gray-500 mb-3">Permanently delete your account and all data.</p>' +
+        '<button onclick="deleteAccount()" class="px-4 py-2 bg-red-600 text-white rounded-lg font-bold text-sm">Delete Account</button></div></div>';
+};
+
+async function updateProfile() {
+    var name = document.getElementById('profile-name').value;
+    if (!name) { showError('Name cannot be empty.'); return; }
+    if (!sbClient || !currentUser) { showError('Not authenticated.'); return; }
+    showLoader();
+    try {
+        var { error } = await sbClient.from('profiles').update({ full_name: name }).eq('id', currentUser.id);
+        hideLoader();
+        if (error) { showError('Error: ' + error.message); }
+        else { App.resumeData.personal.fullName = name; saveToStorage(); showSuccess('Profile updated!'); }
+    } catch(e) { hideLoader(); showError('Update failed.'); }
+}
+
+async function deleteAccount() {
+    if (!confirm('Are you sure? This will permanently delete your account and all data. This cannot be undone.')) return;
+    if (!confirm('Final confirmation: Type DELETE to confirm.')) return;
+    if (!sbClient || !currentUser) return;
+    showLoader();
+    try {
+        await sbClient.from('profiles').delete().eq('id', currentUser.id);
+        await sbClient.auth.admin.deleteUser(currentUser.id);
+        await sbClient.auth.signOut();
+        currentUser = null; userProfile = null;
+        hideLoader();
+        showSuccess('Account deleted.');
+        navigate('dashboard');
+    } catch(e) { hideLoader(); showError('Delete failed. Contact support.'); }
+}
+`;
+
+html = html.replace("Views['my-resumes'] = function()", profileView + "\n\nViews['my-resumes'] = function()");
+
+// ============================================
+// 4. SUBSCRIPTION MANAGEMENT
+// ============================================
+var subscriptionView = `
+Views['subscription'] = function() {
+    if (!currentUser) {
+        return '<div class="max-w-4xl mx-auto px-4 py-20 text-center"><h2 class="text-2xl font-bold mb-4">Sign In Required</h2><button onclick="navigate(\\'login\\')" class="px-6 py-3 bg-brand-600 text-white rounded-xl font-bold">Log In</button></div>';
+    }
+    var plan = userProfile ? (userProfile.plan || 'free') : 'free';
+    var expiry = userProfile?.plan_expires_at ? new Date(userProfile.plan_expires_at).toLocaleDateString() : 'N/A';
+    var html = '<div class="max-w-2xl mx-auto px-4 py-8 animate-fade-in"><h1 class="text-2xl font-heading font-extrabold mb-6">ðŸ’³ Subscription</h1>' +
+        '<div class="bg-white rounded-xl p-6 border shadow-sm mb-4"><h3 class="font-bold text-lg">Current Plan: <span class="text-brand-600">' + plan.toUpperCase() + '</span></h3>' +
+        '<p class="text-sm text-gray-500 mt-1">Expires: ' + expiry + '</p></div>';
+    if (plan !== 'free' && plan !== 'lifetime') {
+        html += '<div class="bg-white rounded-xl p-6 border shadow-sm mb-4"><h3 class="font-bold text-lg mb-3">Manage Plan</h3>' +
+            '<button onclick="cancelSubscription()" class="px-4 py-2 bg-red-100 text-red-700 rounded-lg font-bold text-sm mr-2">Cancel Auto-Renewal</button>' +
+            '<button onclick="navigate(\\'pricing\\')" class="px-4 py-2 bg-brand-600 text-white rounded-lg font-bold text-sm">Upgrade Plan</button></div>';
+    } else if (plan === 'free') {
+        html += '<div class="bg-white rounded-xl p-6 border shadow-sm"><h3 class="font-bold text-lg mb-3">Upgrade Your Plan</h3>' +
+            '<button onclick="navigate(\\'pricing\\')" class="px-4 py-2 bg-brand-600 text-white rounded-lg font-bold text-sm">View Plans</button></div>';
+    }
+    html += '</div>';
+    return html;
+};
+
+async function cancelSubscription() {
+    if (!confirm('Cancel auto-renewal? Your plan will remain active until the expiry date.')) return;
+    showLoader();
+    try {
+        if (sbClient && currentUser) {
+            await sbClient.from('profiles').update({ plan: 'free', plan_expires_at: null }).eq('id', currentUser.id);
+        }
+        hideLoader();
+        showSuccess('Auto-renewal cancelled. Your plan expires on its end date.');
+        await loadUserProfile();
+        navigate('subscription');
+    } catch(e) { hideLoader(); showError('Error. Contact support.'); }
+}
+`;
+
+html = html.replace("Views['profile'] = function()", subscriptionView + "\n\nViews['profile'] = function()");
+
+// ============================================
+// 5. INVOICE HISTORY VIEW
+// ============================================
+var invoiceView = `
+Views['invoices'] = function() {
+    if (!currentUser) {
+        return '<div class="max-w-4xl mx-auto px-4 py-20 text-center"><h2 class="text-2xl font-bold mb-4">Sign In Required</h2><button onclick="navigate(\\'login\\')" class="px-6 py-3 bg-brand-600 text-white rounded-xl font-bold">Log In</button></div>';
+    }
+    return '<div class="max-w-3xl mx-auto px-4 py-8 animate-fade-in"><h1 class="text-2xl font-heading font-extrabold mb-4">ðŸ§¾ Payment History</h1><div id="invoice-list"><p class="text-gray-500">Loading payment history...</p></div></div>';
+};
+
+async function loadInvoiceList() {
+    if (!currentUser || !sbClient) return;
+    try {
+        var { data, error } = await sbClient.from('payments').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+        var container = document.getElementById('invoice-list');
+        if (!container) return;
+        if (error || !data || data.length === 0) {
+            container.innerHTML = '<div class="text-center py-12"><p class="text-gray-500 text-lg">No payment history yet.</p><button onclick="navigate(\\'pricing\\')" class="mt-3 px-5 py-2.5 bg-brand-600 text-white rounded-lg font-bold">Get Started</button></div>';
+            return;
+        }
+        container.innerHTML = '<div class="space-y-2">' + data.map(function(p) {
+            var status = p.status === 'captured' ? 'âœ… Paid' : p.status === 'failed' ? 'âŒ Failed' : 'â³ ' + (p.status || 'Pending');
+            var statusColor = p.status === 'captured' ? 'text-green-600' : p.status === 'failed' ? 'text-red-600' : 'text-amber-600';
+            return '<div class="bg-white rounded-xl p-4 border flex justify-between items-center"><div><span class="font-semibold">' + (p.plan || 'N/A').toUpperCase() + '</span><span class="text-xs text-gray-500 ml-2">' + new Date(p.created_at).toLocaleDateString() + '</span></div><div><span class="font-bold">' + (p.currency === 'INR' ? 'â‚¹' : '$') + ((p.amount || 0)/100).toFixed(2) + '</span><span class="' + statusColor + ' text-sm ml-2">' + status + '</span></div></div>';
+        }).join('') + '</div>';
+    } catch(e) {}
+}
+`;
+
+html = html.replace("Views['subscription'] = function()", invoiceView + "\n\nViews['subscription'] = function()");
+
+// ============================================
+// 6. DASHBOARD ANALYTICS ENHANCEMENT
+// ============================================
+html = html.replace(
+    "Views['analytics'] = function() {",
+    "async function loadAnalytics() { if (!currentUser || !sbClient) return; try { var r = await sbClient.from('resumes').select('id').eq('user_id', currentUser.id); if (r.data) document.getElementById('analytics-count').textContent = r.data.length; } catch(e) {} }\n\nViews['analytics'] = function() {"
+);
+
+html = html.replace(
+    '<div class="text-3xl font-extrabold text-brand-600">${App.resumeData.experience.length}</div>',
+    '<div class="text-3xl font-extrabold text-brand-600" id="analytics-count">${App.resumeData.experience.length}</div>'
+);
+
+html = html.replace(
+    'navigate(\'analytics\')',
+    'loadAnalytics(); setTimeout(function(){ if(document.getElementById(\'analytics-count\')) loadAnalytics(); }, 300);'
+);
+
+html = html.replace(
+    'return `\n        <div class="max-w-6xl mx-auto px-4 py-8',
+    'loadAnalytics(); return `\n        <div class="max-w-6xl mx-auto px-4 py-8'
+);
+
+// ============================================
+// 7. UPDATE NAVBAR WITH NEW PAGES
+// ============================================
+var userMenuItems = `
+                    <button onclick="navigate('my-resumes')" class="px-3 py-2 text-sm font-medium rounded-lg text-gray-900 hover:text-brand-600 hover:bg-brand-50 transition">ðŸ“„ My Resumes</button>
+                    <button onclick="navigate('profile')" class="px-3 py-2 text-sm font-medium rounded-lg text-gray-900 hover:text-brand-600 hover:bg-brand-50 transition">ðŸ‘¤ Profile</button>
+                    <button onclick="navigate('subscription')" class="px-3 py-2 text-sm font-medium rounded-lg text-gray-900 hover:text-brand-600 hover:bg-brand-50 transition">ðŸ’³ Plan</button>
+                    <button onclick="navigate('invoices')" class="px-3 py-2 text-sm font-medium rounded-lg text-gray-900 hover:text-brand-600 hover:bg-brand-50 transition">ðŸ§¾ Bills</button>
+`;
+
+html = html.replace('ðŸ“Š Analytics</button>\n                </div>', 'ðŸ“Š Analytics</button>\n' + userMenuItems + '                </div>');
+
+// Mobile nav items
+var mobileItems = `
+                <button onclick="navigate('my-resumes');closeMobileNav()" class="block w-full text-left px-4 py-3 text-sm font-medium rounded-lg hover:bg-brand-50 hover:text-brand-600 transition">ðŸ“„ My Resumes</button>
+                <button onclick="navigate('profile');closeMobileNav()" class="block w-full text-left px-4 py-3 text-sm font-medium rounded-lg hover:bg-brand-50 hover:text-brand-600 transition">ðŸ‘¤ Profile</button>
+                <button onclick="navigate('subscription');closeMobileNav()" class="block w-full text-left px-4 py-3 text-sm font-medium rounded-lg hover:bg-brand-50 hover:text-brand-600 transition">ðŸ’³ Subscription</button>
+                <button onclick="navigate('invoices');closeMobileNav()" class="block w-full text-left px-4 py-3 text-sm font-medium rounded-lg hover:bg-brand-50 hover:text-brand-600 transition">ðŸ§¾ Invoices</button>
+`;
+
+html = html.replace('ðŸ“Š Analytics</button>\n            </div>', 'ðŸ“Š Analytics</button>\n' + mobileItems + '            </div>');
+
+// ============================================
+// 8. LOAD MY RESUMES ON VIEW
+// ============================================
+html = html.replace(
+    "var viewFn = Views[App.currentView];\n        if (viewFn) {\n            container.innerHTML = viewFn();",
+    "var viewFn = Views[App.currentView];\n        if (viewFn) {\n            container.innerHTML = viewFn();\n            if (App.currentView === 'my-resumes') { setTimeout(loadResumeList, 100); }\n            if (App.currentView === 'invoices') { setTimeout(loadInvoiceList, 100); }"
+);
+
+fs.writeFileSync(filePath, html, 'utf8');
+console.log('âœ… All 7 high-impact features added!');
+console.log('1. Email verification banner + resend button');
+console.log('2. My Resumes list with cloud load');
+console.log('3. Profile settings page');
+console.log('4. Subscription management');
+console.log('5. Invoice/payment history');
+console.log('6. Dashboard analytics enhancement');
+console.log('7. Updated navbar with new pages');

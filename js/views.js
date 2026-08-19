@@ -1,0 +1,57 @@
+﻿Views['my-resumes']=function(){if(!currentUser)return'<div class="max-w-4xl mx-auto px-4 py-20 text-center"><h2 class="text-2xl font-bold mb-4">Sign In Required</h2><button onclick="navigate(\'login\')" class="px-6 py-3 bg-brand-600 text-white rounded-xl font-bold">Log In</button></div>';return'<div class="max-w-6xl mx-auto px-4 py-8 animate-fade-in"><h1 class="text-2xl font-heading font-extrabold mb-4">My Resumes</h1><div id="resume-list" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"><p class="text-gray-500">Loading...</p></div></div>'}
+async function loadResumeList(){
+  if(!currentUser||!sbClient)return;
+  var c=document.getElementById('resume-list');
+  if(!c)return;
+  try{
+    var r=await sbClient.from('resumes')
+      .select('*')
+      .eq('user_id',currentUser.id)
+      .order('updated_at',{ascending:false})
+      .limit(5);
+    // Auto-cleanup: delete saves beyond the latest 5
+    var oldResumes = await sbClient.from('resumes')
+      .select('id')
+      .eq('user_id', currentUser.id)
+      .order('updated_at', { ascending: false })
+      .range(5, 49);
+    if (oldResumes.data && oldResumes.data.length > 0) {
+      var oldIds = oldResumes.data.map(function(row) { return row.id; });
+      await sbClient.from('resumes').delete().in('id', oldIds);
+    }
+    
+    if(!r.data||r.data.length===0){
+      c.innerHTML='<div class="col-span-full text-center py-12"><p class="text-gray-500 text-lg">No saved resumes yet.</p><button onclick="navigate(\'builder\')" class="mt-3 px-5 py-2.5 bg-brand-600 text-white rounded-lg font-bold">Create Your First Resume</button></div>';
+      return;
+    }
+    
+    c.innerHTML=r.data.map(function(d){
+      var s=d.composite_score||d.ats_score;
+      if(!s){
+        try{
+          var savedResume=d.resume_data||{};
+          var expScore=(savedResume.experience||[]).length>=2?90:(savedResume.experience||[]).length===1?60:15;
+          var skillScore=(savedResume.skills||[]).length>=8?90:(savedResume.skills||[]).length>=5?70:(savedResume.skills||[]).length>0?45:10;
+          var eduScore=(savedResume.education||[]).length>=2?90:(savedResume.education||[]).length===1?60:15;
+          var summaryScore=(savedResume.summary||'').length>50?80:20;
+          var personalScore=(savedResume.personal&&savedResume.personal.fullName)?80:10;
+          s=Math.round((expScore+skillScore+eduScore+summaryScore+personalScore)/5);
+        }catch(e){s=0;}
+      }
+      var cl=s>=70?'text-green-600':s>=40?'text-amber-600':'text-red-600';
+      return'<div class="bg-white rounded-xl p-5 border shadow-sm hover:shadow-md transition cursor-pointer flex justify-between items-center" onclick="loadResumeById(\''+d.id+'\')"><div><h3 class="font-bold">'+(d.title||'Untitled')+'</h3><p class="text-xs text-gray-400 mt-1">Updated: '+new Date(d.updated_at).toLocaleDateString()+'</p></div><div class="text-right"><span class="'+cl+' font-extrabold text-xl">'+s+'%</span><span class="text-xs text-gray-500 block">ATS</span></div></div>';
+    }).join('');
+  }catch(e){}
+}
+async function loadResumeById(id){try{var r=await sbClient.from('resumes').select('*').eq('id',id).single();if(r.data&&r.data.resume_data){App.resumeData=r.data.resume_data;if(r.data.template)App.selectedTemplate=r.data.template;saveToStorage();showSuccess('Resume loaded!');navigate('builder')}else{showError('Resume not found.')}}catch(e){showError('Error loading.')}}
+Views['profile']=function(){if(!currentUser)return'<div class="max-w-4xl mx-auto px-4 py-20 text-center"><h2 class="text-2xl font-bold mb-4">Sign In Required</h2><button onclick="navigate(\'login\')" class="px-6 py-3 bg-brand-600 text-white rounded-xl font-bold">Log In</button></div>';var p=userProfile?(userProfile.plan||'free').toUpperCase():'FREE';var n=App.resumeData.personal.fullName||(userProfile&&userProfile.full_name)||'User';var e=currentUser.email||'';return'<div class="max-w-2xl mx-auto px-4 py-8 animate-fade-in"><h1 class="text-2xl font-heading font-extrabold mb-6">Profile Settings</h1><div class="bg-white rounded-xl p-6 border shadow-sm mb-4"><h3 class="font-bold text-lg mb-4">Account Details</h3><div class="space-y-3"><div><label class="text-xs text-gray-500">Full Name</label><input id="profile-name" value="'+n+'" class="w-full px-3 py-2.5 border rounded-lg text-sm mt-1"></div><div><label class="text-xs text-gray-500">Email</label><input value="'+e+'" disabled class="w-full px-3 py-2.5 border rounded-lg text-sm mt-1 bg-gray-50 text-gray-500"></div><button onclick="updateProfile()" class="mt-3 px-4 py-2.5 bg-brand-600 text-white rounded-lg font-bold text-sm">Save Changes</button></div></div><div class="bg-white rounded-xl p-6 border shadow-sm mb-4"><h3 class="font-bold text-lg mb-2">Current Plan</h3><p class="text-2xl font-extrabold">'+p+'</p>'+(p==='FREE'?'<button onclick="navigate(\'pricing\')" class="mt-3 px-4 py-2 bg-accent-600 text-white rounded-lg font-bold text-sm">Upgrade Now</button>':'')+'</div><div class="bg-white rounded-xl p-6 border shadow-sm"><h3 class="font-bold text-lg mb-2 text-red-600">Danger Zone</h3><p class="text-sm text-gray-500 mb-3">Permanently delete your account.</p><button onclick="deleteAccount()" class="px-4 py-2 bg-red-600 text-white rounded-lg font-bold text-sm">Delete Account</button></div></div>'}
+async function updateProfile(){var n=document.getElementById('profile-name').value;if(!n){showError('Name required');return}showLoader();try{await sbClient.from('profiles').update({full_name:n}).eq('id',currentUser.id);App.resumeData.personal.fullName=n;saveToStorage();hideLoader();showSuccess('Profile updated!')}catch(e){hideLoader();showError('Failed.')}}
+async function deleteAccount(){if(!confirm('Delete your account permanently?'))return;showLoader();try{await sbClient.from('profiles').delete().eq('id',currentUser.id);await sbClient.auth.signOut();currentUser=null;userProfile=null;hideLoader();showSuccess('Account deleted.');navigate('dashboard')}catch(e){hideLoader();showError('Failed.')}}
+Views['subscription']=function(){if(!currentUser)return'<div class="max-w-4xl mx-auto px-4 py-20 text-center"><h2 class="text-2xl font-bold mb-4">Sign In Required</h2><button onclick="navigate(\'login\')" class="px-6 py-3 bg-brand-600 text-white rounded-xl font-bold">Log In</button></div>';var p=userProfile?(userProfile.plan||'free'):'free';var ex=userProfile&&userProfile.plan_expires_at?new Date(userProfile.plan_expires_at).toLocaleDateString():'N/A';var h='<div class="max-w-2xl mx-auto px-4 py-8 animate-fade-in"><h1 class="text-2xl font-heading font-extrabold mb-6">Subscription</h1><div class="bg-white rounded-xl p-6 border shadow-sm mb-4"><h3 class="font-bold text-lg">Current Plan: <span class="text-brand-600">'+p.toUpperCase()+'</span></h3><p class="text-sm text-gray-500 mt-1">Expires: '+ex+'</p></div>';if(p!=='free'&&p!=='lifetime')h+='<div class="bg-white rounded-xl p-6 border shadow-sm"><button onclick="cancelSubscription()" class="px-4 py-2 bg-red-100 text-red-700 rounded-lg font-bold text-sm mr-2">Cancel Auto-Renewal</button><button onclick="navigate(\'pricing\')" class="px-4 py-2 bg-brand-600 text-white rounded-lg font-bold text-sm">Upgrade Plan</button></div>';else if(p==='free')h+='<div class="bg-white rounded-xl p-6 border shadow-sm"><button onclick="navigate(\'pricing\')" class="px-4 py-2 bg-brand-600 text-white rounded-lg font-bold text-sm">Upgrade Now</button></div>';else h+='<div class="bg-white rounded-xl p-6 border shadow-sm"><p class="text-green-600 font-bold">Lifetime plan - no expiry!</p></div>';h+='</div>';return h}
+async function cancelSubscription(){if(!confirm('Cancel auto-renewal?'))return;showLoader();try{await sbClient.from('profiles').update({plan:'free',plan_expires_at:null}).eq('id',currentUser.id);hideLoader();showSuccess('Cancelled.');await loadUserProfile();navigate('subscription')}catch(e){hideLoader();showError('Failed.')}}
+Views['invoices']=function(){if(!currentUser)return'<div class="max-w-4xl mx-auto px-4 py-20 text-center"><h2 class="text-2xl font-bold mb-4">Sign In Required</h2><button onclick="navigate(\'login\')" class="px-6 py-3 bg-brand-600 text-white rounded-xl font-bold">Log In</button></div>';return'<div class="max-w-3xl mx-auto px-4 py-8 animate-fade-in"><h1 class="text-2xl font-heading font-extrabold mb-4">Payment History</h1><div id="invoice-list"><p class="text-gray-500">Loading...</p></div></div>'}
+async function loadInvoiceList(){if(!currentUser||!sbClient)return;var c=document.getElementById('invoice-list');if(!c)return;try{var r=await sbClient.from('payments').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});if(!r.data||r.data.length===0){c.innerHTML='<div class="text-center py-12"><p class="text-gray-500 text-lg">No payment history.</p></div>';return}c.innerHTML=r.data.map(function(p){var s=p.status==='captured'?'Paid':p.status==='failed'?'Failed':'Pending';var sc=p.status==='captured'?'text-green-600':'text-red-600';var amt=(p.amount||0)/100;var cur=p.currency==='INR'?'Rs ':'$';return'<div class="bg-white rounded-xl p-4 border flex justify-between items-center mb-2"><div><span class="font-semibold">'+(p.plan||'N/A').toUpperCase()+'</span><span class="text-xs text-gray-500 ml-2">'+new Date(p.created_at).toLocaleDateString()+'</span></div><div><span class="font-bold">'+cur+amt.toFixed(2)+'</span><span class="'+sc+' text-sm ml-2">'+s+'</span></div></div>'}).join('')}catch(e){}}
+
+Views['affiliate']=function(){return'<div class="max-w-4xl mx-auto px-4 py-12 animate-fade-in"><h1 class="text-3xl font-heading font-extrabold mb-6">Affiliate Program</h1><div class="grid sm:grid-cols-3 gap-4 mb-8"><div class="bg-white rounded-xl p-6 border shadow-sm text-center"><div class="text-3xl font-extrabold text-brand-600">30%</div><div class="text-sm text-gray-500 mt-1">Commission</div></div><div class="bg-white rounded-xl p-6 border shadow-sm text-center"><div class="text-3xl font-extrabold text-purple-600">90 Days</div><div class="text-sm text-gray-500 mt-1">Cookie Window</div></div><div class="bg-white rounded-xl p-6 border shadow-sm text-center"><div class="text-3xl font-extrabold text-green-600">Monthly</div><div class="text-sm text-gray-500 mt-1">PayPal Payouts</div></div></div><div class="bg-white rounded-xl p-6 border shadow-sm mb-4"><h2 class="text-xl font-bold mb-2">How It Works</h2><p class="text-sm text-gray-600">1. Sign up and get your unique link. 2. Share it anywhere. 3. Earn 30% on every paid referral.</p></div><div class="text-center"><button onclick="getAffiliateLink()" class="px-8 py-4 bg-brand-600 text-white rounded-xl font-extrabold text-lg hover:bg-brand-700 transition shadow-lg">Get My Affiliate Link</button><p class="text-sm text-gray-500 mt-4">Questions? contact@dokets.com</p></div></div>'}
+Views['status']=function(){return'<div class="max-w-2xl mx-auto px-4 py-12 animate-fade-in"><h1 class="text-3xl font-heading font-extrabold mb-6">System Status</h1><div class="space-y-3"><div class="bg-white rounded-xl p-4 border flex justify-between items-center"><span>Website</span><span class="text-green-600 font-bold">Operational</span></div><div class="bg-white rounded-xl p-4 border flex justify-between items-center"><span>Database</span><span class="text-green-600 font-bold">Operational</span></div><div class="bg-white rounded-xl p-4 border flex justify-between items-center"><span>Payments</span><span class="text-green-600 font-bold">Operational</span></div></div></div>'}
+

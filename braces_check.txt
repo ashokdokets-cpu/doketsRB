@@ -1,0 +1,964 @@
+try {
+    if (typeof window !== 'undefined' && window.location.protocol !== 'chrome-extension:') {
+} catch (e) {
+window.fetch = function(...args) {
+    if (url.includes('chrome-extension://invalid')) {
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a' },
+                        accent: { 500: '#8b5cf6', 600: '#7c3aed' },
+        *,*::before,*::after{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;padding:0;font-family:'Inter',system-ui,sans-serif;background:#f8fafc;color:#1e293b}::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#f1f5f9}::-webkit-scrollbar-thumb{background:#94a3b8;border-radius:3px}.gradient-text{background:linear-gradient(135deg,#2563eb,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}.glass{background:rgba(255,255,255,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(229,231,235,0.6)}.resume-preview{font-family:'Georgia','Times New Roman',serif;line-height:1.5}.resume-preview h1{font-size:22px;font-weight:bold;color:#1e293b;margin:0 0 4px 0}.resume-preview h2{font-size:15px;font-weight:bold;border-bottom:2px solid #2563eb;padding-bottom:4px;margin:16px 0 8px 0;color:#2563eb;text-transform:uppercase;letter-spacing:0.5px}.resume-preview h3{font-size:13px;font-weight:bold;color:#334155;margin:0 0 2px 0}.resume-preview p{font-size:11.5px;color:#475569;margin:0 0 4px 0}.resume-preview ul{list-style:disc;padding-left:20px;margin:4px 0 8px 0}.resume-preview li{font-size:11.5px;color:#475569;margin-bottom:3px}.resume-preview .section{margin-bottom:12px}.animate-fade-in{animation:fadeIn 0.3s ease-out}@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}@media print{.no-print{display:none!important}body{background:white!important}#resume-preview-area{box-shadow:none!important;border:none!important;padding:0!important}}@media(max-width:640px){.resume-preview h1{font-size:20px}.resume-preview h2{font-size:14px}}
+const SMART_IMPORT = {
+    normalize(rawData, source) {
+        return {
+            personal: {
+            experience: (d.experience || d.positions || d.work || d.employment || []).map(exp => ({
+            education: (d.education || d.schools || d.qualifications || []).map(edu => ({
+    apply(data, skipNavigate) {
+        const stats = { sections: 0, fields: 0, empty: [] };
+        if (data.personal.fullName) { App.resumeData.personal.fullName = data.personal.fullName; stats.fields++; } else stats.empty.push('Full Name');
+        if (data.personal.email) { App.resumeData.personal.email = data.personal.email; stats.fields++; } else stats.empty.push('Email');
+        if (data.personal.phone) { App.resumeData.personal.phone = data.personal.phone; stats.fields++; } else stats.empty.push('Phone');
+        if (data.personal.location) { App.resumeData.personal.location = data.personal.location; stats.fields++; } else stats.empty.push('Location');
+        if (data.summary) { App.resumeData.summary = data.summary; stats.fields++; stats.sections++; } else stats.empty.push('Professional Summary');
+        if (data.experience.length > 0) {
+        if (data.education.length > 0) {
+        if (data.skills.length > 0) {
+        if (!skipNavigate) {
+    detectSource(rawData) {
+function showImportSummary(source, stats) {
+    lines.push(`📥 Import from: ${source}`);
+    lines.push(`✅ ${stats.sections} sections populated`);
+    lines.push(`✅ ${stats.fields} fields imported`);
+    if (stats.empty.length > 0) {
+        stats.empty.forEach(field => lines.push(`   • ${field}`));
+function showUploadStatus(message, type) {
+    if (status) {
+function initiateRazorpayPayment(plan) {
+    const plans = {
+        'pro': {
+            INR: { amount: 49900, name: 'Pro Monthly Plan', desc: 'Unlimited resumes, AI job targeting, full ATS analysis' },
+            USD: { amount: 1499, name: 'Pro Monthly Plan', desc: 'Unlimited resumes, AI job targeting, full ATS analysis' },
+            EUR: { amount: 1399, name: 'Pro Monthly Plan', desc: 'Unlimited resumes, AI job targeting, full ATS analysis' },
+            GBP: { amount: 1199, name: 'Pro Monthly Plan', desc: 'Unlimited resumes, AI job targeting, full ATS analysis' },
+        'lifetime': {
+            INR: { amount: 999900, name: 'Lifetime Plan', desc: 'Pay once, use forever. All features included.' },
+            USD: { amount: 14900, name: 'Lifetime Plan', desc: 'Pay once, use forever. All features included.' },
+            EUR: { amount: 13900, name: 'Lifetime Plan', desc: 'Pay once, use forever. All features included.' },
+            GBP: { amount: 11900, name: 'Lifetime Plan', desc: 'Pay once, use forever. All features included.' },
+        'yearly': {
+            INR: { amount: 399900, name: 'Pro Annual Plan', desc: 'All Pro features, save 45% with annual billing' },
+            USD: { amount: 9900, name: 'Pro Annual Plan', desc: 'All Pro features, save 45% with annual billing' },
+            EUR: { amount: 8900, name: 'Pro Annual Plan', desc: 'All Pro features, save 45% with annual billing' },
+            GBP: { amount: 7900, name: 'Pro Annual Plan', desc: 'All Pro features, save 45% with annual billing' },
+    const options = {
+        handler: function(response) {
+        prefill: {
+        notes: { plan: plan },
+        theme: { color: '#2563eb' },
+        modal: {
+            ondismiss: function() { console.log('Payment modal closed'); },
+    try {
+        rzp.on('payment.failed', function(response) {
+    } catch (e) {
+async function showPaymentSuccess(paymentId, orderId, signature, plan) {
+    try {
+        const response = await fetch('/api/verify-payment', {
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+        if (result.success) {
+            await sbClient.from('payments').insert({
+            alert(`✅ Payment Verified!\n\nYour ${plan.toUpperCase()} plan is now active.\nWelcome to ResumeAI Pro!`);
+        } else {
+    } catch (error) {
+    async function checkAuth() {
+        const { data: { user } } = await sbClient.auth.getUser();
+        if (user) {
+    async function loadUserProfile() {
+        const { data } = await sbClient
+    async function signUp(email, password, fullName) {
+        const { data, error } = await sbClient.auth.signUp({ email, password });
+        if (error) return { error };
+        await sbClient.from('profiles').insert({ id: data.user.id, full_name: fullName, email: email });
+        return { success: true };
+    async function logIn(email, password) {
+        const { data, error } = await sbClient.auth.signInWithPassword({ email, password });
+        if (error) return { error };
+        return { success: true };
+    async function logOut() {
+    async function activatePlan(plan, paymentId) {
+        const { data, error } = await sbClient.rpc('update_user_plan', {
+        if (error) return { error };
+   async function signInWithGoogle() {
+       const { data, error } = await sbClient.auth.signInWithOAuth({
+        options: {
+    if (error) {
+function importLinkedInProfile() {
+    const authUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${LINKEDIN_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&state=${state}`;
+async function handleLinkedInCallback() {
+    try {
+        const response = await fetch('/api/linkedin-exchange', {
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+if (data.profile) {
+    const normalized = SMART_IMPORT.normalize({
+        personal: {
+    alert(`✅ LinkedIn profile imported!\nWelcome, ${data.profile.name || 'there'}!`);
+function checkExtensionData() {
+    if (linkedinData) {
+        try {
+            if (window.history && window.history.replaceState) {
+                window.history.replaceState({}, document.title, cleanUrl);
+        } catch (e) {
+    if (typeof chrome !== 'undefined' && chrome.storage) {
+        chrome.storage.local.get(['linkedinResumeData', 'importTimestamp'], function(result) {
+            if (result.linkedinResumeData && result.importTimestamp) {
+                if (Date.now() - result.importTimestamp < fiveMinutes) {
+                    if (d.personal) {
+                        App.resumeData.personal = {
+async function resetPassword() {
+        if (!email) {
+        const { data, error } = await sbClient.auth.resetPasswordForEmail(email, {
+        if (error) {
+        } else {
+    async function handleSignup() {
+        if (!turnstileResponse) {
+        const verifyResult = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+        if (!verifyData.success) {
+        if (result.error) {
+        } else {
+    const App = {
+        resumeData: {
+            personal: { fullName: '', email: '', phone: '', location: '', linkedin: '' },
+        jobTarget: {
+        jobMatch: {
+            skillMatch: { matched: [], missing: [], score: 0 },
+            keywordCoverage: { present: [], absent: [], score: 0 },
+            experienceMatch: { score: 0, gap: '' },
+            educationMatch: { score: 0 },
+            autoSummary: '', autoBullets: {}, suggestions: []
+    function canAccess(feature) {
+        const gates = {
+    function canCreateResume() {
+function trackAIUsage() {
+    if (!currentUser) {
+    if (App.aiUsageDate !== today) {
+    if (!userProfile || userProfile.plan === 'free') {
+        if (App.aiUsageToday >= App.maxFreeAIUsage) {
+            alert(`⚠️ You've used all ${App.maxFreeAIUsage} free AI suggestions today.\n\nUpgrade to Pro for unlimited AI usage!`);
+function getRemainingAIUsage() {
+    if (App.aiUsageDate !== today) {
+function enforceResumeLimit() {
+    if (userProfile && userProfile.plan === 'free') {
+        if (userProfile.resumes_created >= userProfile.max_resumes) {
+            alert(`⚠️ You've reached your free plan limit of ${userProfile.max_resumes} resume.\n\nUpgrade to Pro for unlimited resumes!`);
+function incrementResumeCount() {
+    function updateState(changes) {
+    function refreshView() {
+        if (viewFn) {
+            setTimeout(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); }, 50);
+        document.querySelectorAll('#navbar button[role="menuitem"]').forEach(btn => {
+        (App.currentView === 'dashboard' && btn.textContent.trim() === 'Dashboard')) {
+    function saveToStorage() {
+        try {
+            const data = { resumeData: App.resumeData, jobTarget: App.jobTarget, jobMatch: App.jobMatch, selectedTemplate: App.selectedTemplate, aiUsageToday: App.aiUsageToday,
+        } catch (e) {}
+    function loadFromStorage() {
+        try {
+            if (raw) {
+        } catch (e) {}
+    function parseAndMatch() {
+        if (jd.length < 30) { alert('Please paste a complete job description (at least 30 characters).'); return; }
+        const jt = { ...App.jobTarget, parsed: true };
+        skillMap.forEach(skill => {
+            const regex = new RegExp('\\b' + skill.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '\\b', 'gi');
+            if (matches) {
+        const bullets = jd.match(/[•\-\*\d+\.]\s*(.{25,}?)(?=[•\-\*\d+\.\n]|$)/g);
+        updateState({ jobTarget: jt });
+        const match = { skillMatch: { matched: [], missing: [], score: 0 }, keywordCoverage: { present: [], absent: [], score: 0 }, experienceMatch: { score: 0, gap: '' }, educationMatch: { score: 0 }, overallScore: 0, autoSummary: '', autoBullets: {}, suggestions: [] };
+        allItems.forEach(item => {
+        allKW.forEach(kw => { if (candidateText.includes(kw.toLowerCase())) match.keywordCoverage.present.push(kw); else match.keywordCoverage.absent.push(kw); });
+        let totalYears = 0; rd.experience.forEach(exp => { const yrs = (exp.dates||'').match(/(\d{4})/g); if (yrs && yrs.length>=2) totalYears += Math.max(0,parseInt(yrs[1])-parseInt(yrs[0])); });
+        match.experienceMatch.gap = totalYears>0?`${totalYears}+ years`:'No experience listed';
+        const levels={phd:4,masters:3,bachelors:2}; const reqLvl=levels[jt.educationLevel?.toLowerCase()]||0;
+        Object.entries(levels).forEach(([k,v])=>{if(eduText.includes(k))maxLvl=Math.max(maxLvl,v);});
+        if(rd.personal.fullName&&jt.title){match.autoSummary=`Results-driven ${jt.title} with ${totalYears}+ years experience in ${match.skillMatch.matched.slice(0,3).join(', ')||'delivering outcomes'}.`;}
+        rd.experience.forEach((exp,i)=>{const skill=match.skillMatch.matched[i%Math.max(1,match.skillMatch.matched.length)];if(skill&&!(exp.bullets||'').toLowerCase().includes(skill.toLowerCase()))match.autoBullets[i]=`• Applied ${skill} to ${(jt.keyResponsibilities[i%Math.max(1,jt.keyResponsibilities.length)]||'key outcomes').toLowerCase()}, achieving measurable impact`;});
+        if(match.skillMatch.missing.length>0)match.suggestions.push(`⚠️ Missing ${match.skillMatch.missing.length} skills: ${match.skillMatch.missing.slice(0,6).join(', ')}`);
+        if(match.keywordCoverage.absent.length>0)match.suggestions.push(`🔑 Add keywords: ${match.keywordCoverage.absent.slice(0,5).join(', ')}`);
+        updateState({ jobMatch: match });
+    function getATSScore(){const rd=App.resumeData;const s={contact:rd.personal.fullName&&rd.personal.email?95:rd.personal.fullName?60:20,summary:rd.summary?rd.summary.length>80?90:65:10,exp:rd.experience.length>=2?90:rd.experience.length===1?60:15,edu:rd.education.length>0?85:20,skills:rd.skills.length>=8?90:rd.skills.length>=5?70:rd.skills.length>0?45:10};return{total:Math.round(Object.values(s).reduce((a,b)=>a+b,0)/5),breakdown:s};}
+    function getCompositeScore(){const ats=getATSScore().total;const jm=App.jobMatch.overallScore||0;return jm>0?Math.round(ats*0.4+jm*0.6):ats;}
+    function updatePersonal(f,v){const rd={...App.resumeData};rd.personal={...rd.personal,[f]:v};updateState({resumeData:rd});}
+    function updateField(f,v){const rd={...App.resumeData};rd[f]=v;updateState({resumeData:rd});}
+    function addItem(key,tpl){if (key === 'experience' && !enforceResumeLimit()) return; const rd={...App.resumeData};if(!rd[key])rd[key]=[];rd[key].push({...tpl});updateState({resumeData:rd});}
+    function removeItem(key,i){const rd={...App.resumeData};if(rd[key])rd[key].splice(i,1);updateState({resumeData:rd});}
+    function updateArrayItem(key,i,f,v){const rd={...App.resumeData};if(rd[key]&&rd[key][i])rd[key][i][f]=v;updateState({resumeData:rd});}
+function triggerLinkedInUpload() {
+function triggerResumeUpload() {
+async function handleLinkedInFileUpload(event) {
+    try {
+        if (file.name.endsWith('.zip')) {
+        } else if (file.name.endsWith('.pdf')) {
+        } else if (file.name.endsWith('.docx')) {
+    } catch (e) {
+async function handleResumeFileUpload(event) {
+    try {
+        if (file.name.endsWith('.pdf')) {
+        } else if (file.name.endsWith('.docx')) {
+    } catch (e) {
+async function extractPDFText(file) {
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    for (let i = 1; i <= pdf.numPages; i++) {
+async function extractDOCXText(file) {
+    const result = await mammoth.extractRawText({ arrayBuffer });
+function parseLinkedInExportText(text) {
+    const result = { experience: [], education: [], skills: [] };
+    for (let i = 0; i < Math.min(20, lines.length); i++) {
+            !lines[i].includes('LinkedIn') && !lines[i].includes('Page') && !lines[i].includes('©')) {
+            result.personal = { fullName: lines[i] };
+    if (nameIdx >= 0 && lines[nameIdx + 1]) {
+    const dateRegex = /((Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4}|(19|20)\d{2})\s*[-–to]+\s*((Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4}|(19|20)\d{2}|Present|Current)/i;
+    for (let i = 2; i < lines.length - 1; i++) {
+        if (dateRegex.test(lines[i])) {
+            result.experience.push({
+    for (let i = 0; i < lines.length; i++) {
+        if (/(University|College|Institute|School|Academy)/i.test(lines[i]) && lines[i].length < 80) {
+            result.education.push({
+                year: (lines[i + 1] && /\d{4}/.test(lines[i + 1])) ? lines[i + 1] : ''
+    skillKeywords.forEach(kw => {
+        if (text.toLowerCase().includes(kw.toLowerCase())) {
+function parseResumeText(text) {
+    const result = { experience: [], education: [], skills: [] };
+    if (lines.length > 0) result.personal = { fullName: lines[0] };
+    if (emailMatch) {
+        if (!result.personal) result.personal = {};
+    const phoneMatch = text.match(/(\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
+    if (phoneMatch) {
+        if (!result.personal) result.personal = {};
+    if (summaryIdx >= 0 && lines[summaryIdx + 1]) {
+    const dateRegex = /((Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4}|(19|20)\d{2})\s*[-–to]+\s*((Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4}|(19|20)\d{2}|Present|Current)/i;
+    for (let i = 2; i < lines.length - 1; i++) {
+        if (dateRegex.test(lines[i])) {
+            result.experience.push({
+    for (let i = 0; i < lines.length; i++) {
+        if (/(University|College|Institute|School|Academy|Bachelor|Master|PhD|B\.S\.|M\.S\.|MBA)/i.test(lines[i]) && lines[i].length < 80) {
+            result.education.push({
+                year: (lines[i + 1] && /\d{4}/.test(lines[i + 1])) ? lines[i + 1] : ''
+    skillKeywords.forEach(kw => {
+        if (text.toLowerCase().includes(kw.toLowerCase())) {
+    function addSkill(s){const t=s.trim();if(!t)return;const rd={...App.resumeData};if(!rd.skills.includes(t)){rd.skills.push(t);updateState({resumeData:rd});}}
+    function removeSkill(i){const rd={...App.resumeData};rd.skills.splice(i,1);updateState({resumeData:rd});}
+    function updateJobTarget(f,v){const jt={...App.jobTarget,[f]:v};updateState({jobTarget:jt});}
+    function applyAllSuggestions(){if (!trackAIUsage()) return; const rd={...App.resumeData};if(App.jobMatch.autoSummary)rd.summary=App.jobMatch.autoSummary;Object.entries(App.jobMatch.autoBullets).forEach(([i,b])=>{const idx=parseInt(i);if(rd.experience[idx]){const ex=rd.experience[idx].bullets||'';rd.experience[idx].bullets=ex?ex+'\n'+b:b;}});[...App.jobMatch.skillMatch.missing,...App.jobMatch.keywordCoverage.absent].forEach(item=>{if(!rd.skills.includes(item))rd.skills.push(item);});updateState({resumeData:rd});parseAndMatch();alert('✅ All suggestions applied! Your resume is now optimized for the target job.');}
+    function renderResumePreview(){const rd=App.resumeData;const hasContent=rd.personal.fullName||rd.experience.length>0||rd.education.length>0||rd.skills.length>0;if(!hasContent)return`<div class="flex flex-col items-center justify-center h-64 text-gray-800"><i data-lucide="file-text" class="w-16 h-16 mb-4 text-gray-800"></i><p class="text-base font-medium">Your resume preview appears here</p><p class="text-sm mt-1">Fill in your details to see a live preview</p></div>`;const accent='#2563eb';let h=`<div style="border-bottom:3px solid ${accent};padding-bottom:10px;margin-bottom:16px;"><h1>${rd.personal.fullName||'Your Name'}</h1><div style="font-size:10px;color:#64748b;display:flex;flex-wrap:wrap;gap:10px;margin-top:6px;">${rd.personal.email?`<span>📧 ${rd.personal.email}</span>`:''}${rd.personal.phone?`<span>📱 ${rd.personal.phone}</span>`:''}${rd.personal.location?`<span>📍 ${rd.personal.location}</span>`:''}</div></div>`;if(rd.summary)h+=`<div class="section"><h2 style="color:${accent};">Professional Summary</h2><p>${rd.summary}</p></div>`;if(rd.experience.length>0){h+=`<div class="section"><h2 style="color:${accent};">Experience</h2>`;rd.experience.forEach(exp=>{h+=`<div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;"><h3>${exp.title||'Title'}${exp.company?` — ${exp.company}`:''}</h3><span style="font-size:10px;color:#94a3b8;">${exp.dates||''}</span></div>${exp.bullets?`<ul>${exp.bullets.split('\n').filter(b=>b.trim()).map(b=>`<li>${b.replace(/^[•\-]\s*/,'')}</li>`).join('')}</ul>`:''}</div>`;});h+=`</div>`;}if(rd.education.length>0){h+=`<div class="section"><h2 style="color:${accent};">Education</h2>`;rd.education.forEach(edu=>{h+=`<div style="margin-bottom:6px;"><h3>${edu.degree||'Degree'}</h3><p>${[edu.school,edu.year].filter(Boolean).join(' • ')}</p></div>`;});h+=`</div>`;}if(rd.skills.length>0)h+=`<div class="section"><h2 style="color:${accent};">Skills</h2><p>${rd.skills.join(' • ')}</p></div>`;return h;}
+    const Views={};
+    Views.dashboard=function(){const composite=getCompositeScore();const ats=getATSScore();const jt=App.jobTarget;const match=App.jobMatch;const rd=App.resumeData;return`
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3 mb-6">${[
+    {label:'Composite Score',value:composite+'%',color:composite>=75?'green':composite>=50?'amber':'red'},
+    {label:'ATS Quality',value:ats.total+'%',color:'blue'},
+    {label:'Job Match',value:(match.overallScore||'--')+'%',color:'purple'},
+    {label:'Skills',value:rd.skills.length,color:'amber'},
+    {label:'AI Uses Today',value:getRemainingAIUsage(),color:'indigo'},
+    {label:'Resumes',value:`${App.resumesCreated}/${App.maxResumes === 999999 ? '∞' : App.maxResumes}`,color:'pink'},
+].map(s=>`<div class="bg-white rounded-xl p-4 border border-gray-200 shadow-sm text-center"><div class="text-2xl sm:text-3xl font-extrabold text-${s.color}-600">${s.value}</div><div class="text-xs text-gray-500 mt-1">${s.label}</div></div>`).join('')}</div>
+                <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm"><h3 class="font-bold text-gray-900 mb-3 flex items-center gap-2"><i data-lucide="target" class="w-5 h-5 text-purple-600"></i> Target a Job</h3><input type="text" value="${jt.title}" onchange="updateJobTarget('title',this.value)" placeholder="Job Title" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm mb-2"><input type="text" value="${jt.company}" onchange="updateJobTarget('company',this.value)" placeholder="Company (optional)" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm mb-2"><textarea rows="5" onchange="updateJobTarget('description',this.value)" placeholder="Paste the full job description here..." class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm resize-none mb-3">${jt.description}</textarea><button onclick="parseAndMatch()" class="w-full py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-bold text-sm flex items-center justify-center gap-1.5"><i data-lucide="search" class="w-4 h-4"></i> Analyze & Match</button>${jt.parsed?`<button onclick="applyAllSuggestions()" class="w-full mt-2 py-2.5 bg-success text-white rounded-lg hover:bg-green-600 transition font-semibold text-sm flex items-center justify-center gap-1.5"><i data-lucide="check-circle" class="w-4 h-4"></i> Apply All Suggestions</button>`:''}</div>
+                ${jt.parsed?`<div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm"><h3 class="font-bold text-gray-900 mb-3">Job Requirements</h3><div class="space-y-1.5 text-xs">${jt.requiredSkills.length>0?`<p><span class="font-semibold text-danger">Skills:</span> ${jt.requiredSkills.join(', ')}</p>`:''}${jt.keywords.length>0?`<p class="mt-2"><span class="font-semibold text-brand-600">Keywords:</span> ${jt.keywords.slice(0,12).join(', ')}</p>`:''}${jt.requiredExperience>0?`<p class="mt-2"><span class="font-semibold">Experience:</span> ${jt.requiredExperience}+ years</p>`:''}${jt.educationLevel?`<p class="mt-2"><span class="font-semibold">Education:</span> ${jt.educationLevel}</p>`:''}</div></div>`:''}
+                ${match.suggestions.length>0?`<div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm"><h3 class="font-bold text-gray-900 mb-3 flex items-center gap-2"><i data-lucide="lightbulb" class="w-4 h-4 text-amber-500"></i> Suggestions</h3>${match.suggestions.map(s=>`<p class="text-xs text-gray-800 bg-amber-50 p-2.5 rounded-lg mb-2">${s}</p>`).join('')}</div>`:''}
+            <div class="lg:col-span-2"><div class="bg-white rounded-xl shadow-lg border border-gray-200 p-3 sm:p-5 lg:p-8 min-h-[400px] sm:min-h-[500px] overflow-x-auto"><div id="resume-preview-area" class="resume-preview">${renderResumePreview()}</div></div></div>
+    Views.builder=function(){const rd=App.resumeData;return`
+                <div class="bg-white rounded-xl p-4 border shadow-sm"><h3 class="font-bold text-sm mb-3"><i data-lucide="user" class="w-4 h-4 text-brand-600 inline mr-1"></i> Personal Info</h3><div class="grid grid-cols-2 gap-2"><div class="col-span-2"><input value="${rd.personal.fullName}" onchange="updatePersonal('fullName',this.value)" placeholder="${rd.personal.fullName ? 'Full Name ✅' : '⚠️ Full Name — Required'}" class="w-full px-3 py-2.5 border rounded-lg text-sm"></div><div><input value="${rd.personal.email}" onchange="updatePersonal('email',this.value)" placeholder="${rd.personal.email ? 'Email ✅' : '⚠️ Email — Required'}" class="w-full px-3 py-2.5 border rounded-lg text-sm"></div><div><input value="${rd.personal.phone}" onchange="updatePersonal('phone',this.value)" placeholder="${rd.personal.phone ? 'Phone ✅' : '⚠️ Phone — Recommended'}" class="w-full px-3 py-2.5 border rounded-lg text-sm"></div><div class="col-span-2"><input value="${rd.personal.location}" onchange="updatePersonal('location',this.value)" placeholder="Location" class="w-full px-3 py-2.5 border rounded-lg text-sm"></div></div></div>
+                <div class="bg-white rounded-xl p-4 border shadow-sm"><h3 class="font-bold text-sm mb-2"><i data-lucide="file-text" class="w-4 h-4 text-brand-600 inline mr-1"></i> Summary</h3><textarea rows="3" onchange="updateField('summary',this.value)" class="w-full px-3 py-2.5 border rounded-lg text-sm resize-none">${rd.summary}</textarea></div>
+                <div class="bg-white rounded-xl p-4 border shadow-sm"><div class="flex justify-between mb-2"><h3 class="font-bold text-sm"><i data-lucide="briefcase" class="w-4 h-4 text-brand-600 inline mr-1"></i> Experience</h3><button onclick="addItem('experience',{title:'',company:'',dates:'',bullets:''});navigate('builder')" class="text-xs bg-brand-100 text-brand-700 px-3 py-1.5 rounded-lg font-semibold">+ Add</button></div>${rd.experience.length===0?'<p class="text-sm text-gray-800 text-center py-4">No experience added yet.</p>':''}${rd.experience.map((exp,i)=>`<div class="bg-gray-50 rounded-lg p-3 border mb-2"><div class="flex justify-between"><input value="${exp.title}" onchange="updateArrayItem('experience',${i},'title',this.value)" placeholder="Job Title" class="font-semibold text-sm bg-transparent border-none outline-none flex-1"><button onclick="removeItem('experience',${i});navigate('builder')" class="text-danger"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div><div class="grid grid-cols-2 gap-1.5 my-1.5"><input value="${exp.company}" onchange="updateArrayItem('experience',${i},'company',this.value)" placeholder="Company" class="text-xs px-2 py-1 border rounded bg-white"><input value="${exp.dates}" onchange="updateArrayItem('experience',${i},'dates',this.value)" placeholder="Dates" class="text-xs px-2 py-1 border rounded bg-white"></div><textarea rows="2" onchange="updateArrayItem('experience',${i},'bullets',this.value)" placeholder="• Achievement..." class="w-full text-xs px-2 py-1 border rounded bg-white resize-none">${exp.bullets||''}</textarea></div>`).join('')}</div>
+                <div class="bg-white rounded-xl p-4 border shadow-sm"><div class="flex justify-between mb-2"><h3 class="font-bold text-sm"><i data-lucide="graduation-cap" class="w-4 h-4 text-brand-600 inline mr-1"></i> Education</h3><button onclick="addItem('education',{degree:'',school:'',year:''});navigate('builder')" class="text-xs bg-brand-100 text-brand-700 px-3 py-1.5 rounded-lg font-semibold">+ Add</button></div>${rd.education.length===0?'<p class="text-sm text-gray-800 text-center py-4">No education added yet.</p>':''}${rd.education.map((edu,i)=>`<div class="bg-gray-50 rounded-lg p-3 border mb-2"><div class="flex justify-between"><input value="${edu.degree}" onchange="updateArrayItem('education',${i},'degree',this.value)" placeholder="Degree" class="font-semibold text-sm bg-transparent border-none outline-none flex-1"><button onclick="removeItem('education',${i});navigate('builder')" class="text-danger"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div><input value="${edu.school}" onchange="updateArrayItem('education',${i},'school',this.value)" placeholder="School" class="text-xs px-2 py-1 border rounded bg-white w-full mt-1"><input value="${edu.year}" onchange="updateArrayItem('education',${i},'year',this.value)" placeholder="Year" class="text-xs px-2 py-1 border rounded bg-white w-full mt-1"></div>`).join('')}</div>
+                <div class="bg-white rounded-xl p-4 border shadow-sm"><h3 class="font-bold text-sm mb-2"><i data-lucide="zap" class="w-4 h-4 text-brand-600 inline mr-1"></i> Skills</h3><div class="flex flex-wrap gap-1.5 mb-2">${rd.skills.length===0?'<span class="text-xs text-gray-800">No skills added yet</span>':rd.skills.map((s,i)=>`<span class="bg-brand-50 text-brand-700 px-2.5 py-1 rounded-full text-xs flex items-center gap-1">${s}<button onclick="removeSkill(${i});navigate('builder')" class="hover:text-danger">×</button></span>`).join('')}</div><input type="text" placeholder="Add skill + Enter" class="w-full px-3 py-2.5 border rounded-lg text-sm" onkeydown="if(event.key==='Enter'){addSkill(this.value);this.value='';navigate('builder')}"></div>
+            <div class="lg:col-span-3"><div class="lg:sticky lg:top-20"><div class="bg-white rounded-xl shadow-lg border p-5 sm:p-8 min-h-[600px]"><div id="resume-preview-area" class="resume-preview">${renderResumePreview()}</div></div></div></div>
+    Views.templates=function(){const tpls=['Modern','Classic','Creative','Executive','Professional','Minimalist','Academic','Europass'];const cols=['from-blue-500 to-blue-700','from-gray-600 to-gray-800','from-rose-400 to-orange-500','from-amber-500 to-amber-700','from-slate-600 to-slate-800','from-gray-400 to-gray-600','from-indigo-600 to-indigo-800','from-blue-500 to-purple-600'];return`<div class="max-w-5xl mx-auto px-4 py-8 animate-fade-in"><div class="text-center mb-8"><h1 class="text-2xl sm:text-3xl font-heading font-extrabold mb-2">Resume Templates</h1><p class="text-gray-800">All ATS-friendly and professionally designed.</p></div><div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">${tpls.map((t,i)=>`<div onclick="updateState({selectedTemplate:'${t.toLowerCase()}'});navigate('builder')" class="cursor-pointer bg-white rounded-xl border p-5 hover:shadow-xl hover:border-brand-300 transition text-center group"><div class="h-20 bg-gradient-to-br ${cols[i]} rounded-lg mb-3 flex items-center justify-center"><div class="bg-white/90 rounded p-2 w-16 h-12 shadow-sm"><div class="h-1.5 w-10 bg-gray-300 rounded mb-1"></div><div class="h-1 w-8 bg-gray-200 rounded mb-1.5"></div><div class="h-1 w-10 bg-gray-200 rounded"></div></div></div><h3 class="font-bold text-sm group-hover:text-brand-600 transition">${t}</h3></div>`).join('')}</div></div>`;};
+    Views.pricing = function() {
+    const currencies = {
+        USD: { symbol: '$', free: '0', pro: '14.99', annual: '99', annualMonthly: '8.25', lifetime: '149' },
+        INR: { symbol: '₹', free: '0', pro: '499', annual: '3,999', annualMonthly: '333', lifetime: '9,999' },
+        EUR: { symbol: '€', free: '0', pro: '13.99', annual: '89', annualMonthly: '7.42', lifetime: '139' },
+        GBP: { symbol: '£', free: '0', pro: '11.99', annual: '79', annualMonthly: '6.58', lifetime: '119' },
+        {
+                { text: '1 Resume', highlight: false },
+                { text: '3 Basic Templates', highlight: false },
+                { text: '5 AI Suggestions/day', highlight: false },
+                { text: 'Basic ATS Check', highlight: false },
+                { text: 'PDF Export', highlight: false },
+        {
+                { text: '✅ All Free Features Included', highlight: true },
+                { text: 'Unlimited Resumes', highlight: false },
+                { text: 'All 8 Premium Templates', highlight: false },
+                { text: 'Unlimited AI Usage', highlight: false },
+                { text: 'AI Job Targeting Engine', highlight: true },
+                { text: 'Full 11-Point ATS Analysis', highlight: true },
+                { text: 'DOCX Export', highlight: true },
+                { text: 'AI Cover Letter Generator', highlight: true },
+                { text: 'Resume Analytics Dashboard', highlight: true },
+                { text: 'Standard Email Support', highlight: false },
+        {
+            subtext: `${c.symbol}${c.annualMonthly}/mo billed annually`,
+                { text: '✅ All Free + Pro Features Included', highlight: true },
+                { text: 'Save 45% vs Monthly Billing', highlight: true },
+                { text: 'All Future Feature Updates', highlight: true },
+                { text: 'Priority Customer Support', highlight: true },
+                { text: 'Early Access to Beta Features', highlight: false },
+                { text: 'Annual Resume Review', highlight: false },
+        {
+                { text: '✅ All Features from Every Plan', highlight: true },
+                { text: 'Pay Once — Use Forever', highlight: true },
+                { text: 'Never Pay Again', highlight: true },
+                { text: 'VIP Dedicated Support', highlight: true },
+                { text: 'First Access to ALL New Features', highlight: true },
+                { text: 'Custom Template Requests', highlight: false },
+                { text: 'Personalized Onboarding Call', highlight: false },
+                { text: 'Lifetime Badge on Profile', highlight: false },
+                ${Object.keys(currencies).map(key => `
+                    <button onclick="App.currency='${key}';navigate('pricing')" 
+                        class="px-4 py-2 rounded-lg text-sm font-bold transition ${currency === key ? 'bg-brand-600 text-white shadow-md' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}">
+                        ${key === 'USD' ? '🇺🇸 $ USD' : key === 'INR' ? '🇮🇳 ₹ INR' : key === 'EUR' ? '🇪🇺 € EUR' : '🇬🇧 £ GBP'}
+    plans.forEach(p => {
+        html += `<div class="bg-white rounded-2xl p-6 border-2 ${p.borderColor} ${p.popular ? 'relative lg:scale-105 shadow-xl' : 'shadow-sm'}">
+            ${p.badge ? `<div class="absolute -top-3.5 left-1/2 -translate-x-1/2 ${p.popular ? 'bg-brand-600' : p.badge === 'Best Value' ? 'bg-accent-600' : p.badge === 'Ultimate' ? 'bg-gray-900' : 'bg-gray-500'} text-white px-4 py-1 rounded-full text-xs font-bold whitespace-nowrap">${p.badge}</div>` : ''}
+                <h3 class="text-xl font-bold">${p.name}</h3>
+                    <span class="text-3xl font-extrabold">${c.symbol}${p.price}</span>
+                    <span class="text-gray-500 text-sm">${p.period}</span>
+                ${p.subtext ? `<p class="text-xs text-green-600 font-semibold">${p.subtext}</p>` : ''}
+                <p class="text-xs text-gray-500 mt-1">${p.description}</p>
+            ${p.includes ? `<div class="bg-green-50 text-green-700 text-xs font-bold text-center py-1.5 rounded-lg mb-3">📦 ${p.includes}</div>` : ''}
+                ${p.features.map(f => `<li class="flex items-start gap-2 text-sm ${f.highlight ? 'text-brand-700 font-semibold' : 'text-gray-700'}">
+                    <span class="${f.highlight ? 'text-brand-600' : 'text-success'} font-bold flex-shrink-0">${f.highlight ? '⭐' : '✓'}</span> ${f.text}
+            <button onclick="${p.action === 'signup' ? "navigate('signup')" : `initiateRazorpayPayment('${p.action}')`}" 
+                class="w-full py-3.5 rounded-xl font-extrabold text-sm transition shadow-md ${p.btnClass}">
+                ${p.action !== 'signup' ? '💳 ' : ''}${p.cta}
+    Views.signup=function(){return`<div class="min-h-[70vh] flex items-center justify-center px-4 animate-fade-in"><div class="bg-white rounded-2xl p-8 w-full max-w-md shadow-xl border"><div class="text-center mb-6"><div class="w-14 h-14 bg-gradient-to-br from-brand-500 to-accent-500 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-md"><i data-lucide="user-plus" class="w-7 h-7 text-white"></i></div><h2 class="text-2xl font-heading font-extrabold">Create Free Account</h2><p class="text-sm text-gray-800 mt-1">Start building professional resumes</p></div><div class="space-y-3"><input type="text" id="signup-name" placeholder="Full Name" class="w-full px-4 py-3 border rounded-xl text-sm">
+<input type="password" id="signup-password" placeholder="Password" class="w-full px-4 py-3 border rounded-xl text-sm"><div class="cf-turnstile mb-3" data-sitekey="${TURNSTILE_SITE_KEY}"></div><button onclick="handleSignup()" class="w-full py-4 bg-blue-700 text-white font-black rounded-xl hover:bg-blue-800 text-lg shadow-lg">Create Free Account</button><button onclick="signInWithGoogle()" class="w-full py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition font-semibold text-sm flex items-center justify-center gap-2 mt-3">
+    Views['forgot-password'] = function() {
+    Views.login=function(){return`<div class="min-h-[70vh] flex items-center justify-center px-4 animate-fade-in"><div class="bg-white rounded-2xl p-8 w-full max-w-md shadow-xl border"><div class="text-center mb-6"><div class="w-14 h-14 bg-gradient-to-br from-brand-500 to-accent-500 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-md"><i data-lucide="log-in" class="w-7 h-7 text-white"></i></div><h2 class="text-2xl font-heading font-extrabold">Welcome Back</h2></div><div class="space-y-3"><input type="email" placeholder="Email" class="w-full px-4 py-3 border rounded-xl text-sm"><input type="password" placeholder="Password" class="w-full px-4 py-3 border rounded-xl text-sm"><button onclick="navigate('dashboard')" class="w-full py-3 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition font-bold shadow-md">Log In</button><button onclick="signInWithGoogle()" class="w-full py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition font-semibold text-sm flex items-center justify-center gap-2 mt-3"><svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Continue with Google</button></div><p class="text-center text-sm text-gray-800 mt-5">No account? <button onclick="navigate('signup')" class="px-4 py-2.5 bg-brand-600 text-white font-extrabold rounded-lg hover:bg-brand-700 transition text-sm shadow-md">✨ Sign Up Free</button><button onclick="importLinkedInProfile()" class="px-3 sm:px-4 py-2 bg-blue-700 text-white font-bold rounded-lg hover:bg-blue-800 transition text-xs sm:text-sm shadow-md flex items-center gap-1.5">
+    function navigate(view){if(!Views[view])view='dashboard';updateState({currentView:view});window.location.hash=view;window.scrollTo({top:0,behavior:'smooth'});}
+    function toggleMobileNav(){document.getElementById('mobile-nav').classList.toggle('hidden');}
+    function closeMobileNav(){document.getElementById('mobile-nav').classList.add('hidden');}
+    Views['terms'] = function() {
+    Views['privacy'] = function() {
+Views['cover-letter'] = function() {
+if (!currentUser) {
+    Views['analytics'] = function() {
+    if (!currentUser) {
+                    <div class="text-3xl font-extrabold text-brand-600">${App.resumeData.experience.length}</div>
+                    <div class="text-3xl font-extrabold text-purple-600">${App.resumeData.skills.length}</div>
+                    <div class="text-3xl font-extrabold text-green-600">${score}%</div>
+                    <div class="text-3xl font-extrabold text-amber-600">${ats.total}%</div>
+function generateCoverLetter() {
+I am writing to express my strong interest in the ${jobTitle} position at ${company}. With my background and experience, I am confident in my ability to contribute to your team's success.
+${yourInfo ? `Based on my experience, ${yourInfo.toLowerCase()}` : 'Throughout my career, I have developed a strong foundation in delivering results and driving team success.'}
+${jobDesc ? `I was particularly drawn to this role because it aligns perfectly with my expertise. The job description emphasizes key areas where I have demonstrated success, and I am excited about the opportunity to bring my skills to ${company}.` : ''}
+I am impressed by ${company}'s reputation and would welcome the opportunity to discuss how my skills and experience can contribute to your continued success.
+${name}`;
+function copyCoverLetter() {
+async function exportDOCX() {
+    if (!currentUser) {
+    if (!rd.personal.fullName && rd.experience.length === 0 && rd.education.length === 0) {
+    try {
+        const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, BorderStyle, convertInchesToTwip } = window.docx;
+        const templateColors = {
+        const hexToRgb = (hex) => {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : { r: 37, g: 99, b: 235 };
+        if (rd.personal.fullName) {
+                new Paragraph({
+                    children: [new TextRun({ text: rd.personal.fullName, bold: true, size: 36, font: 'Georgia' })],
+                    spacing: { after: 40 },
+        if (rd.personal.email) contactParts.push(`📧 ${rd.personal.email}`);
+        if (rd.personal.phone) contactParts.push(`📱 ${rd.personal.phone}`);
+        if (rd.personal.location) contactParts.push(`📍 ${rd.personal.location}`);
+        if (rd.personal.linkedin) contactParts.push(`🔗 ${rd.personal.linkedin}`);
+        if (contactParts.length > 0) {
+                new Paragraph({
+                    children: [new TextRun({ text: contactParts.join('  |  '), size: 18, color: '64748b', font: 'Georgia' })],
+                    spacing: { after: 60 },
+                    border: {
+                        bottom: { color: accentColor.replace('#', ''), size: 3, style: BorderStyle.SINGLE, space: 8 },
+        if (rd.summary) {
+                new Paragraph({
+                    children: [new TextRun({ text: 'PROFESSIONAL SUMMARY', bold: true, size: 22, color: accentColor.replace('#', ''), font: 'Georgia' })],
+                    spacing: { after: 20 },
+                    border: {
+                        bottom: { color: accentColor.replace('#', ''), size: 2, style: BorderStyle.SINGLE, space: 4 },
+                new Paragraph({
+                    children: [new TextRun({ text: rd.summary, size: 20, font: 'Georgia' })],
+                    spacing: { after: 40 },
+        if (rd.experience.length > 0) {
+                new Paragraph({
+                    children: [new TextRun({ text: 'PROFESSIONAL EXPERIENCE', bold: true, size: 22, color: accentColor.replace('#', ''), font: 'Georgia' })],
+                    spacing: { after: 20 },
+                    border: {
+                        bottom: { color: accentColor.replace('#', ''), size: 2, style: BorderStyle.SINGLE, space: 4 },
+            rd.experience.forEach(exp => {
+                    new Paragraph({
+                            new TextRun({ text: titleLine.join(' — '), bold: true, size: 22, font: 'Georgia' }),
+                            exp.dates ? new TextRun({ text: `  (${exp.dates})`, size: 18, color: '94a3b8', font: 'Georgia' }) : null,
+                        spacing: { after: 12 },
+                if (exp.bullets) {
+                    bulletLines.forEach(bullet => {
+                        if (cleanBullet) {
+                                new Paragraph({
+                                    children: [new TextRun({ text: `• ${cleanBullet}`, size: 20, font: 'Georgia' })],
+                                    spacing: { after: 8 },
+                                    indent: { left: convertInchesToTwip(0.3) },
+                children.push(new Paragraph({ children: [new TextRun({ text: '', size: 12 })], spacing: { after: 20 } }));
+        if (rd.education.length > 0) {
+                new Paragraph({
+                    children: [new TextRun({ text: 'EDUCATION', bold: true, size: 22, color: accentColor.replace('#', ''), font: 'Georgia' })],
+                    spacing: { after: 20 },
+                    border: {
+                        bottom: { color: accentColor.replace('#', ''), size: 2, style: BorderStyle.SINGLE, space: 4 },
+            rd.education.forEach(edu => {
+                    new Paragraph({
+                            new TextRun({ text: edu.degree || 'Degree', bold: true, size: 20, font: 'Georgia' }),
+                            eduDetails ? new TextRun({ text: ` — ${eduDetails}`, size: 20, font: 'Georgia' }) : null,
+                        spacing: { after: 12 },
+            children.push(new Paragraph({ children: [new TextRun({ text: '', size: 12 })], spacing: { after: 20 } }));
+        if (rd.skills.length > 0) {
+                new Paragraph({
+                    children: [new TextRun({ text: 'SKILLS & EXPERTISE', bold: true, size: 22, color: accentColor.replace('#', ''), font: 'Georgia' })],
+                    spacing: { after: 20 },
+                    border: {
+                        bottom: { color: accentColor.replace('#', ''), size: 2, style: BorderStyle.SINGLE, space: 4 },
+                new Paragraph({
+                    children: [new TextRun({ text: rd.skills.join(' • '), size: 20, font: 'Georgia' })],
+                    spacing: { after: 40 },
+        const doc = new Document({
+            sections: [{
+                properties: {
+                    page: {
+                        margin: { top: convertInchesToTwip(1), bottom: convertInchesToTwip(1), left: convertInchesToTwip(1), right: convertInchesToTwip(1) },
+        link.download = `${(rd.personal.fullName || 'resume').toLowerCase().replace(/\s+/g, '-')}.docx`;
+    } catch (e) {
+    async function exportPDF(){const preview=document.getElementById('resume-preview-area');if(!preview){alert('No resume to export. Fill in your details first.');return;}try{const [jsPDFModule,html2canvasModule]=await Promise.all([import('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'),import('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js')]);const canvas=await html2canvas(preview,{scale:2,backgroundColor:'#ffffff',logging:false});const {jsPDF}=window.jspdf;const pdf=new jsPDF('p','mm','letter');const w=pdf.internal.pageSize.getWidth();const h=(canvas.height*w)/canvas.width;pdf.addImage(canvas.toDataURL('image/png',1.0),'PNG',0,0,w,h);pdf.save(`${(App.resumeData.personal.fullName||'resume').toLowerCase().replace(/\s+/g,'-')}-job-ready.pdf`);}catch(e){alert('PDF export failed. Please try browser print (Ctrl+P).');}}
+function initiatePayPalPayment(plan) {
+        const prices = { pro: '14.99', yearly: '99.00', lifetime: '149.00' };
+        const names = { pro: 'Pro Monthly Plan', yearly: 'Pro Annual Plan', lifetime: 'Lifetime Plan' };
+        container.innerHTML = `<h3 style="margin-bottom:10px;font-size:18px;font-weight:700;">Pay with PayPal</h3><p style="margin-bottom:5px;color:#64748b;">${planName}</p><p style="margin-bottom:20px;font-size:24px;font-weight:800;color:#2563eb;">$${price} USD</p><div id="paypal-btn-${plan}"></div><button onclick="document.getElementById('paypal-overlay').remove()" style="margin-top:12px;background:#e2e8f0;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:600;width:100%;">Cancel</button>`;
+        if (window.paypal_sdk) {
+            window.paypal_sdk.Buttons({
+                createOrder: function(data, actions) {
+                    return actions.order.create({ purchase_units: [{ amount: { value: price, currency_code: 'USD' } }] });
+                onApprove: function(data, actions) {
+                    return actions.order.capture().then(function(details) {
+                onCancel: function() { document.getElementById('paypal-overlay').remove();
+                onError: function(err) { document.getElementById('paypal-overlay').remove();
+    function handlePayPalSuccess(details, plan) {
+        if (currentUser) {
+            activatePlan(plan, paymentId).then(() => {
+        } else {
+function upgradePrompt(feature) {
+        <p class="text-gray-600 mb-6">${feature} is available on Pro, Annual, and Lifetime plans.</p>
+function checkGDPRConsent() {
+    if (!consent) {
+        setTimeout(() => {
+            if (banner) {
+function acceptGDPR() {
+    if (banner) {
+        setTimeout(() => { banner.style.display = 'none'; }, 300);
+function rejectGDPR() {
+    if (banner) {
+        setTimeout(() => { banner.style.display = 'none'; }, 300);
+function getGDPRStatus() {
+    return {
+function showGDPRSettings() {
+    alert(`🍪 Cookie Settings\n\nCurrent Status: ${status.hasConsented ? (status.consent === 'accepted' ? 'All Cookies Accepted' : 'Essential Only') : 'No Choice Made'}\nDate: ${status.date ? new Date(status.date).toLocaleDateString() : 'N/A'}\n\nTo change your preferences, click "Reset" below.`);
+    if (confirm('Reset cookie preferences? The consent banner will reappear.')) {
+function init() {
+    function resetIdleTimer() {
+        idleTimer = setTimeout(() => {
+            if (currentUser) {
+    ['click', 'keypress', 'scroll', 'mousemove'].forEach(event => {
+    if (!hasExtensionData) {
+    window.addEventListener('hashchange', function() {
+    }
+} catch (e) {
+}
+    }
+};
+                        brand: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a' },
+                        accent: { 500: '#8b5cf6', 600: '#7c3aed' },
+                    },
+                },
+            },
+        }
+        *,*::before,*::after{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;padding:0;font-family:'Inter',system-ui,sans-serif;background:#f8fafc;color:#1e293b}::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#f1f5f9}::-webkit-scrollbar-thumb{background:#94a3b8;border-radius:3px}.gradient-text{background:linear-gradient(135deg,#2563eb,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}.glass{background:rgba(255,255,255,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(229,231,235,0.6)}.resume-preview{font-family:'Georgia','Times New Roman',serif;line-height:1.5}.resume-preview h1{font-size:22px;font-weight:bold;color:#1e293b;margin:0 0 4px 0}.resume-preview h2{font-size:15px;font-weight:bold;border-bottom:2px solid #2563eb;padding-bottom:4px;margin:16px 0 8px 0;color:#2563eb;text-transform:uppercase;letter-spacing:0.5px}.resume-preview h3{font-size:13px;font-weight:bold;color:#334155;margin:0 0 2px 0}.resume-preview p{font-size:11.5px;color:#475569;margin:0 0 4px 0}.resume-preview ul{list-style:disc;padding-left:20px;margin:4px 0 8px 0}.resume-preview li{font-size:11.5px;color:#475569;margin-bottom:3px}.resume-preview .section{margin-bottom:12px}.animate-fade-in{animation:fadeIn 0.3s ease-out}@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}@media print{.no-print{display:none!important}body{background:white!important}#resume-preview-area{box-shadow:none!important;border:none!important;padding:0!important}}@media(max-width:640px){.resume-preview h1{font-size:20px}.resume-preview h2{font-size:14px}}
+            },
+            })),
+            })),
+        };
+    },
+        const stats = { sections: 0, fields: 0, empty: [] };
+        if (data.personal.fullName) { App.resumeData.personal.fullName = data.personal.fullName; stats.fields++; } else stats.empty.push('Full Name');
+        if (data.personal.email) { App.resumeData.personal.email = data.personal.email; stats.fields++; } else stats.empty.push('Email');
+        if (data.personal.phone) { App.resumeData.personal.phone = data.personal.phone; stats.fields++; } else stats.empty.push('Phone');
+        if (data.personal.location) { App.resumeData.personal.location = data.personal.location; stats.fields++; } else stats.empty.push('Location');
+        if (data.summary) { App.resumeData.summary = data.summary; stats.fields++; stats.sections++; } else stats.empty.push('Professional Summary');
+        } else stats.empty.push('Work Experience');
+        } else stats.empty.push('Education');
+        } else stats.empty.push('Skills');
+        }
+    },
+    },
+};
+    lines.push(`📥 Import from: ${source}`);
+    lines.push(`✅ ${stats.sections} sections populated`);
+    lines.push(`✅ ${stats.fields} fields imported`);
+        stats.empty.forEach(field => lines.push(`   • ${field}`));
+    }
+}
+    }
+}
+            INR: { amount: 49900, name: 'Pro Monthly Plan', desc: 'Unlimited resumes, AI job targeting, full ATS analysis' },
+            USD: { amount: 1499, name: 'Pro Monthly Plan', desc: 'Unlimited resumes, AI job targeting, full ATS analysis' },
+            EUR: { amount: 1399, name: 'Pro Monthly Plan', desc: 'Unlimited resumes, AI job targeting, full ATS analysis' },
+            GBP: { amount: 1199, name: 'Pro Monthly Plan', desc: 'Unlimited resumes, AI job targeting, full ATS analysis' },
+        },
+            INR: { amount: 999900, name: 'Lifetime Plan', desc: 'Pay once, use forever. All features included.' },
+            USD: { amount: 14900, name: 'Lifetime Plan', desc: 'Pay once, use forever. All features included.' },
+            EUR: { amount: 13900, name: 'Lifetime Plan', desc: 'Pay once, use forever. All features included.' },
+            GBP: { amount: 11900, name: 'Lifetime Plan', desc: 'Pay once, use forever. All features included.' },
+        },
+            INR: { amount: 399900, name: 'Pro Annual Plan', desc: 'All Pro features, save 45% with annual billing' },
+            USD: { amount: 9900, name: 'Pro Annual Plan', desc: 'All Pro features, save 45% with annual billing' },
+            EUR: { amount: 8900, name: 'Pro Annual Plan', desc: 'All Pro features, save 45% with annual billing' },
+            GBP: { amount: 7900, name: 'Pro Annual Plan', desc: 'All Pro features, save 45% with annual billing' },
+        }
+    };
+        },
+        },
+        notes: { plan: plan },
+        theme: { color: '#2563eb' },
+            ondismiss: function() { console.log('Payment modal closed'); },
+        },
+    };
+        });
+    } catch (e) {
+    }
+}
+            headers: { 'Content-Type': 'application/json' },
+            }),
+        });
+            });
+            alert(`✅ Payment Verified!\n\nYour ${plan.toUpperCase()} plan is now active.\nWelcome to ResumeAI Pro!`);
+        } else {
+        }
+    } catch (error) {
+    }
+}
+        const { data: { user } } = await sbClient.auth.getUser();
+        }
+    }
+        const { data } = await sbClient
+    }
+        const { data, error } = await sbClient.auth.signUp({ email, password });
+        if (error) return { error };
+        await sbClient.from('profiles').insert({ id: data.user.id, full_name: fullName, email: email });
+        return { success: true };
+    }
+        const { data, error } = await sbClient.auth.signInWithPassword({ email, password });
+        if (error) return { error };
+        return { success: true };
+    }
+    }
+        const { data, error } = await sbClient.rpc('update_user_plan', {
+        });
+        if (error) return { error };
+    }
+       const { data, error } = await sbClient.auth.signInWithOAuth({
+        },
+    });
+    }
+}
+    const authUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${LINKEDIN_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&state=${state}`;
+}
+            headers: { 'Content-Type': 'application/json' },
+            })
+        });
+        },
+    }, 'linkedin_oauth');
+    alert(`✅ LinkedIn profile imported!\nWelcome, ${data.profile.name || 'there'}!`);
+}
+}
+                window.history.replaceState({}, document.title, cleanUrl);
+            }
+        } catch (e) {
+        }
+    }
+                        };
+                    }
+                }
+            }
+        });
+    }
+}
+        }
+        const { data, error } = await sbClient.auth.resetPasswordForEmail(email, {
+        });
+        } else {
+        }
+    }
+        }
+            headers: { 'Content-Type': 'application/json' },
+            }),
+        });
+        }
+        } else {
+        }
+    }
+            personal: { fullName: '', email: '', phone: '', location: '', linkedin: '' },
+        },
+        },
+            skillMatch: { matched: [], missing: [], score: 0 },
+            keywordCoverage: { present: [], absent: [], score: 0 },
+            experienceMatch: { score: 0, gap: '' },
+            educationMatch: { score: 0 },
+            autoSummary: '', autoBullets: {}, suggestions: []
+        },
+    };
+        };
+    }
+    }
+    }
+    }
+            alert(`⚠️ You've used all ${App.maxFreeAIUsage} free AI suggestions today.\n\nUpgrade to Pro for unlimited AI usage!`);
+        }
+    }
+}
+    }
+}
+            alert(`⚠️ You've reached your free plan limit of ${userProfile.max_resumes} resume.\n\nUpgrade to Pro for unlimited resumes!`);
+        }
+    }
+}
+}
+    }
+            setTimeout(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); }, 50);
+        }
+    }
+});
+    }
+            resumesCreated: App.resumesCreated };
+        } catch (e) {}
+    }
+            }
+        } catch (e) {}
+    }
+        if (jd.length < 30) { alert('Please paste a complete job description (at least 30 characters).'); return; }
+        const jt = { ...App.jobTarget, parsed: true };
+            const regex = new RegExp('\\b' + skill.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '\\b', 'gi');
+            }
+        });
+        const bullets = jd.match(/[•\-\*\d+\.]\s*(.{25,}?)(?=[•\-\*\d+\.\n]|$)/g);
+        updateState({ jobTarget: jt });
+        const match = { skillMatch: { matched: [], missing: [], score: 0 }, keywordCoverage: { present: [], absent: [], score: 0 }, experienceMatch: { score: 0, gap: '' }, educationMatch: { score: 0 }, overallScore: 0, autoSummary: '', autoBullets: {}, suggestions: [] };
+        });
+        allKW.forEach(kw => { if (candidateText.includes(kw.toLowerCase())) match.keywordCoverage.present.push(kw); else match.keywordCoverage.absent.push(kw); });
+        let totalYears = 0; rd.experience.forEach(exp => { const yrs = (exp.dates||'').match(/(\d{4})/g); if (yrs && yrs.length>=2) totalYears += Math.max(0,parseInt(yrs[1])-parseInt(yrs[0])); });
+        match.experienceMatch.gap = totalYears>0?`${totalYears}+ years`:'No experience listed';
+        const levels={phd:4,masters:3,bachelors:2}; const reqLvl=levels[jt.educationLevel?.toLowerCase()]||0;
+        Object.entries(levels).forEach(([k,v])=>{if(eduText.includes(k))maxLvl=Math.max(maxLvl,v);});
+        if(rd.personal.fullName&&jt.title){match.autoSummary=`Results-driven ${jt.title} with ${totalYears}+ years experience in ${match.skillMatch.matched.slice(0,3).join(', ')||'delivering outcomes'}.`;}
+        rd.experience.forEach((exp,i)=>{const skill=match.skillMatch.matched[i%Math.max(1,match.skillMatch.matched.length)];if(skill&&!(exp.bullets||'').toLowerCase().includes(skill.toLowerCase()))match.autoBullets[i]=`• Applied ${skill} to ${(jt.keyResponsibilities[i%Math.max(1,jt.keyResponsibilities.length)]||'key outcomes').toLowerCase()}, achieving measurable impact`;});
+        if(match.skillMatch.missing.length>0)match.suggestions.push(`⚠️ Missing ${match.skillMatch.missing.length} skills: ${match.skillMatch.missing.slice(0,6).join(', ')}`);
+        if(match.keywordCoverage.absent.length>0)match.suggestions.push(`🔑 Add keywords: ${match.keywordCoverage.absent.slice(0,5).join(', ')}`);
+        updateState({ jobMatch: match });
+    }
+    function getATSScore(){const rd=App.resumeData;const s={contact:rd.personal.fullName&&rd.personal.email?95:rd.personal.fullName?60:20,summary:rd.summary?rd.summary.length>80?90:65:10,exp:rd.experience.length>=2?90:rd.experience.length===1?60:15,edu:rd.education.length>0?85:20,skills:rd.skills.length>=8?90:rd.skills.length>=5?70:rd.skills.length>0?45:10};return{total:Math.round(Object.values(s).reduce((a,b)=>a+b,0)/5),breakdown:s};}
+    function getCompositeScore(){const ats=getATSScore().total;const jm=App.jobMatch.overallScore||0;return jm>0?Math.round(ats*0.4+jm*0.6):ats;}
+    function updatePersonal(f,v){const rd={...App.resumeData};rd.personal={...rd.personal,[f]:v};updateState({resumeData:rd});}
+    function updateField(f,v){const rd={...App.resumeData};rd[f]=v;updateState({resumeData:rd});}
+    function addItem(key,tpl){if (key === 'experience' && !enforceResumeLimit()) return; const rd={...App.resumeData};if(!rd[key])rd[key]=[];rd[key].push({...tpl});updateState({resumeData:rd});}
+    function removeItem(key,i){const rd={...App.resumeData};if(rd[key])rd[key].splice(i,1);updateState({resumeData:rd});}
+    function updateArrayItem(key,i,f,v){const rd={...App.resumeData};if(rd[key]&&rd[key][i])rd[key][i][f]=v;updateState({resumeData:rd});}
+}
+}
+        } else if (file.name.endsWith('.pdf')) {
+        } else if (file.name.endsWith('.docx')) {
+        }
+    } catch (e) {
+    }
+}
+        } else if (file.name.endsWith('.docx')) {
+        }
+    } catch (e) {
+    }
+}
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    }
+}
+    const result = await mammoth.extractRawText({ arrayBuffer });
+}
+    const result = { experience: [], education: [], skills: [] };
+            result.personal = { fullName: lines[i] };
+        }
+    }
+    }
+    const dateRegex = /((Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4}|(19|20)\d{2})\s*[-–to]+\s*((Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4}|(19|20)\d{2}|Present|Current)/i;
+            });
+        }
+    }
+                year: (lines[i + 1] && /\d{4}/.test(lines[i + 1])) ? lines[i + 1] : ''
+            });
+        }
+    }
+        }
+    });
+}
+    const result = { experience: [], education: [], skills: [] };
+    if (lines.length > 0) result.personal = { fullName: lines[0] };
+        if (!result.personal) result.personal = {};
+    }
+    const phoneMatch = text.match(/(\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
+        if (!result.personal) result.personal = {};
+    }
+    }
+    const dateRegex = /((Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4}|(19|20)\d{2})\s*[-–to]+\s*((Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4}|(19|20)\d{2}|Present|Current)/i;
+            });
+        }
+    }
+                year: (lines[i + 1] && /\d{4}/.test(lines[i + 1])) ? lines[i + 1] : ''
+            });
+        }
+    }
+        }
+    });
+}
+    function addSkill(s){const t=s.trim();if(!t)return;const rd={...App.resumeData};if(!rd.skills.includes(t)){rd.skills.push(t);updateState({resumeData:rd});}}
+    function removeSkill(i){const rd={...App.resumeData};rd.skills.splice(i,1);updateState({resumeData:rd});}
+    function updateJobTarget(f,v){const jt={...App.jobTarget,[f]:v};updateState({jobTarget:jt});}
+    function applyAllSuggestions(){if (!trackAIUsage()) return; const rd={...App.resumeData};if(App.jobMatch.autoSummary)rd.summary=App.jobMatch.autoSummary;Object.entries(App.jobMatch.autoBullets).forEach(([i,b])=>{const idx=parseInt(i);if(rd.experience[idx]){const ex=rd.experience[idx].bullets||'';rd.experience[idx].bullets=ex?ex+'\n'+b:b;}});[...App.jobMatch.skillMatch.missing,...App.jobMatch.keywordCoverage.absent].forEach(item=>{if(!rd.skills.includes(item))rd.skills.push(item);});updateState({resumeData:rd});parseAndMatch();alert('✅ All suggestions applied! Your resume is now optimized for the target job.');}
+    function renderResumePreview(){const rd=App.resumeData;const hasContent=rd.personal.fullName||rd.experience.length>0||rd.education.length>0||rd.skills.length>0;if(!hasContent)return`<div class="flex flex-col items-center justify-center h-64 text-gray-800"><i data-lucide="file-text" class="w-16 h-16 mb-4 text-gray-800"></i><p class="text-base font-medium">Your resume preview appears here</p><p class="text-sm mt-1">Fill in your details to see a live preview</p></div>`;const accent='#2563eb';let h=`<div style="border-bottom:3px solid ${accent};padding-bottom:10px;margin-bottom:16px;"><h1>${rd.personal.fullName||'Your Name'}</h1><div style="font-size:10px;color:#64748b;display:flex;flex-wrap:wrap;gap:10px;margin-top:6px;">${rd.personal.email?`<span>📧 ${rd.personal.email}</span>`:''}${rd.personal.phone?`<span>📱 ${rd.personal.phone}</span>`:''}${rd.personal.location?`<span>📍 ${rd.personal.location}</span>`:''}</div></div>`;if(rd.summary)h+=`<div class="section"><h2 style="color:${accent};">Professional Summary</h2><p>${rd.summary}</p></div>`;if(rd.experience.length>0){h+=`<div class="section"><h2 style="color:${accent};">Experience</h2>`;rd.experience.forEach(exp=>{h+=`<div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;"><h3>${exp.title||'Title'}${exp.company?` — ${exp.company}`:''}</h3><span style="font-size:10px;color:#94a3b8;">${exp.dates||''}</span></div>${exp.bullets?`<ul>${exp.bullets.split('\n').filter(b=>b.trim()).map(b=>`<li>${b.replace(/^[•\-]\s*/,'')}</li>`).join('')}</ul>`:''}</div>`;});h+=`</div>`;}if(rd.education.length>0){h+=`<div class="section"><h2 style="color:${accent};">Education</h2>`;rd.education.forEach(edu=>{h+=`<div style="margin-bottom:6px;"><h3>${edu.degree||'Degree'}</h3><p>${[edu.school,edu.year].filter(Boolean).join(' • ')}</p></div>`;});h+=`</div>`;}if(rd.skills.length>0)h+=`<div class="section"><h2 style="color:${accent};">Skills</h2><p>${rd.skills.join(' • ')}</p></div>`;return h;}
+    const Views={};
+    {label:'Composite Score',value:composite+'%',color:composite>=75?'green':composite>=50?'amber':'red'},
+    {label:'ATS Quality',value:ats.total+'%',color:'blue'},
+    {label:'Job Match',value:(match.overallScore||'--')+'%',color:'purple'},
+    {label:'Skills',value:rd.skills.length,color:'amber'},
+    {label:'AI Uses Today',value:getRemainingAIUsage(),color:'indigo'},
+    {label:'Resumes',value:`${App.resumesCreated}/${App.maxResumes === 999999 ? '∞' : App.maxResumes}`,color:'pink'},
+].map(s=>`<div class="bg-white rounded-xl p-4 border border-gray-200 shadow-sm text-center"><div class="text-2xl sm:text-3xl font-extrabold text-${s.color}-600">${s.value}</div><div class="text-xs text-gray-500 mt-1">${s.label}</div></div>`).join('')}</div>
+                <div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm"><h3 class="font-bold text-gray-900 mb-3 flex items-center gap-2"><i data-lucide="target" class="w-5 h-5 text-purple-600"></i> Target a Job</h3><input type="text" value="${jt.title}" onchange="updateJobTarget('title',this.value)" placeholder="Job Title" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm mb-2"><input type="text" value="${jt.company}" onchange="updateJobTarget('company',this.value)" placeholder="Company (optional)" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm mb-2"><textarea rows="5" onchange="updateJobTarget('description',this.value)" placeholder="Paste the full job description here..." class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm resize-none mb-3">${jt.description}</textarea><button onclick="parseAndMatch()" class="w-full py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-bold text-sm flex items-center justify-center gap-1.5"><i data-lucide="search" class="w-4 h-4"></i> Analyze & Match</button>${jt.parsed?`<button onclick="applyAllSuggestions()" class="w-full mt-2 py-2.5 bg-success text-white rounded-lg hover:bg-green-600 transition font-semibold text-sm flex items-center justify-center gap-1.5"><i data-lucide="check-circle" class="w-4 h-4"></i> Apply All Suggestions</button>`:''}</div>
+                ${jt.parsed?`<div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm"><h3 class="font-bold text-gray-900 mb-3">Job Requirements</h3><div class="space-y-1.5 text-xs">${jt.requiredSkills.length>0?`<p><span class="font-semibold text-danger">Skills:</span> ${jt.requiredSkills.join(', ')}</p>`:''}${jt.keywords.length>0?`<p class="mt-2"><span class="font-semibold text-brand-600">Keywords:</span> ${jt.keywords.slice(0,12).join(', ')}</p>`:''}${jt.requiredExperience>0?`<p class="mt-2"><span class="font-semibold">Experience:</span> ${jt.requiredExperience}+ years</p>`:''}${jt.educationLevel?`<p class="mt-2"><span class="font-semibold">Education:</span> ${jt.educationLevel}</p>`:''}</div></div>`:''}
+                ${match.suggestions.length>0?`<div class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm"><h3 class="font-bold text-gray-900 mb-3 flex items-center gap-2"><i data-lucide="lightbulb" class="w-4 h-4 text-amber-500"></i> Suggestions</h3>${match.suggestions.map(s=>`<p class="text-xs text-gray-800 bg-amber-50 p-2.5 rounded-lg mb-2">${s}</p>`).join('')}</div>`:''}
+            <div class="lg:col-span-2"><div class="bg-white rounded-xl shadow-lg border border-gray-200 p-3 sm:p-5 lg:p-8 min-h-[400px] sm:min-h-[500px] overflow-x-auto"><div id="resume-preview-area" class="resume-preview">${renderResumePreview()}</div></div></div>
+    </div>`;};
+                <div class="bg-white rounded-xl p-4 border shadow-sm"><h3 class="font-bold text-sm mb-3"><i data-lucide="user" class="w-4 h-4 text-brand-600 inline mr-1"></i> Personal Info</h3><div class="grid grid-cols-2 gap-2"><div class="col-span-2"><input value="${rd.personal.fullName}" onchange="updatePersonal('fullName',this.value)" placeholder="${rd.personal.fullName ? 'Full Name ✅' : '⚠️ Full Name — Required'}" class="w-full px-3 py-2.5 border rounded-lg text-sm"></div><div><input value="${rd.personal.email}" onchange="updatePersonal('email',this.value)" placeholder="${rd.personal.email ? 'Email ✅' : '⚠️ Email — Required'}" class="w-full px-3 py-2.5 border rounded-lg text-sm"></div><div><input value="${rd.personal.phone}" onchange="updatePersonal('phone',this.value)" placeholder="${rd.personal.phone ? 'Phone ✅' : '⚠️ Phone — Recommended'}" class="w-full px-3 py-2.5 border rounded-lg text-sm"></div><div class="col-span-2"><input value="${rd.personal.location}" onchange="updatePersonal('location',this.value)" placeholder="Location" class="w-full px-3 py-2.5 border rounded-lg text-sm"></div></div></div>
+                <div class="bg-white rounded-xl p-4 border shadow-sm"><h3 class="font-bold text-sm mb-2"><i data-lucide="file-text" class="w-4 h-4 text-brand-600 inline mr-1"></i> Summary</h3><textarea rows="3" onchange="updateField('summary',this.value)" class="w-full px-3 py-2.5 border rounded-lg text-sm resize-none">${rd.summary}</textarea></div>
+                <div class="bg-white rounded-xl p-4 border shadow-sm"><div class="flex justify-between mb-2"><h3 class="font-bold text-sm"><i data-lucide="briefcase" class="w-4 h-4 text-brand-600 inline mr-1"></i> Experience</h3><button onclick="addItem('experience',{title:'',company:'',dates:'',bullets:''});navigate('builder')" class="text-xs bg-brand-100 text-brand-700 px-3 py-1.5 rounded-lg font-semibold">+ Add</button></div>${rd.experience.length===0?'<p class="text-sm text-gray-800 text-center py-4">No experience added yet.</p>':''}${rd.experience.map((exp,i)=>`<div class="bg-gray-50 rounded-lg p-3 border mb-2"><div class="flex justify-between"><input value="${exp.title}" onchange="updateArrayItem('experience',${i},'title',this.value)" placeholder="Job Title" class="font-semibold text-sm bg-transparent border-none outline-none flex-1"><button onclick="removeItem('experience',${i});navigate('builder')" class="text-danger"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div><div class="grid grid-cols-2 gap-1.5 my-1.5"><input value="${exp.company}" onchange="updateArrayItem('experience',${i},'company',this.value)" placeholder="Company" class="text-xs px-2 py-1 border rounded bg-white"><input value="${exp.dates}" onchange="updateArrayItem('experience',${i},'dates',this.value)" placeholder="Dates" class="text-xs px-2 py-1 border rounded bg-white"></div><textarea rows="2" onchange="updateArrayItem('experience',${i},'bullets',this.value)" placeholder="• Achievement..." class="w-full text-xs px-2 py-1 border rounded bg-white resize-none">${exp.bullets||''}</textarea></div>`).join('')}</div>
+                <div class="bg-white rounded-xl p-4 border shadow-sm"><div class="flex justify-between mb-2"><h3 class="font-bold text-sm"><i data-lucide="graduation-cap" class="w-4 h-4 text-brand-600 inline mr-1"></i> Education</h3><button onclick="addItem('education',{degree:'',school:'',year:''});navigate('builder')" class="text-xs bg-brand-100 text-brand-700 px-3 py-1.5 rounded-lg font-semibold">+ Add</button></div>${rd.education.length===0?'<p class="text-sm text-gray-800 text-center py-4">No education added yet.</p>':''}${rd.education.map((edu,i)=>`<div class="bg-gray-50 rounded-lg p-3 border mb-2"><div class="flex justify-between"><input value="${edu.degree}" onchange="updateArrayItem('education',${i},'degree',this.value)" placeholder="Degree" class="font-semibold text-sm bg-transparent border-none outline-none flex-1"><button onclick="removeItem('education',${i});navigate('builder')" class="text-danger"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div><input value="${edu.school}" onchange="updateArrayItem('education',${i},'school',this.value)" placeholder="School" class="text-xs px-2 py-1 border rounded bg-white w-full mt-1"><input value="${edu.year}" onchange="updateArrayItem('education',${i},'year',this.value)" placeholder="Year" class="text-xs px-2 py-1 border rounded bg-white w-full mt-1"></div>`).join('')}</div>
+                <div class="bg-white rounded-xl p-4 border shadow-sm"><h3 class="font-bold text-sm mb-2"><i data-lucide="zap" class="w-4 h-4 text-brand-600 inline mr-1"></i> Skills</h3><div class="flex flex-wrap gap-1.5 mb-2">${rd.skills.length===0?'<span class="text-xs text-gray-800">No skills added yet</span>':rd.skills.map((s,i)=>`<span class="bg-brand-50 text-brand-700 px-2.5 py-1 rounded-full text-xs flex items-center gap-1">${s}<button onclick="removeSkill(${i});navigate('builder')" class="hover:text-danger">×</button></span>`).join('')}</div><input type="text" placeholder="Add skill + Enter" class="w-full px-3 py-2.5 border rounded-lg text-sm" onkeydown="if(event.key==='Enter'){addSkill(this.value);this.value='';navigate('builder')}"></div>
+            <div class="lg:col-span-3"><div class="lg:sticky lg:top-20"><div class="bg-white rounded-xl shadow-lg border p-5 sm:p-8 min-h-[600px]"><div id="resume-preview-area" class="resume-preview">${renderResumePreview()}</div></div></div></div>
+    </div>`;};
+    Views.templates=function(){const tpls=['Modern','Classic','Creative','Executive','Professional','Minimalist','Academic','Europass'];const cols=['from-blue-500 to-blue-700','from-gray-600 to-gray-800','from-rose-400 to-orange-500','from-amber-500 to-amber-700','from-slate-600 to-slate-800','from-gray-400 to-gray-600','from-indigo-600 to-indigo-800','from-blue-500 to-purple-600'];return`<div class="max-w-5xl mx-auto px-4 py-8 animate-fade-in"><div class="text-center mb-8"><h1 class="text-2xl sm:text-3xl font-heading font-extrabold mb-2">Resume Templates</h1><p class="text-gray-800">All ATS-friendly and professionally designed.</p></div><div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">${tpls.map((t,i)=>`<div onclick="updateState({selectedTemplate:'${t.toLowerCase()}'});navigate('builder')" class="cursor-pointer bg-white rounded-xl border p-5 hover:shadow-xl hover:border-brand-300 transition text-center group"><div class="h-20 bg-gradient-to-br ${cols[i]} rounded-lg mb-3 flex items-center justify-center"><div class="bg-white/90 rounded p-2 w-16 h-12 shadow-sm"><div class="h-1.5 w-10 bg-gray-300 rounded mb-1"></div><div class="h-1 w-8 bg-gray-200 rounded mb-1.5"></div><div class="h-1 w-10 bg-gray-200 rounded"></div></div></div><h3 class="font-bold text-sm group-hover:text-brand-600 transition">${t}</h3></div>`).join('')}</div></div>`;};
+        USD: { symbol: '$', free: '0', pro: '14.99', annual: '99', annualMonthly: '8.25', lifetime: '149' },
+        INR: { symbol: '₹', free: '0', pro: '499', annual: '3,999', annualMonthly: '333', lifetime: '9,999' },
+        EUR: { symbol: '€', free: '0', pro: '13.99', annual: '89', annualMonthly: '7.42', lifetime: '139' },
+        GBP: { symbol: '£', free: '0', pro: '11.99', annual: '79', annualMonthly: '6.58', lifetime: '119' },
+    };
+                { text: '1 Resume', highlight: false },
+                { text: '3 Basic Templates', highlight: false },
+                { text: '5 AI Suggestions/day', highlight: false },
+                { text: 'Basic ATS Check', highlight: false },
+                { text: 'PDF Export', highlight: false },
+        },
+                { text: '✅ All Free Features Included', highlight: true },
+                { text: 'Unlimited Resumes', highlight: false },
+                { text: 'All 8 Premium Templates', highlight: false },
+                { text: 'Unlimited AI Usage', highlight: false },
+                { text: 'AI Job Targeting Engine', highlight: true },
+                { text: 'Full 11-Point ATS Analysis', highlight: true },
+                { text: 'DOCX Export', highlight: true },
+                { text: 'AI Cover Letter Generator', highlight: true },
+                { text: 'Resume Analytics Dashboard', highlight: true },
+                { text: 'Standard Email Support', highlight: false },
+        },
+            subtext: `${c.symbol}${c.annualMonthly}/mo billed annually`,
+                { text: '✅ All Free + Pro Features Included', highlight: true },
+                { text: 'Save 45% vs Monthly Billing', highlight: true },
+                { text: 'All Future Feature Updates', highlight: true },
+                { text: 'Priority Customer Support', highlight: true },
+                { text: 'Early Access to Beta Features', highlight: false },
+                { text: 'Annual Resume Review', highlight: false },
+        },
+                { text: '✅ All Features from Every Plan', highlight: true },
+                { text: 'Pay Once — Use Forever', highlight: true },
+                { text: 'Never Pay Again', highlight: true },
+                { text: 'VIP Dedicated Support', highlight: true },
+                { text: 'First Access to ALL New Features', highlight: true },
+                { text: 'Custom Template Requests', highlight: false },
+                { text: 'Personalized Onboarding Call', highlight: false },
+                { text: 'Lifetime Badge on Profile', highlight: false },
+        }
+                    <button onclick="App.currency='${key}';navigate('pricing')" 
+                        class="px-4 py-2 rounded-lg text-sm font-bold transition ${currency === key ? 'bg-brand-600 text-white shadow-md' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}">
+                        ${key === 'USD' ? '🇺🇸 $ USD' : key === 'INR' ? '🇮🇳 ₹ INR' : key === 'EUR' ? '🇪🇺 € EUR' : '🇬🇧 £ GBP'}
+                `).join('')}
+        html += `<div class="bg-white rounded-2xl p-6 border-2 ${p.borderColor} ${p.popular ? 'relative lg:scale-105 shadow-xl' : 'shadow-sm'}">
+            ${p.badge ? `<div class="absolute -top-3.5 left-1/2 -translate-x-1/2 ${p.popular ? 'bg-brand-600' : p.badge === 'Best Value' ? 'bg-accent-600' : p.badge === 'Ultimate' ? 'bg-gray-900' : 'bg-gray-500'} text-white px-4 py-1 rounded-full text-xs font-bold whitespace-nowrap">${p.badge}</div>` : ''}
+                <h3 class="text-xl font-bold">${p.name}</h3>
+                    <span class="text-3xl font-extrabold">${c.symbol}${p.price}</span>
+                    <span class="text-gray-500 text-sm">${p.period}</span>
+                ${p.subtext ? `<p class="text-xs text-green-600 font-semibold">${p.subtext}</p>` : ''}
+                <p class="text-xs text-gray-500 mt-1">${p.description}</p>
+            ${p.includes ? `<div class="bg-green-50 text-green-700 text-xs font-bold text-center py-1.5 rounded-lg mb-3">📦 ${p.includes}</div>` : ''}
+                ${p.features.map(f => `<li class="flex items-start gap-2 text-sm ${f.highlight ? 'text-brand-700 font-semibold' : 'text-gray-700'}">
+                    <span class="${f.highlight ? 'text-brand-600' : 'text-success'} font-bold flex-shrink-0">${f.highlight ? '⭐' : '✓'}</span> ${f.text}
+                </li>`).join('')}
+            <button onclick="${p.action === 'signup' ? "navigate('signup')" : `initiateRazorpayPayment('${p.action}')`}" 
+                class="w-full py-3.5 rounded-xl font-extrabold text-sm transition shadow-md ${p.btnClass}">
+                ${p.action !== 'signup' ? '💳 ' : ''}${p.cta}
+    });
+};
+<input type="password" id="signup-password" placeholder="Password" class="w-full px-4 py-3 border rounded-xl text-sm"><div class="cf-turnstile mb-3" data-sitekey="${TURNSTILE_SITE_KEY}"></div><button onclick="handleSignup()" class="w-full py-4 bg-blue-700 text-white font-black rounded-xl hover:bg-blue-800 text-lg shadow-lg">Create Free Account</button><button onclick="signInWithGoogle()" class="w-full py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition font-semibold text-sm flex items-center justify-center gap-2 mt-3">
+</button></div><p class="text-center text-sm text-gray-800 mt-5">Have an account? <button onclick="navigate('login')" class="text-brand-600 font-semibold hover:underline">Log In</button></p></div></div>`;};
+    };
+</button></p></div></div>`;};
+    function navigate(view){if(!Views[view])view='dashboard';updateState({currentView:view});window.location.hash=view;window.scrollTo({top:0,behavior:'smooth'});}
+    function toggleMobileNav(){document.getElementById('mobile-nav').classList.toggle('hidden');}
+    function closeMobileNav(){document.getElementById('mobile-nav').classList.add('hidden');}
+    };
+    };
+    }
+};
+    }
+                    <div class="text-3xl font-extrabold text-brand-600">${App.resumeData.experience.length}</div>
+                    <div class="text-3xl font-extrabold text-purple-600">${App.resumeData.skills.length}</div>
+                    <div class="text-3xl font-extrabold text-green-600">${score}%</div>
+                    <div class="text-3xl font-extrabold text-amber-600">${ats.total}%</div>
+    };
+I am writing to express my strong interest in the ${jobTitle} position at ${company}. With my background and experience, I am confident in my ability to contribute to your team's success.
+${yourInfo ? `Based on my experience, ${yourInfo.toLowerCase()}` : 'Throughout my career, I have developed a strong foundation in delivering results and driving team success.'}
+${jobDesc ? `I was particularly drawn to this role because it aligns perfectly with my expertise. The job description emphasizes key areas where I have demonstrated success, and I am excited about the opportunity to bring my skills to ${company}.` : ''}
+I am impressed by ${company}'s reputation and would welcome the opportunity to discuss how my skills and experience can contribute to your continued success.
+${name}`;
+}
+}
+    }
+    }
+        const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, BorderStyle, convertInchesToTwip } = window.docx;
+        };
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : { r: 37, g: 99, b: 235 };
+        };
+                    children: [new TextRun({ text: rd.personal.fullName, bold: true, size: 36, font: 'Georgia' })],
+                    spacing: { after: 40 },
+                })
+        }
+        if (rd.personal.email) contactParts.push(`📧 ${rd.personal.email}`);
+        if (rd.personal.phone) contactParts.push(`📱 ${rd.personal.phone}`);
+        if (rd.personal.location) contactParts.push(`📍 ${rd.personal.location}`);
+        if (rd.personal.linkedin) contactParts.push(`🔗 ${rd.personal.linkedin}`);
+                    children: [new TextRun({ text: contactParts.join('  |  '), size: 18, color: '64748b', font: 'Georgia' })],
+                    spacing: { after: 60 },
+                        bottom: { color: accentColor.replace('#', ''), size: 3, style: BorderStyle.SINGLE, space: 8 },
+                    },
+                })
+        }
+                    children: [new TextRun({ text: 'PROFESSIONAL SUMMARY', bold: true, size: 22, color: accentColor.replace('#', ''), font: 'Georgia' })],
+                    spacing: { after: 20 },
+                        bottom: { color: accentColor.replace('#', ''), size: 2, style: BorderStyle.SINGLE, space: 4 },
+                    },
+                })
+                    children: [new TextRun({ text: rd.summary, size: 20, font: 'Georgia' })],
+                    spacing: { after: 40 },
+                })
+        }
+                    children: [new TextRun({ text: 'PROFESSIONAL EXPERIENCE', bold: true, size: 22, color: accentColor.replace('#', ''), font: 'Georgia' })],
+                    spacing: { after: 20 },
+                        bottom: { color: accentColor.replace('#', ''), size: 2, style: BorderStyle.SINGLE, space: 4 },
+                    },
+                })
+                            new TextRun({ text: titleLine.join(' — '), bold: true, size: 22, font: 'Georgia' }),
+                            exp.dates ? new TextRun({ text: `  (${exp.dates})`, size: 18, color: '94a3b8', font: 'Georgia' }) : null,
+                        spacing: { after: 12 },
+                    })
+                                    children: [new TextRun({ text: `• ${cleanBullet}`, size: 20, font: 'Georgia' })],
+                                    spacing: { after: 8 },
+                                    indent: { left: convertInchesToTwip(0.3) },
+                                })
+                        }
+                    });
+                }
+                children.push(new Paragraph({ children: [new TextRun({ text: '', size: 12 })], spacing: { after: 20 } }));
+            });
+        }
+                    children: [new TextRun({ text: 'EDUCATION', bold: true, size: 22, color: accentColor.replace('#', ''), font: 'Georgia' })],
+                    spacing: { after: 20 },
+                        bottom: { color: accentColor.replace('#', ''), size: 2, style: BorderStyle.SINGLE, space: 4 },
+                    },
+                })
+                            new TextRun({ text: edu.degree || 'Degree', bold: true, size: 20, font: 'Georgia' }),
+                            eduDetails ? new TextRun({ text: ` — ${eduDetails}`, size: 20, font: 'Georgia' }) : null,
+                        spacing: { after: 12 },
+                    })
+            });
+            children.push(new Paragraph({ children: [new TextRun({ text: '', size: 12 })], spacing: { after: 20 } }));
+        }
+                    children: [new TextRun({ text: 'SKILLS & EXPERTISE', bold: true, size: 22, color: accentColor.replace('#', ''), font: 'Georgia' })],
+                    spacing: { after: 20 },
+                        bottom: { color: accentColor.replace('#', ''), size: 2, style: BorderStyle.SINGLE, space: 4 },
+                    },
+                })
+                    children: [new TextRun({ text: rd.skills.join(' • '), size: 20, font: 'Georgia' })],
+                    spacing: { after: 40 },
+                })
+        }
+                        margin: { top: convertInchesToTwip(1), bottom: convertInchesToTwip(1), left: convertInchesToTwip(1), right: convertInchesToTwip(1) },
+                    },
+                },
+            }],
+        });
+        link.download = `${(rd.personal.fullName || 'resume').toLowerCase().replace(/\s+/g, '-')}.docx`;
+    } catch (e) {
+    }
+}
+    async function exportPDF(){const preview=document.getElementById('resume-preview-area');if(!preview){alert('No resume to export. Fill in your details first.');return;}try{const [jsPDFModule,html2canvasModule]=await Promise.all([import('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'),import('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js')]);const canvas=await html2canvas(preview,{scale:2,backgroundColor:'#ffffff',logging:false});const {jsPDF}=window.jspdf;const pdf=new jsPDF('p','mm','letter');const w=pdf.internal.pageSize.getWidth();const h=(canvas.height*w)/canvas.width;pdf.addImage(canvas.toDataURL('image/png',1.0),'PNG',0,0,w,h);pdf.save(`${(App.resumeData.personal.fullName||'resume').toLowerCase().replace(/\s+/g,'-')}-job-ready.pdf`);}catch(e){alert('PDF export failed. Please try browser print (Ctrl+P).');}}
+        const prices = { pro: '14.99', yearly: '99.00', lifetime: '149.00' };
+        const names = { pro: 'Pro Monthly Plan', yearly: 'Pro Annual Plan', lifetime: 'Lifetime Plan' };
+        container.innerHTML = `<h3 style="margin-bottom:10px;font-size:18px;font-weight:700;">Pay with PayPal</h3><p style="margin-bottom:5px;color:#64748b;">${planName}</p><p style="margin-bottom:20px;font-size:24px;font-weight:800;color:#2563eb;">$${price} USD</p><div id="paypal-btn-${plan}"></div><button onclick="document.getElementById('paypal-overlay').remove()" style="margin-top:12px;background:#e2e8f0;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:600;width:100%;">Cancel</button>`;
+                    return actions.order.create({ purchase_units: [{ amount: { value: price, currency_code: 'USD' } }] });
+                },
+                    });
+                },
+                    container.remove(); },
+                    alert('PayPal error. Please try Razorpay instead.'); },
+            }).render('#paypal-btn-' + plan);
+        }
+    }
+            });
+        } else {
+        }
+    }
+        <p class="text-gray-600 mb-6">${feature} is available on Pro, Annual, and Lifetime plans.</p>
+}
+            }
+        }, 500);
+    }
+}
+        setTimeout(() => { banner.style.display = 'none'; }, 300);
+    }
+}
+        setTimeout(() => { banner.style.display = 'none'; }, 300);
+    }
+}
+    };
+}
+    alert(`🍪 Cookie Settings\n\nCurrent Status: ${status.hasConsented ? (status.consent === 'accepted' ? 'All Cookies Accepted' : 'Essential Only') : 'No Choice Made'}\nDate: ${status.date ? new Date(status.date).toLocaleDateString() : 'N/A'}\n\nTo change your preferences, click "Reset" below.`);
+    }
+}
+            }
+        }, IDLE_TIMEOUT);
+    }
+    });
+    }
+    });
+}

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkedIn to ResumeAI Pro</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            width: 340px; 
+            padding: 20px; 
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; 
+            background: #ffffff;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        .header h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+        .header .brand {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+        .header p {
+            font-size: 11px;
+            color: #64748b;
+        }
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        .status-badge.linkedin {
+            background: #e8f0fe;
+            color: #1a56db;
+        }
+        .status-badge.not-linkedin {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+        }
+        button:hover {
+            background: linear-gradient(135deg, #1d4ed8, #1e40af);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+        }
+        button:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        button.secondary {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+            box-shadow: none;
+            margin-top: 8px;
+        }
+        button.secondary:hover {
+            background: #e2e8f0;
+        }
+        #status {
+            margin-top: 10px;
+            font-size: 11px;
+            color: #64748b;
+            text-align: center;
+            min-height: 16px;
+        }
+        #status.success { color: #10b981; }
+        #status.error { color: #ef4444; }
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin: 12px 0;
+        }
+        .stat-card {
+            background: #f8fafc;
+            padding: 8px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+        .stat-card .num {
+            font-size: 20px;
+            font-weight: 800;
+            color: #2563eb;
+        }
+        .stat-card .label {
+            font-size: 10px;
+            color: #64748b;
+        }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>LinkedIn to <span class="brand">ResumeAI Pro</span></h2>
+        <p>Import your LinkedIn profile and build a professional resume instantly</p>
+    </div>
+
+    <div id="linkedin-badge" class="status-badge linkedin">
+        ✅ On LinkedIn Profile
+    </div>
+    <div id="not-linkedin-badge" class="status-badge not-linkedin hidden">
+        ⚠️ Please open a LinkedIn profile page
+    </div>
+
+    <button id="import-btn">📥 Import to ResumeAI Pro</button>
+    
+    <div id="review-section" class="hidden">
+        <div class="stats">
+            <div class="stat-card">
+                <div class="num" id="exp-count">0</div>
+                <div class="label">Experience</div>
+            </div>
+            <div class="stat-card">
+                <div class="num" id="edu-count">0</div>
+                <div class="label">Education</div>
+            </div>
+            <div class="stat-card">
+                <div class="num" id="skill-count">0</div>
+                <div class="label">Skills</div>
+            </div>
+            <div class="stat-card">
+                <div class="num" id="cert-count">0</div>
+                <div class="label">Certs</div>
+            </div>
+        </div>
+        <button id="confirm-btn">✅ Confirm & Open ResumeAI Pro</button>
+        <button id="cancel-btn" class="secondary">↩ Back</button>
+    </div>
+
+    <div id="status"></div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

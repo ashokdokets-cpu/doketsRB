@@ -1,0 +1,442 @@
+"=== content.js ===" 
+// LinkedIn to ResumeAI Pro - Content Script
+console.log('✅ LinkedIn to ResumeAI Pro - Content Script loaded');
+
+// Main extraction function
+function extractLinkedInProfile() {
+    const profile = {
+        personal: {
+            fullName: '',
+            email: '',
+            phone: '',
+            location: '',
+            linkedin: window.location.href,
+        },
+        summary: '',
+        experience: [],
+        education: [],
+        skills: [],
+        certifications: [],
+    };
+
+    try {
+        // Extract name
+        const nameEl = document.querySelector('h1.text-heading-xlarge') ||
+                       document.querySelector('h1') ||
+                       document.querySelector('.pv-top-card__list li');
+        if (nameEl) profile.personal.fullName = nameEl.textContent.trim();
+
+        // Extract headline/summary
+        const headlineEl = document.querySelector('.text-body-medium.break-words') ||
+                          document.querySelector('[data-section="headline"]') ||
+                          document.querySelector('.pv-top-card__headline');
+        if (headlineEl) profile.summary = headlineEl.textContent.trim();
+
+        // Extract location
+        const locationEl = document.querySelector('.text-body-small.inline.t-black--light') ||
+                          document.querySelector('.pv-top-card__list-bullet');
+        if (locationEl) profile.personal.location = locationEl.textContent.trim();
+
+        // Extract experience
+        const expSections = document.querySelectorAll('#experience ~ div ul li, .experience-item');
+        expSections.forEach(exp => {
+            const title = exp.querySelector('h3, .mr1, .t-bold, .pv-entity__summary-info h3')?.textContent?.trim() || '';
+            const company = exp.querySelector('.t-14, .t-normal, .pv-entity__secondary-title')?.textContent?.trim() || '';
+            const dates = exp.querySelector('.t-14.t-normal, .pv-entity__date-range span')?.textContent?.trim() || '';
+            const desc = exp.querySelector('.pv-entity__description, .inline-show-more-text')?.textContent?.trim() || '';
+            if (title) {
+                profile.experience.push({ title, company, dates, bullets: desc });
+            }
+        });
+
+        // Extract education
+        const eduSections = document.querySelectorAll('#education ~ div ul li, .education-item');
+        eduSections.forEach(edu => {
+            const degree = edu.querySelector('h3, .mr1, .t-bold')?.textContent?.trim() || '';
+            const school = edu.querySelector('.t-14, .t-normal, .pv-entity__secondary-title')?.textContent?.trim() || '';
+            const year = edu.querySelector('.t-14.t-normal, .pv-entity__date-range span')?.textContent?.trim() || '';
+            if (degree) {
+                profile.education.push({ degree, school, year });
+            }
+        });
+
+        // Extract skills
+        const skillEls = document.querySelectorAll('.skill-category-entity__name-text, .pv-skill-category-entity__name-text, .pills__pill-text');
+        skillEls.forEach(skill => {
+            const skillName = skill.textContent.trim();
+            if (skillName && !profile.skills.includes(skillName)) {
+                profile.skills.push(skillName);
+            }
+        });
+
+        console.log('Extracted Profile:', 
+            'Name:', profile.personal.fullName,
+            '| Experience:', profile.experience.length, 'entries',
+            '| Education:', profile.education.length, 'entries',
+            '| Skills:', profile.skills.length, 'skills'
+        );
+
+    } catch (error) {
+        console.error('❌ Extraction error:', error);
+    }
+
+    return profile;
+}
+
+// Listen for messages from popup
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === 'scrapeProfile' || request.action === 'extract') {
+        try {
+            const profile = extractLinkedInProfile();
+            sendResponse({ success: true, data: profile });
+        } catch (error) {
+            sendResponse({ success: false, error: error.message });
+        }
+    }
+    return true;
+}); 
+"=== popup.js ===" 
+// LinkedIn to ResumeAI Pro - Popup Script
+// LinkedIn to ResumeAI Pro - Popup Script
+console.log('✅ LinkedIn to ResumeAI Pro popup loaded');
+
+let extractedProfile = null;
+const importBtn = document.getElementById('import-btn');
+const confirmBtn = document.getElementById('confirm-btn');
+const cancelBtn = document.getElementById('cancel-btn');
+const reviewSection = document.getElementById('review-section');
+const statusDiv = document.getElementById('status');
+const linkedinBadge = document.getElementById('linkedin-badge');
+const notLinkedinBadge = document.getElementById('not-linkedin-badge');
+
+// Check if we're on a LinkedIn profile page
+async function checkPage() {
+    try {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        
+        if (tab.url && tab.url.includes('linkedin.com/in/')) {
+            linkedinBadge.classList.remove('hidden');
+            notLinkedinBadge.classList.add('hidden');
+            importBtn.classList.remove('hidden');
+            return true;
+        } else {
+            linkedinBadge.classList.add('hidden');
+            notLinkedinBadge.classList.remove('hidden');
+            importBtn.classList.add('hidden');
+            statusDiv.textContent = '⚠️ Please navigate to a LinkedIn profile first';
+            statusDiv.className = 'error';
+            return false;
+        }
+    } catch (error) {
+        statusDiv.textContent = '❌ Error checking page';
+        statusDiv.className = 'error';
+        return false;
+    }
+}
+
+// Show status message
+function showMessage(msg, type) {
+    statusDiv.textContent = msg;
+    statusDiv.className = type || '';
+}
+
+// Step 1: Extract data from LinkedIn
+importBtn.addEventListener('click', async () => {
+    importBtn.textContent = '⏳ Extracting...';
+    importBtn.disabled = true;
+    showMessage('Scanning LinkedIn profile...');
+
+    try {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        
+        const response = await chrome.tabs.sendMessage(tab.id, { action: 'scrapeProfile' });
+        
+        if (response && response.success && response.data) {
+            extractedProfile = response.data;
+            
+            // Show review section with stats
+            document.getElementById('exp-count').textContent = extractedProfile.experience?.length || 0;
+            document.getElementById('edu-count').textContent = extractedProfile.education?.length || 0;
+            document.getElementById('skill-count').textContent = extractedProfile.skills?.length || 0;
+            document.getElementById('cert-count').textContent = extractedProfile.certifications?.length || 0;
+            
+            importBtn.classList.add('hidden');
+            reviewSection.classList.remove('hidden');
+            showMessage(`✅ Found: ${extractedProfile.personal?.fullName || 'Profile'}`, 'success');
+        } else {
+            showMessage('❌ Could not extract profile. Try refreshing the LinkedIn page.', 'error');
+            importBtn.textContent = '📥 Import to ResumeAI Pro';
+            importBtn.disabled = false;
+        }
+    } catch (error) {
+        console.error('Extraction error:', error);
+        showMessage('❌ Error. Make sure you are on a LinkedIn profile page.', 'error');
+        importBtn.textContent = '📥 Import to ResumeAI Pro';
+        importBtn.disabled = false;
+    }
+});
+
+// Step 2: Confirm and send to ResumeAI Pro
+confirmBtn.addEventListener('click', () => {
+    if (!extractedProfile) {
+        showMessage('❌ No profile data to import', 'error');
+        return;
+    }
+
+    confirmBtn.textContent = '⏳ Opening ResumeAI Pro...';
+    confirmBtn.disabled = true;
+    showMessage('Sending profile data...');
+
+    // BOTH: Store in Chrome storage AND send via URL params
+    chrome.storage.local.set({
+        linkedinResumeData: extractedProfile,
+        importTimestamp: Date.now()
+    }, () => {
+        // Encode the data for URL
+        const jsonStr = JSON.stringify(extractedProfile);
+        const encoded = encodeURIComponent(jsonStr);
+        
+        // Open ResumeAI Pro with data in URL params
+        chrome.tabs.create({ url: `https://doketsrb.com/?linkedin_data=${encoded}#builder`, active: true });
+        window.close();
+    });
+});
+
+// Cancel and go back
+cancelBtn.addEventListener('click', () => {
+    extractedProfile = null;
+    reviewSection.classList.add('hidden');
+    importBtn.classList.remove('hidden');
+    importBtn.textContent = '📥 Import to ResumeAI Pro';
+    importBtn.disabled = false;
+    showMessage('');
+});
+
+// Initialize
+checkPage();
+"=== background.js ===" 
+// LinkedIn to ResumeAI Pro - Background Service Worker
+console.log('✅ LinkedIn to ResumeAI Pro background service worker started');
+
+// Handle extension installation
+chrome.runtime.onInstalled.addListener((details) => {
+    if (details.reason === 'install') {
+        console.log('🎉 Extension installed - v2.0.0');
+    } else if (details.reason === 'update') {
+        console.log('🔄 Extension updated to v2.0.0');
+    }
+});
+
+// Handle extension icon click (fallback)
+chrome.action.onClicked.addListener((tab) => {
+    // Check if we're on a LinkedIn profile page
+    if (tab.url && tab.url.includes('linkedin.com/in/')) {
+        console.log('📋 LinkedIn profile detected:', tab.url);
+    } else {
+        // Open LinkedIn if not on a profile page
+        chrome.tabs.create({
+            url: 'https://www.linkedin.com/feed/',
+            active: true
+        });
+    }
+});
+
+// Listen for messages from popup or content scripts
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === 'openResumeAI') {
+        chrome.tabs.create({
+            url: 'https://doketsrb.com/#builder',
+            active: true
+        });
+        sendResponse({ success: true });
+    }
+    return true;
+}); 
+"=== manifest.json ===" 
+{
+  "manifest_version": 3,
+  "name": "LinkedIn to ResumeAI Pro",
+  "version": "2.0.1",
+  "description": "Import your LinkedIn profile into ResumeAI Pro and build a professional resume instantly",
+  "permissions": ["activeTab", "storage", "tabs", "scripting"],
+  "host_permissions": [
+    "https://*.linkedin.com/*",
+    "https://doketsrb.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Import to ResumeAI Pro"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*.linkedin.com/in/*"],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    }
+  ]
+} 
+"=== popup.html ===" 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkedIn to ResumeAI Pro</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            width: 340px; 
+            padding: 20px; 
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; 
+            background: #ffffff;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        .header h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+        .header .brand {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+        .header p {
+            font-size: 11px;
+            color: #64748b;
+        }
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        .status-badge.linkedin {
+            background: #e8f0fe;
+            color: #1a56db;
+        }
+        .status-badge.not-linkedin {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+        }
+        button:hover {
+            background: linear-gradient(135deg, #1d4ed8, #1e40af);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+        }
+        button:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        button.secondary {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+            box-shadow: none;
+            margin-top: 8px;
+        }
+        button.secondary:hover {
+            background: #e2e8f0;
+        }
+        #status {
+            margin-top: 10px;
+            font-size: 11px;
+            color: #64748b;
+            text-align: center;
+            min-height: 16px;
+        }
+        #status.success { color: #10b981; }
+        #status.error { color: #ef4444; }
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin: 12px 0;
+        }
+        .stat-card {
+            background: #f8fafc;
+            padding: 8px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+        .stat-card .num {
+            font-size: 20px;
+            font-weight: 800;
+            color: #2563eb;
+        }
+        .stat-card .label {
+            font-size: 10px;
+            color: #64748b;
+        }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>LinkedIn to <span class="brand">ResumeAI Pro</span></h2>
+        <p>Import your LinkedIn profile and build a professional resume instantly</p>
+    </div>
+
+    <div id="linkedin-badge" class="status-badge linkedin">
+        ✅ On LinkedIn Profile
+    </div>
+    <div id="not-linkedin-badge" class="status-badge not-linkedin hidden">
+        ⚠️ Please open a LinkedIn profile page
+    </div>
+
+    <button id="import-btn">📥 Import to ResumeAI Pro</button>
+    
+    <div id="review-section" class="hidden">
+        <div class="stats">
+            <div class="stat-card">
+                <div class="num" id="exp-count">0</div>
+                <div class="label">Experience</div>
+            </div>
+            <div class="stat-card">
+                <div class="num" id="edu-count">0</div>
+                <div class="label">Education</div>
+            </div>
+            <div class="stat-card">
+                <div class="num" id="skill-count">0</div>
+                <div class="label">Skills</div>
+            </div>
+            <div class="stat-card">
+                <div class="num" id="cert-count">0</div>
+                <div class="label">Certs</div>
+            </div>
+        </div>
+        <button id="confirm-btn">✅ Confirm & Open ResumeAI Pro</button>
+        <button id="cancel-btn" class="secondary">↩ Back</button>
+    </div>
+
+    <div id="status"></div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

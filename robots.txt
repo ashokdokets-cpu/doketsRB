@@ -1,0 +1,10 @@
+User-agent: *
+Disallow: /api/
+Allow: /
+Sitemap: https://www.doketsrb.com/sitemap.xml
+
+User-agent: HTTrack
+Disallow: /
+
+User-agent: wget
+Disallow: /

@@ -1,0 +1,45 @@
+function initiatePayPalPayment(plan) {
+    var overlay = document.createElement('div');
+    overlay.id = 'paypal-overlay';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9998;';
+    var container = document.createElement('div');
+    container.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9999;background:white;padding:30px;border-radius:16px;text-align:center;max-width:400px;width:90%;';
+    container.innerHTML = '<h3>Pay with PayPal</h3><p>' + plan.toUpperCase() + ' Plan</p><p style="font-size:24px;font-weight:800;color:#2563eb;">Loading...</p><div id="paypal-btn-' + plan + '"></div><button onclick="document.getElementById(\'paypal-overlay\').remove()" style="margin-top:12px;background:#e2e8f0;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:600;width:100%;">Cancel</button>';
+    document.body.appendChild(overlay);
+    document.body.appendChild(container);
+    fetch('/api/create-paypal-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan: plan })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (!data.success) { alert('PayPal error: ' + data.error); overlay.remove(); return; }
+        if (window.paypal_sdk) {
+            window.paypal_sdk.Buttons({
+                createOrder: function() { return data.order_id; },
+                onApprove: function() {
+                    return fetch('/api/capture-paypal-order', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ order_id: data.order_id, plan: plan })
+                    })
+                    .then(function(r) { return r.json(); })
+                    .then(function(result) {
+                        overlay.remove();
+                        if (result.success) {
+                            alert('Paid via PayPal! Plan activated.');
+                            loadUserProfile();
+                            navigate('dashboard');
+                        } else {
+                            alert('Capture failed: ' + result.error);
+                        }
+                    });
+                },
+                onCancel: function() { overlay.remove(); },
+                onError: function() { overlay.remove(); alert('PayPal error. Try Razorpay.'); }
+            }).render('#paypal-btn-' + plan);
+        }
+    })
+    .catch(function(e) { overlay.remove(); alert('Error: ' + e.message); });
+}

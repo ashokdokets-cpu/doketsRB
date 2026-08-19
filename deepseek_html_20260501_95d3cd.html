@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResumeAI Pro — AI Resume Builder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a' },
+                        success: '#10b981', warning: '#f59e0b', danger: '#ef4444',
+                    },
+                },
+            },
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { margin: 0; font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <!-- NAVIGATION -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <a href="#" class="flex items-center gap-2 font-bold text-xl">
+                <span class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white text-sm">R</span>
+                ResumeAI Pro
+            </a>
+            <div class="flex gap-4">
+                <a href="#features" class="text-sm text-gray-600 hover:text-blue-600">Features</a>
+                <a href="#pricing" class="text-sm text-gray-600 hover:text-blue-600">Pricing</a>
+                <button onclick="alert('Sign up coming soon!')" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700">Sign Up Free</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="pt-28 pb-16 px-4 bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <div class="max-w-4xl mx-auto text-center">
+            <div class="inline-block bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full text-sm font-semibold mb-4">
+                🎯 AI-Powered Job Targeting
+            </div>
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 mb-4 leading-tight">
+                Build <span style="background:linear-gradient(135deg,#2563eb,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">ATS-Optimized</span> Resumes<br>That Get You Hired
+            </h1>
+            <p class="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+                Paste any job description. Our AI matches your skills, identifies gaps, generates tailored content, and exports a job-ready resume in minutes.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button onclick="alert('Builder coming soon!')" class="px-8 py-4 bg-blue-600 text-white rounded-xl font-bold text-lg hover:bg-blue-700 shadow-lg">
+                    Build Your Resume Free →
+                </button>
+                <button onclick="alert('Templates coming soon!')" class="px-8 py-4 bg-white text-gray-700 border-2 border-gray-200 rounded-xl font-semibold text-lg hover:border-blue-300">
+                    Browse Templates
+                </button>
+            </div>
+            <p class="text-sm text-gray-500 mt-6">✅ No credit card required • ✅ Free forever plan • ✅ PDF Export</p>
+        </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section id="features" class="py-20 px-4 bg-white">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-3xl font-extrabold text-center mb-12">Everything You Need</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-white p-8 rounded-2xl border border-gray-200 hover:shadow-xl transition">
+                    <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">🎯</div>
+                    <h3 class="text-xl font-bold mb-2">Job Targeting Engine</h3>
+                    <p class="text-gray-600 text-sm">Paste a JD and our AI instantly matches your skills, identifies gaps, and generates tailored content.</p>
+                </div>
+                <div class="bg-white p-8 rounded-2xl border border-gray-200 hover:shadow-xl transition">
+                    <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4">📊</div>
+                    <h3 class="text-xl font-bold mb-2">ATS Score Analysis</h3>
+                    <p class="text-gray-600 text-sm">Real-time scoring across 5 criteria — contact, summary, experience, education, and skills.</p>
+                </div>
+                <div class="bg-white p-8 rounded-2xl border border-gray-200 hover:shadow-xl transition">
+                    <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4">📄</div>
+                    <h3 class="text-xl font-bold mb-2">PDF Export</h3>
+                    <p class="text-gray-600 text-sm">One-click professional PDF generation. Print-ready and ATS-formatted.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRICING -->
+    <section id="pricing" class="py-20 px-4 bg-gray-50">
+        <div class="max-w-5xl mx-auto text-center">
+            <h2 class="text-3xl font-extrabold mb-4">Simple Pricing</h2>
+            <p class="text-gray-600 mb-10">Start free, upgrade when you're ready.</p>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-2xl p-8 border-2 border-gray-200">
+                    <h3 class="text-xl font-bold">Free</h3>
+                    <div class="text-4xl font-extrabold my-3">$0</div>
+                    <ul class="space-y-2 text-sm mb-6">
+                        <li>✅ 1 Resume</li>
+                        <li>✅ Basic ATS Check</li>
+                        <li>✅ PDF Export</li>
+                    </ul>
+                    <button class="w-full py-3 bg-gray-100 rounded-xl font-bold">Get Started</button>
+                </div>
+                <div class="bg-white rounded-2xl p-8 border-2 border-blue-600 shadow-xl relative scale-105">
+                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-bold">Most Popular</div>
+                    <h3 class="text-xl font-bold">Pro</h3>
+                    <div class="text-4xl font-extrabold my-3">$19/mo</div>
+                    <ul class="space-y-2 text-sm mb-6">
+                        <li>✅ Unlimited Resumes</li>
+                        <li>✅ AI Job Targeting</li>
+                        <li>✅ Full ATS Analysis</li>
+                        <li>✅ All Templates</li>
+                    </ul>
+                    <button class="w-full py-3 bg-blue-600 text-white rounded-xl font-bold">Start Pro</button>
+                </div>
+                <div class="bg-white rounded-2xl p-8 border-2 border-gray-200">
+                    <h3 class="text-xl font-bold">Enterprise</h3>
+                    <div class="text-4xl font-extrabold my-3">Custom</div>
+                    <ul class="space-y-2 text-sm mb-6">
+                        <li>✅ Everything in Pro</li>
+                        <li>✅ White-Label</li>
+                        <li>✅ API Access</li>
+                    </ul>
+                    <button class="w-full py-3 bg-gray-900 text-white rounded-xl font-bold">Contact Sales</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-gray-900 text-gray-400 py-10 text-center text-sm">
+        <p>© 2026 ResumeAI Pro. All rights reserved.</p>
+    </footer>
+
+    <script>
+        console.log('✅ ResumeAI Pro loaded successfully!');
+    </script>
+</body>
+</html>

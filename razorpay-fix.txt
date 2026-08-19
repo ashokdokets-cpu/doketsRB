@@ -1,0 +1,52 @@
+function initiateRazorpayPayment(plan) {
+    var currency = App.currency || 'INR';
+    fetch('/api/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan: plan, currency: currency })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (!data.success) { alert('Error: ' + data.error); return; }
+        var options = {
+            key: data.key,
+            amount: data.amount,
+            currency: data.currency,
+            name: 'ResumeAI Pro',
+            description: plan.toUpperCase() + ' Plan',
+            order_id: data.order_id,
+            handler: function(response) {
+                fetch('/api/verify-payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_order_id: response.razorpay_order_id,
+                        razorpay_signature: response.razorpay_signature,
+                        plan: plan
+                    })
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(result) {
+                    if (result.success) {
+                        alert('Payment verified! Plan activated.');
+                        loadUserProfile();
+                        navigate('dashboard');
+                    } else {
+                        alert('Verification failed: ' + result.error);
+                    }
+                });
+            },
+            prefill: {
+                name: App.resumeData.personal.fullName || '',
+                email: App.resumeData.personal.email || '',
+                contact: App.resumeData.personal.phone || ''
+            },
+            theme: { color: '#2563eb' }
+        };
+        var rzp = new Razorpay(options);
+        rzp.on('payment.failed', function(r) { alert('Payment failed: ' + r.error.description); });
+        rzp.open();
+    })
+    .catch(function(e) { alert('Error: ' + e.message); });
+}

@@ -1,0 +1,3 @@
+// Email Verification & Auth Enhancements
+async function checkEmailVerification(){if(!currentUser||!sbClient)return;try{var r=await sbClient.auth.getUser();if(r.data.user&&!r.data.user.email_confirmed_at){var b=document.getElementById('email-verify-banner');if(b)b.style.display='block'}}catch(e){}}
+async function resendVerificationEmail(){if(!sbClient||!currentUser){showError('Not logged in');return}showLoader();try{var r=await sbClient.auth.resend({type:'signup',email:currentUser.email});hideLoader();if(r.error)showError(r.error.message);else showSuccess('Verification email resent!')}catch(e){hideLoader();showError('Error resending.')}}
