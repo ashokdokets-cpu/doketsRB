@@ -3202,7 +3202,7 @@ Views['pro'] = function() {
             AUD: { symbol: 'A$', free: '0', pro: '21.99', annual: '139', annualMonthly: '11.58', lifetime: '699', enterprise: '449', jobhunt: '4.99' },
             SGD: { symbol: 'S$', free: '0', pro: '17.99', annual: '119', annualMonthly: '9.92', lifetime: '599', enterprise: '399', jobhunt: '3.99' },
         };
-        const c = currencies[currency];
+        const c = currencies[currency] || (window.extraCurrencies && window.extraCurrencies.find(function(x){return x.code === currency;}) ? { symbol: window.extraCurrencies.find(function(x){return x.code === currency;}).symbol, free: window.extraCurrencies.find(function(x){return x.code === currency;}).free_price, pro: window.extraCurrencies.find(function(x){return x.code === currency;}).pro_price, annual: window.extraCurrencies.find(function(x){return x.code === currency;}).annual_price, lifetime: window.extraCurrencies.find(function(x){return x.code === currency;}).lifetime_price, enterprise: window.extraCurrencies.find(function(x){return x.code === currency;}).enterprise_price, jobhunt: window.extraCurrencies.find(function(x){return x.code === currency;}).jobhunt_price } : currencies[currency] || currencies['USD']);
         
         const plans = [
             {
@@ -3925,6 +3925,7 @@ if (hash.includes('type=recovery') || hash.includes('access_token=')) {
 <script src="js/enhancv-features.js"></script>
 <script src="js/apply-enhancements.js"></script>
 <script src="js/enhance-preview.js"></script>
+<script src="js/pricing-loader.js"></script>
 <script src=""></script>
 <script src="js/career-enhancements.js"></script>
 <script src="js/extra-examples.js"></script>

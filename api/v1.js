@@ -135,3 +135,33 @@ module.exports.currencies = async function(req, res) {
     res.status(200).json({ success: false, currencies: [], error: e.message });
   }
 };
+
+// API: Get ALL currencies for pricing (7 original + 8 from Supabase)
+// SAFE: Separate file, doesn't modify existing APIs
+
+module.exports.pricing = async function(req, res) {
+  const SUPABASE_URL = 'https://arszgttojohsmzjiemgh.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFyc3pndHRvam9oc216amllbWdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3MTYwNTksImV4cCI6MjA5MzI5MjA1OX0.0Y6kM8cg0fERxlM0xTZu6AFzenfVY-USoNm6mJeg-dM';
+
+  try {
+    const response = await fetch(SUPABASE_URL + '/rest/v1/currencies?select=*&is_active=eq.true&order=display_order.asc', {
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+      }
+    });
+    
+    const currencies = await response.json();
+    
+    res.status(200).json({
+      success: true,
+      currencies: currencies || []
+    });
+  } catch(e) {
+    res.status(200).json({
+      success: false,
+      currencies: [],
+      error: e.message
+    });
+  }
+};
